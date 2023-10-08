@@ -6,6 +6,7 @@
 #
 
 # Link fd to fdfind.
+mkdir -p ~/.local/bin
 ln -s $(which fdfind) ~/.local/bin/fd
 
 # First, install the FiraCode Nerd Font.

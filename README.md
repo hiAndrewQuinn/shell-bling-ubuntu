@@ -19,8 +19,14 @@ curl https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/she
 chsh -s $(which fish)
 ````
 
-Log out, and log in again. 
+Close and reopen your terminal again.
 
 ```fish
 curl https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/shell-bling.fish | fish
 ```
+
+Close and reopen your terminal one more time.
+
+Then run `nvim`. You should see it pop up with all the neat little icons.
+
+![image](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/5bb4eafb-b9cf-43ef-841e-23638074e1d5)

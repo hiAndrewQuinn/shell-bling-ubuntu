@@ -16,7 +16,6 @@ fi
 echo 'Installing all the "normal" nice things.'
 
 # Get us any repositories we need to actually get this show on the road.
-add-apt-repository -y ppa:jonathonf/vim
 add-apt-repository -y ppa:neovim-ppa/unstable
 
 apt update -y

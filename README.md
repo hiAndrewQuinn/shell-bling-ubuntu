@@ -30,3 +30,57 @@ Close and reopen your terminal one more time.
 Then run `nvim`. You should see it pop up with all the neat little icons.
 
 ![image](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/5bb4eafb-b9cf-43ef-841e-23638074e1d5)
+
+## FAQ
+
+### What does it come with?
+
+Look in the scripts and see for yourself! But here's a quick one-line explanation of everything in here so far, and why you might find it useful:
+
+#### The Holy Trinity
+- [fzf](https://github.com/junegunn/fzf): **Fuzzy search _anything_.** The best thing since sliced bread. I love `fzf` so much I have [a whole blog post](https://andrew-quinn.me/fzf/) about it!
+  - Before you ask, **yes, this comes with the keybindings too!** `Ctrl+R` search in fish and `Alt-C` should work out of the box.
+- [fd](https://github.com/sharkdp/fd): **Fastest find in the West.** A simple, fast, and user-friendly alternative to the classic "find" command.
+  - Works _exceptionally_ well with `fzf` to find that specific file, whose name you know but just can't pin down, 7 or 8 subdirectories deep!
+  - ⚠️ Note that we **_do_ symlink this to the `fd` command**, which you have to do as an extra step on Ubuntu. (Otherwise it's just linked as `fdfind`, and really, who's going to go to the effort of typing _two more letters_ just to use something better than `find`?)
+- [ripgrep](https://github.com/BurntSushi/ripgrep): **Fastest grep in the West.** A line-oriented search tool that recursively searches your current directory for a regex pattern, faster than most other tools.
+  - Works _exceptionally_ well with `fzf` to find that specific line, in that specific file, 7 or 8 subdirectories deep!
+  - ⚠️ Note that **it is called `rg` at the command line**, as in `grep whatever` == `rg whatever`. _Not_ `ripgrep whatever`!
+
+#### Shells and Terminal Utilities
+- [fish](https://fishshell.com/): The **nicest out-of-the-box shell I've ever used**. Gives you autocomplete, in-shell highlighting, the works!
+- [starship](https://starship.rs): A **minimal, blazing-fast, and infinitely customizable prompt** for any shell! Shows the info you need while staying sleek and minimal. I like it especially because it works with bash, fish, PowerShell, elvish, you name it!
+- [tmux](https://github.com/tmux/tmux/wiki): A terminal multiplexer. Lets you work with **multiple terminal sessions in one window** and **long-running, detachable SSH sessions**, if, like me, you sometimes just want to remote into a machine once every 2 weeks for 6 months at a time without losing your place.
+- [kitty](https://sw.kovidgoyal.net/kitty/): A fast, feature-rich, GPU-based terminal emulator. (And the best one I know of which **supports ligatures!**)
+  - And to _get_ those ligatures, we set Kitty up to use [Fira Code by default](https://github.com/tonsky/FiraCode) everywhere!
+- [xclip](https://github.com/astrand/xclip): A command-line interface to the X11 clipboard, allowing you to **copy and paste between the terminal and GUI apps by piping to it.** Comes in handy way too often for me to live without!
+
+
+#### Text Editors and Viewers
+- [bat](https://github.com/sharkdp/bat): **cat but with syntax highlighting**. I'm entirely serious, it's a big improvement!
+- [micro](https://github.com/zyedidia/micro): **Finally, a command-line editor for non-Vimmers!** A modern and intuitive terminal-based text editor, similar to (but much nicer than!) the default `nano`.
+- [vim](https://www.vim.org/): **The OG.** An advanced text editor that's been around for decades, allowing efficient text editing with keyboard shortcuts.
+- [neovim](https://neovim.io/): A modern refactor of Vim, which has since spawned its own _huge_ community.
+  - ⚠️ **This installs the latest _unstable_ Neovim version,** not the woefully out-of-date one that comes by default with Ubuntu. We need this because we also install...
+    - [LazyVim](https://www.lazyvim.org), the only "full-featured" Neovim setup that actually [has instructions on how to install Copilot](https://www.lazyvim.org/extras/coding/copilot). (It's possible in all of them, but actually being documented was what won me over!)
+
+#### Development and Coding Tools
+- [git](https://git-scm.com/): **The GOAT.** The most widely used distributed VCS on the planet. Always surprised this doesn't come pre-installed!
+- [entr](https://github.com/eradman/entr): **Run $COMMAND when $FILE changes.** _Crazy_ useful for setting up quick little auto-compiling/testing loops during development, especially if you're using [tmux](https://github.com/tmux/tmux/wiki) or [kitty](https://sw.kovidgoyal.net/kitty/)'s tabs.
+- [gcc](https://gcc.gnu.org/): The GNU Compiler Collection, providing compilers for various programming languages. Needed for some of the stuff [LazyVim](https://www.lazyvim.org) installs.
+- [make](https://www.gnu.org/software/make/): A utility that automatically builds executable programs and libraries from source code. Needed for one of the packages [LazyVim](https://www.lazyvim.org) installs.
+
+#### File and Directory Utilities
+- [tree](http://mama.indstate.edu/users/ice/tree/): Displays directories as trees (with optional color and HTML output). I'm just always surprised this isn't installed by default!
+
+#### Data Manipulation and Viewing
+- [curl](https://curl.se/): A command-line tool for getting or sending data using URL syntax. It supports multiple protocols, making it a go-to for many web operations.
+- [jq](https://stedolan.github.io/jq/): A lightweight and flexible command-line JSON processor. A must-have for parsing and manipulating JSON data.
+- [gron](https://github.com/tomnomnom/gron): **Make JSON greppable!** by transforming it into discrete, greppable assignments. Pairs surprisingly nicely with `jq` if you use it to figure out what to actually _write_ in `jq`.
+- [csvkit](https://csvkit.readthedocs.io/en/latest/): **Your CSV scalpels,** because we all know what file format the business world _really_ runs on. (Plenty of other great options here! `xsv`, `miller`, and `csv-to-sqlite` to name a few! I chose this just because I like having separate commands for `csvjoin`, `csvcut`, etc.)
+
+#### System Monitoring and Search
+- [htop](https://hisham.hm/htop/): An interactive process viewer, providing a real-time, color-coded overview of running processes.
+
+
+If I've forgotten anything, let me know!

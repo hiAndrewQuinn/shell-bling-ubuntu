@@ -38,7 +38,8 @@ apt install -y fish \
 	gron \
 	csvkit \
 	entr \
-	xclip
+	xclip \
+        make
 
 snap install tldr \
 	cheat \

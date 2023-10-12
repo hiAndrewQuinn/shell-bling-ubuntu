@@ -35,6 +35,8 @@ apt install -y fish \
 	fd-find \
 	kitty \
 	gcc \
+        g++ \
+	lnav \
 	gron \
 	csvkit \
 	entr \

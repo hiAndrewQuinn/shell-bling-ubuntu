@@ -39,11 +39,10 @@ apt install -y fish \
 	csvkit \
 	entr \
 	xclip \
-	gcc \       # used for LazyVim.
-        g++ \       # used for LazyVim.
-	make \      # used for LazyVim.
-        nodejs      # used for LazyVim's Copilot integration.
-                    # If anyone wants to integrate a "--no-lazyvim" flag, be my guest :)
+	gcc \
+        g++ \
+	make \
+        nodejs
 
 snap install tldr \
 	cheat \

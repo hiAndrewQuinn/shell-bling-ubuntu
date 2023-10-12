@@ -2,6 +2,8 @@
 
 A few shell scripts to get us some command-line niceties, for a fresh new Ubuntu installation.
 
+
+
 ## Quickstart
 
 _From a brand spanking fresh new install of Ubuntu VM -- or even a Live USB!_
@@ -29,7 +31,20 @@ Close and reopen your terminal one more time.
 
 Then run `nvim`. You should see it pop up with all the neat little icons.
 
-![image](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/5bb4eafb-b9cf-43ef-841e-23638074e1d5)
+![VirtualBox_ubuntu-golden-02_12_10_2023_20_46_36-no_copilot](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/bb79a4e1-3aed-4f2c-b1f8-efa4789d3850)
+
+
+### Adding Copilot to Neovim
+
+LazyVim was the only Neovim setup that had instructions for integrating it with Github Copilot last I checked, and now it's even easier
+to install.
+
+1. Hit `e` to bring up "Lazy Extras".
+2. Go to `coding.copilot` and hit `x` to install it. Then `:q`uit Neovim and restart it.
+3. Finally, run `:Copilot auth` to start the authentication process.
+
+![VirtualBox_ubuntu-golden-02_12_10_2023_20_46_20](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/e4c3f3bc-9bc3-4939-89c1-98a527560f95)
+
 
 ## FAQ
 

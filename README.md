@@ -70,6 +70,13 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
   - And to _get_ those ligatures, we set Kitty up to use [Fira Code by default](https://github.com/tonsky/FiraCode) everywhere!
 - [xclip](https://github.com/astrand/xclip): A command-line interface to the X11 clipboard, allowing you to **copy and paste between the terminal and GUI apps by piping to it.** Comes in handy way too often for me to live without!
 
+#### Help Text ... Helpers
+- [tldr](https://tldr.sh/): **Simplified and community-driven man pages**. It offers quick references to common command-line tasks.
+- [cheat](https://github.com/cheat/cheat): Allows you to **create and view interactive cheatsheets** on the command-line. It was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.
+
+#### File and Directory Utilities
+- [lsd](https://github.com/Peltoche/lsd): A **modern version of the `ls` command** with a lot of improvements such as color support, icons, and more.
+- [tree](http://mama.indstate.edu/users/ice/tree/): Displays directories as trees (with optional color and HTML output). I'm just always surprised this isn't installed by default!
 
 #### Text Editors and Viewers
 - [bat](https://github.com/sharkdp/bat): **cat but with syntax highlighting**. I'm entirely serious, it's a big improvement!
@@ -82,20 +89,23 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
 #### Development and Coding Tools
 - [git](https://git-scm.com/): **The GOAT.** The most widely used distributed VCS on the planet. Always surprised this doesn't come pre-installed!
 - [entr](https://github.com/eradman/entr): **Run $COMMAND when $FILE changes.** _Crazy_ useful for setting up quick little auto-compiling/testing loops during development, especially if you're using [tmux](https://github.com/tmux/tmux/wiki) or [kitty](https://sw.kovidgoyal.net/kitty/)'s tabs.
-- [gcc](https://gcc.gnu.org/): The GNU Compiler Collection, providing compilers for various programming languages. Needed for some of the stuff [LazyVim](https://www.lazyvim.org) installs.
-- [make](https://www.gnu.org/software/make/): A utility that automatically builds executable programs and libraries from source code. Needed for one of the packages [LazyVim](https://www.lazyvim.org) installs.
-
-#### File and Directory Utilities
-- [tree](http://mama.indstate.edu/users/ice/tree/): Displays directories as trees (with optional color and HTML output). I'm just always surprised this isn't installed by default!
 
 #### Data Manipulation and Viewing
-- [curl](https://curl.se/): A command-line tool for getting or sending data using URL syntax. It supports multiple protocols, making it a go-to for many web operations.
 - [jq](https://stedolan.github.io/jq/): A lightweight and flexible command-line JSON processor. A must-have for parsing and manipulating JSON data.
 - [gron](https://github.com/tomnomnom/gron): **Make JSON greppable!** by transforming it into discrete, greppable assignments. Pairs surprisingly nicely with `jq` if you use it to figure out what to actually _write_ in `jq`.
 - [csvkit](https://csvkit.readthedocs.io/en/latest/): **Your CSV scalpels,** because we all know what file format the business world _really_ runs on. (Plenty of other great options here! `xsv`, `miller`, and `csv-to-sqlite` to name a few! I chose this just because I like having separate commands for `csvjoin`, `csvcut`, etc.)
 
 #### System Monitoring and Search
 - [htop](https://hisham.hm/htop/): An interactive process viewer, providing a real-time, color-coded overview of running processes.
+- [lnav](https://lnav.org/): An **advanced log file viewer** for the small-scale. It helps you navigate through your log files, and it can automatically identify and color-highlight different log file structures.
+
+
+#### Things Other Tihngs Here Need To Work Right
+- [curl](https://curl.se/): A command-line tool for getting or sending data using URL syntax. It supports multiple protocols, making it a go-to for many web operations. Needed to, well, `curl` the scripts here.
+- [gcc](https://gcc.gnu.org/): The GNU Compiler Collection, providing compilers for various programming languages. Needed for some of the stuff [LazyVim](https://www.lazyvim.org) installs.
+- [make](https://www.gnu.org/software/make/): A utility that automatically builds executable programs and libraries from source code. Needed for one of the packages [LazyVim](https://www.lazyvim.org) installs.
+- [g++](https://gcc.gnu.org/): The **GNU C++ compiler**. It's an essential tool for compiling C++ code. Needed for some of the stuff [LazyVim](https://www.lazyvim.org) installs.
+- [nodejs](https://nodejs.org/): A **JavaScript runtime** built on Chrome's V8 JavaScript engine. Essential for a variety of JavaScript tasks and development workflows. Needed for LazyVim's Copilot server.
 
 
 If I've forgotten anything, let me know!

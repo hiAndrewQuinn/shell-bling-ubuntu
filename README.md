@@ -39,7 +39,7 @@ Then run `nvim`. You should see it pop up with all the neat little icons.
 LazyVim was the only Neovim setup that had instructions for integrating it with Github Copilot last I checked, and now it's even easier
 to install.
 
-1. Hit `e` to bring up "Lazy Extras".
+1. Hit `e` to bring up "Lazy Extras". (It mmight also be `x` on your machine, look at the screen!)
 2. Go to `coding.copilot` and hit `x` to install it. Then `:q`uit Neovim and restart it.
 3. Finally, run `:Copilot auth` to start the authentication process.
 

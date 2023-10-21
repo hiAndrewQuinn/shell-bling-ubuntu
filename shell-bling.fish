@@ -13,12 +13,12 @@ curl -sS https://starship.rs/install.sh | sh -s -- --yes
 echo 'starship init fish | source' >>~/.config/fish/config.fish
 
 set editors_descriptions '
-micro    # Best for beginners.    Low learning curve.
-vim      # The original.          High learning curve.
-nvim     # Latest and greatest.   High learning curve.'
+micro    # 🕊️ Best for beginners.    📉 Low learning curve.
+vim      # 🥷 The original.          📈 High learning curve.
+nvim     # 💯 Latest and greatest.   📈 High learning curve.'
 
 # Use fzf to prompt the user to select an editor
-set selected_editor_description (echo $editors_descriptions | fzf --header "Select your default text editor.")
+set selected_editor_description (echo $editors_descriptions | fzf --header "Select your default text editor ✍️📑✒️")
 
 # If an editor was selected, extract the editor name and set it as the default editor for fish
 if test -n "$selected_editor_description"

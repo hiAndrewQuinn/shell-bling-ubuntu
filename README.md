@@ -8,6 +8,14 @@ A few shell scripts to get us some command-line niceties, for a fresh new Ubuntu
 
 _From a brand spanking fresh new install of Ubuntu VM!_
 
+### (optional) Bless your efforts
+
+Before you begin whatever you're doing, take a deep breath, and say,
+
+    *Satellite from days of old, lead me to your access code.*
+
+### Get the bling
+
 ```bash
 sudo apt install -y curl   # well it can't all be in a script!
 curl https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/shell-bling-sudo.bash | sudo bash
@@ -24,6 +32,7 @@ chsh -s $(which fish)
 Close and reopen your terminal again.
 
 ```fish
+# ⚠️ This will ask you DYNAMICALLY to pick your text editor.
 curl https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/shell-bling.fish | fish
 ```
 
@@ -34,7 +43,7 @@ Then run `nvim`. You should see it pop up with all the neat little icons.
 ![VirtualBox_ubuntu-golden-02_12_10_2023_20_46_36-no_copilot](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/bb79a4e1-3aed-4f2c-b1f8-efa4789d3850)
 
 
-### Adding Copilot to Neovim
+### (optional) Add Copilot to Neovim
 
 LazyVim was the only Neovim setup that had instructions for integrating it with Github Copilot last I checked, and now it's even easier
 to install.

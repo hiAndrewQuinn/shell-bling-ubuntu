@@ -109,9 +109,3 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
 
 
 If I've forgotten anything, let me know!
-
-### Can I use this on a Live USB?
-
-**I wouldn't recommend it** at this time. I am not totally sure why, but `shell-bling-sudo.bash` crashes an 8 GB RAM Ubuntu 23.04 VM every time I test it, even though `watch -n 1 free -m` reports that we have plenty of RAM to spare at the moment i crashes. (Those `apt autoremove && apt clean`s in `c49de9` and `1dd433` were included as a result of me trying to figure out a way around this.)
-
-If you happen to have any ideas, I"d love to hear them!

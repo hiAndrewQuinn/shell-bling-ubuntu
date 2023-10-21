@@ -51,9 +51,14 @@ snap install tldr \
 # Set kitty as our default terminal.
 update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/kitty 50
 
-echo -e "\033[1;33mPart 1 done.\033[0m"
+echo -e "\033[1;33mScript 1 done! Next up: shell-bling-user.bash.\033[0m"
 echo -e ""
-
-echo -e "\033[1;33mNext up: shell-bling-user.bash\033[0m"
+echo -e "\033[33mClose your terminal, and use Ctrl+Alt+T. This time you should open into the Kitty terminal emulator, not the stock Ubuntu one.\033[0m"
+echo -e ""
+echo -e "\033[33m    curl https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/shell-bling-user.bash | bash\033[0m"
+echo -e ""
+echo -e "\033[33m    chsh -s $(which fish)\033[0m"
+echo -e ""
+echo -e "\033[1;33m(This is also on the README.md!)\033[0m"
 
 exit 0

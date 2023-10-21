@@ -13,7 +13,7 @@ if [ "$(id -u)" != "0" ]; then
 	exit 1
 fi
 
-echo 'Installing all the "normal" nice things.'
+echo -e "\033[33mInstalling all the \"normal\" nice things.\033[0m"
 
 # Get us any repositories we need to actually get this show on the road.
 add-apt-repository -y ppa:neovim-ppa/unstable

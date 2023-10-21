@@ -6,7 +6,7 @@ A few shell scripts to get us some command-line niceties, for a fresh new Ubuntu
 
 ## Quickstart
 
-_From a brand spanking fresh new install of Ubuntu VM -- or even a Live USB!_
+_From a brand spanking fresh new install of Ubuntu VM!_
 
 ```bash
 sudo apt install -y curl   # well it can't all be in a script!
@@ -109,3 +109,7 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
 
 
 If I've forgotten anything, let me know!
+
+### Can I run this on a live USB?
+
+**I don't recommend it**; for some reason, every time I've tried these on a Live USB in a VM with 8 GB of RAM allocated to it, the VM shuts down mysteriously. Running `watch free -h` hasn't revealed to me any obvious out of RAM error, so I'm stumped! Can _you_ help me debug this mysterious issue?

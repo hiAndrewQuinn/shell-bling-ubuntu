@@ -57,7 +57,7 @@ echo -e "\033[33mClose your terminal, and use Ctrl+Alt+T. This time you should o
 echo -e ""
 echo -e "\033[33m    curl https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/shell-bling-user.bash | bash\033[0m"
 echo -e ""
-echo -e "\033[33m    chsh -s $(which fish)\033[0m"
+echo -e "\033[33m    chsh -s \$\(which fish\)\033[0m"
 echo -e ""
 echo -e "\033[1;33m(This is also on the README.md!)\033[0m"
 

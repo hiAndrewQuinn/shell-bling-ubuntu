@@ -6,7 +6,6 @@
 # Install fzf and the keybindings.
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install --all
-fzf_key_bindings
 
 # Install starship and add it to config.fish
 curl -sS https://starship.rs/install.sh | sh -s -- --yes

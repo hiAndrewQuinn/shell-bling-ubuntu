@@ -20,29 +20,29 @@ add-apt-repository -y ppa:neovim-ppa/unstable
 
 apt update -y
 
-apt install -y fish && apt -y clean
-apt install -y curl && apt -y clean
-apt install -y git && apt -y clean
-apt install -y micro && apt -y clean
-apt install -y ripgrep && apt -y clean
-apt install -y jq && apt -y clean
-apt install -y vim && apt -y clean
-apt install -y tmux && apt -y clean
-apt install -y neovim && apt -y clean
-apt install -y tree && apt -y clean
-apt install -y htop && apt -y clean
-apt install -y bat && apt -y clean
-apt install -y fd-find && apt -y clean
-apt install -y kitty && apt -y clean
-apt install -y lnav && apt -y clean
-apt install -y gron && apt -y clean
-apt install -y csvkit && apt -y clean
-apt install -y entr && apt -y clean
-apt install -y xclip && apt -y clean
-apt install -y gcc && apt -y clean
-apt install -y g++ && apt -y clean
-apt install -y make && apt -y clean
-apt install -y nodejs && apt -y clean
+apt install -y fish && apt -y autoremove && apt -y clean
+apt install -y curl && apt -y autoremove && apt -y clean
+apt install -y git && apt -y autoremove && apt -y clean
+apt install -y micro && apt -y autoremove && apt -y clean
+apt install -y ripgrep && apt -y autoremove && apt -y clean
+apt install -y jq && apt -y autoremove && apt -y clean
+apt install -y vim && apt -y autoremove && apt -y clean
+apt install -y tmux && apt -y autoremove && apt -y clean
+apt install -y neovim && apt -y autoremove && apt -y clean
+apt install -y tree && apt -y autoremove && apt -y clean
+apt install -y htop && apt -y autoremove && apt -y clean
+apt install -y bat && apt -y autoremove && apt -y clean
+apt install -y fd-find && apt -y autoremove && apt -y clean
+apt install -y kitty && apt -y autoremove && apt -y clean
+apt install -y lnav && apt -y autoremove && apt -y clean
+apt install -y gron && apt -y autoremove && apt -y clean
+apt install -y csvkit && apt -y autoremove && apt -y clean
+apt install -y entr && apt -y autoremove && apt -y clean
+apt install -y xclip && apt -y autoremove && apt -y clean
+apt install -y gcc && apt -y autoremove && apt -y clean
+apt install -y g++ && apt -y autoremove && apt -y clean
+apt install -y make && apt -y autoremove && apt -y clean
+apt install -y nodejs && apt -y autoremove && apt -y clean
 
 snap install tldr \
 	cheat \

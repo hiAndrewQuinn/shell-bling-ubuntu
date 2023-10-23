@@ -2,7 +2,23 @@
 
 A few shell scripts to get us some command-line niceties, for a fresh new Ubuntu installation.
 
-
+- [Shell Bling Ubuntu](#shell-bling-ubuntu)
+   * [Quickstart](#quickstart)
+      + [(optional) Bless your efforts](#optional-bless-your-efforts)
+      + [Get the bling](#get-the-bling)
+      + [(optional) Add Copilot to Neovim](#optional-add-copilot-to-neovim)
+   * [FAQ](#faq)
+      + [What does it come with?](#what-does-it-come-with)
+         - [The Holy Trinity](#the-holy-trinity)
+         - [Shells and Terminal Utilities](#shells-and-terminal-utilities)
+         - [Help Text ... Helpers](#help-text-helpers)
+         - [File and Directory Utilities](#file-and-directory-utilities)
+         - [Text Editors and Viewers](#text-editors-and-viewers)
+         - [Development and Coding Tools](#development-and-coding-tools)
+         - [Data Manipulation and Viewing](#data-manipulation-and-viewing)
+         - [System Monitoring and Search](#system-monitoring-and-search)
+         - [Things Other Tihngs Here Need To Work Right](#things-other-tihngs-here-need-to-work-right)
+      + [Can I run this on a live USB?](#can-i-run-this-on-a-live-usb)
 
 ## Quickstart
 

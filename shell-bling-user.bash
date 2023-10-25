@@ -11,8 +11,8 @@
 echo '' >>~/.bashrc
 echo '# Check if $HOME/.local/bin is not already in the PATH' >>~/.bashrc
 echo 'if [[ ! ":$PATH:" == *":$HOME/.local/bin:"* ]]; then' >>~/.bashrc
-echo '	# It is not in the PATH, so prepend it' >>~/.bashrc
-echo ' PATH="$HOME/.local/bin:$PATH"' >>~/.bashrc
+echo '  # It is not in the PATH, so prepend it' >>~/.bashrc
+echo '  PATH="$HOME/.local/bin:$PATH"' >>~/.bashrc
 echo 'fi' >>~/.bashrc
 echo '' >>~/.bashrc
 source ~/.bashrc

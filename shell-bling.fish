@@ -3,6 +3,11 @@
 # Finally, we're at the finish line. We have fish as our default shell, so now it's time to integrate some stuff.
 # TO BE RUN AS THE NORMAL USER.
 
+# Much like our bash hack, let's now ensure that Fish itself puts
+# ~/.local/bin in the path right from the start. This is thankfully
+# much easier!
+set -U fish_user_paths $HOME/.local/bin $fish_user_paths
+
 # Install fzf and the keybindings.
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install --all

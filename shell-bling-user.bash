@@ -5,9 +5,12 @@
 # Everything in here is meant to be run as your normal user, not root.
 #
 
-# Link fd to fdfind.
+# Link fd to fdfind. Then tell the shell to actually use the PATH corerctly.
 mkdir -p ~/.local/bin
 ln -s $(which fdfind) ~/.local/bin/fd
+export PATH="$HOME/.local/bin:$PATH"
+source ~/.bashrc
+hash -r fd
 
 # First, install the FiraCode Nerd Font.
 mkdir -p ~/.local/share/fonts

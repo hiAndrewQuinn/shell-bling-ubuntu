@@ -26,7 +26,7 @@ _From a brand spanking fresh new install of Ubuntu VM!_
 
 ### (optional) Bless your efforts
 
-Before you begin whatever you're doing, take a deep breath, and say,
+Before you begin whatever you're doing, take a deep breath, and [say](https://www.youtube.com/watch?v=mFo5UxECKA4)
 
     *Satellite from days of old, lead me to your access code.*
 

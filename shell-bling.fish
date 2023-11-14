@@ -3,6 +3,12 @@
 # Finally, we're at the finish line. We have fish as our default shell, so now it's time to integrate some stuff.
 # TO BE RUN AS THE NORMAL USER.
 
+# Add ~/.local/bin to your Fish path. (This is needed so that
+# anything, most importantly our `fd` symlink to `fdfind`,
+# works as intended.
+
+fish_add_path --universal ~/.local/bin
+
 # Install fzf and the keybindings.
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install --all

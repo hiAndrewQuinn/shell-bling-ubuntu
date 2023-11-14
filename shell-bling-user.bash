@@ -5,6 +5,18 @@
 # Everything in here is meant to be run as your normal user, not root.
 #
 
+# Starting off with a bit of a hack. If we want access to the
+# things in ~/.local/bin without restarting the VM outright, we
+# don't have much of a choice.
+echo '' >>~/.bashrc
+echo '# Check if $HOME/.local/bin is not already in the PATH' >>~/.bashrc
+echo 'if [[ ! ":$PATH:" == *":$HOME/.local/bin:"* ]]; then' >>~/.bashrc
+echo '  # It is not in the PATH, so prepend it' >>~/.bashrc
+echo '  PATH="$HOME/.local/bin:$PATH"' >>~/.bashrc
+echo 'fi' >>~/.bashrc
+echo '' >>~/.bashrc
+source ~/.bashrc
+
 # Link fd to fdfind.
 mkdir -p ~/.local/bin
 ln -s $(which fdfind) ~/.local/bin/fd

@@ -9,6 +9,10 @@
 
 fish_add_path --universal ~/.local/bin
 
+# Alias batcat to bat. (It's a little different in the Fish shell - I would say cleaner 💅)
+alias bat batcat
+funcsave bat
+
 # Add a 2 second penalty, just because this keeps tripping me up.
 alias ripgrep 'set_color red; echo -n "2 second penalty :: "; set_color normal; echo -n "The binary is called "; set_color green; echo -n "rg"; set_color normal; echo "."; sleep 2; rg'
 funcsave --quiet ripgrep

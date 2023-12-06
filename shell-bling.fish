@@ -9,6 +9,10 @@
 
 fish_add_path --universal ~/.local/bin
 
+# Add a 2 second penalty, just because this keeps tripping me up.
+alias ripgrep 'set_color red; echo -n "2 second penalty :: "; set_color normal; echo -n "The binary is called "; set_color green; echo -n "rg"; set_color normal; echo "."; sleep 2; rg'
+funcsave --quiet ripgrep
+
 # Install fzf and the keybindings.
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 ~/.fzf/install --all

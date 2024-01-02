@@ -122,7 +122,7 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
 - [lnav](https://lnav.org/): An **advanced log file viewer** for the small-scale. It helps you navigate through your log files, and it can automatically identify and color-highlight different log file structures.
 
 
-#### Things Other Tihngs Here Need To Work Right
+#### Things Other Things Here Need To Work Right
 - [curl](https://curl.se/): A command-line tool for getting or sending data using URL syntax. It supports multiple protocols, making it a go-to for many web operations. Needed to, well, `curl` the scripts here.
 - [gcc](https://gcc.gnu.org/): The GNU Compiler Collection, providing compilers for various programming languages. Needed for some of the stuff [LazyVim](https://www.lazyvim.org) installs.
 - [make](https://www.gnu.org/software/make/): A utility that automatically builds executable programs and libraries from source code. Needed for one of the packages [LazyVim](https://www.lazyvim.org) installs.

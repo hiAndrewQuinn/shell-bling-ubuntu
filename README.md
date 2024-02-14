@@ -6,6 +6,7 @@ A few shell scripts to get us some command-line niceties, for a fresh new Ubuntu
 * [FAQ](#faq)
   + [What does it come with?](#what-does-it-come-with)
   + [Can I run this on a live USB?](#can-i-run-this-on-a-live-usb)
+  + [Does this work on Ubuntu Server?](#does-this-work-on-ubuntu-server)
 
 ## 📹 Video - silent install, 2023.12.06
 
@@ -135,3 +136,11 @@ If I've forgotten anything, let me know!
 ### Can I run this on a live USB?
 
 **I don't recommend it**; for some reason, every time I've tried these on a Live USB in a VM with 8 GB of RAM allocated to it, the VM shuts down mysteriously. Running `watch free -h` hasn't revealed to me any obvious out of RAM error, so I'm stumped! Can _you_ help me debug this mysterious issue?
+
+### Does this work on Ubuntu Server?
+
+**Yes!** Here's a Raspberry Pi SSH connection (using `kitty +kitten ssh` for [true convenience](https://sw.kovidgoyal.net/kitty/kittens/ssh/)) running Ubuntu Server 23.10. I had no issues at all installing it:
+
+![image](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/a560e67d-27d2-4563-915b-2f3f40213851)
+
+![image](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/7ea13026-eddf-40be-b817-5dac1eeaf5b1)

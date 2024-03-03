@@ -144,3 +144,9 @@ If I've forgotten anything, let me know!
 ![image](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/a560e67d-27d2-4563-915b-2f3f40213851)
 
 ![image](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/7ea13026-eddf-40be-b817-5dac1eeaf5b1)
+
+### Where else does this work?
+
+Here's a list of places your humble author has ran these scripts and found them to work unaltered:
+
+- [Laravel](https://laravel.com/)'s [Homestead](https://laravel.com/docs/8.x/homestead) VM.

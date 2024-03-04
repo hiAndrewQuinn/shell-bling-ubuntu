@@ -51,6 +51,26 @@ mv ~/.cache/nvim{,.bak}
 git clone https://github.com/LazyVim/starter ~/.config/nvim
 rm -rf ~/.config/nvim/.git
 
+# Set git-delta as the default pager for git.
+cat <<EOF >>~/.gitconfig
+
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true    # use n and N to move between diff sections
+    light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
+
+[merge]
+    conflictstyle = diff3
+
+[diff]
+    colorMoved = default
+EOF
+
 echo -e "\033[1m\033[93mPart 2 done. Now run\033[0m"
 echo -e "\033[1m\033[93m\033[0m"
 echo -e "\033[1m\033[93m    nvim\033[0m"

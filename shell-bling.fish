@@ -34,6 +34,7 @@ nvim     # 💯 Latest and greatest.   📈 High learning curve.'
 # Use fzf to prompt the user to select an editor
 set selected_editor_description (echo $editors_descriptions | fzf --header "Select your default text editor ✍️📑✒️")
 
+
 # If an editor was selected, extract the editor name and set it as the default editor for fish
 if test -n "$selected_editor_description"
     set selected_editor (echo $selected_editor_description | cut -d' ' -f1)

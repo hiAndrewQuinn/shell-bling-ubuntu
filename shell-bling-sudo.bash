@@ -31,6 +31,7 @@ apt install -y fish \
 	neovim \
 	tree \
 	htop \
+	git-delta \
 	bat \
 	fd-find \
 	kitty \
@@ -40,9 +41,9 @@ apt install -y fish \
 	entr \
 	xclip \
 	gcc \
-        g++ \
+	g++ \
 	make \
-        nodejs
+	nodejs
 
 snap install tldr \
 	cheat \

@@ -47,7 +47,10 @@ apt install -y fish \
 
 snap install tldr \
 	cheat \
+	bottom \
 	lsd || true
+
+snap install helix --classic || true
 
 # Set kitty as our default terminal.
 update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/kitty 50

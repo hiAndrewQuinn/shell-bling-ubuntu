@@ -109,6 +109,7 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
 - [neovim](https://neovim.io/): A modern refactor of Vim, which has since spawned its own _huge_ community.
   - ⚠️ **This installs the latest _unstable_ Neovim version,** not the woefully out-of-date one that comes by default with Ubuntu. We need this because we also install...
     - [LazyVim](https://www.lazyvim.org), the only "full-featured" Neovim setup that actually [has instructions on how to install Copilot](https://www.lazyvim.org/extras/coding/copilot). (It's possible in all of them, but actually being documented was what won me over!)
+- [helix](https://helix-editor.com/): **Post-modern, zero-config.** A terminal-based text editor that's _actually_ modern and intuitive, with a focus on speed and minimalism.
 
 #### Development and Coding Tools
 - [git](https://git-scm.com/): **The GOAT.** The most widely used distributed VCS on the planet. Always surprised this doesn't come pre-installed!
@@ -123,6 +124,7 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
 #### System Monitoring and Search
 - [htop](https://hisham.hm/htop/): An interactive process viewer, providing a real-time, color-coded overview of running processes.
 - [lnav](https://lnav.org/): An **advanced log file viewer** for the small-scale. It helps you navigate through your log files, and it can automatically identify and color-highlight different log file structures.
+- [bottom](https://github.com/ClementTsang/bottom): **CPU usage graphs? In _my_ terminal?** It's more likely than you think.
 
 
 #### Things Other Things Here Need To Work Right

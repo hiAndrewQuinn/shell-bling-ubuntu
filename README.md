@@ -31,6 +31,7 @@ Before you begin whatever you're doing, take a deep breath, and [say](https://ww
 ### Get the bling
 
 ```bash
+sudo apt update
 sudo apt install -y curl   # well it can't all be in a script!
 curl https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/shell-bling-sudo.bash | sudo bash
 ```

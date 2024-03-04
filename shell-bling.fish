@@ -36,7 +36,7 @@ set editors_descriptions '
 micro    # 🕊️ Best for beginners.    📉 Low learning curve.
 vim      # 🥷 The original.          📈 High learning curve.
 nvim     # 💯 Latest and greatest.   📈 High learning curve.
-hx       # 🧬 An elegant weapon.     🕴️ Unknown learning curve.'
+hx       # 🧬 An elegant weapon.     🕴️ Fun learning curve.'
 
 # Use fzf to prompt the user to select an editor
 set selected_editor_description (echo $editors_descriptions | fzf --header "Select your default text editor ✍️📑✒️")

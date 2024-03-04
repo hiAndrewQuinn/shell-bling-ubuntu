@@ -61,7 +61,7 @@ echo -e "\033[33mClose your terminal, and use Ctrl+Alt+T. This time you should o
 echo -e ""
 echo -e "\033[33m    curl https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/shell-bling-user.bash | bash\033[0m"
 echo -e ""
-echo -e "\033[33m    chsh -s \$(which fish)\033[0m"
+echo -e "\x1B[33m(You can \x1B[34mcopy\x1B[33m terminal lines with \x1B[34mCtrl+Shift+C\x1B[33m, and \x1B[31mpaste\x1B[33m into them with \x1B[31mCtrl+Shift+V\x1B[33m.)\x1B[0m"
 echo -e ""
 echo -e "\033[1;33m(This is also on the README.md!)\033[0m"
 

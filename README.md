@@ -98,6 +98,7 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
 - [cheat](https://github.com/cheat/cheat): Allows you to **create and view interactive cheatsheets** on the command-line. It was designed to help remind *nix system administrators of options for commands that they use frequently, but not frequently enough to remember.
 
 #### File and Directory Utilities
+- [zoxide](https://github.com/ajeetdsouza/zoxide): **A smarter `cd`** that learns your habits and preferences over time!
 - [lsd](https://github.com/Peltoche/lsd): A **modern version of the `ls` command** with a lot of improvements such as color support, icons, and more.
 - [tree](http://mama.indstate.edu/users/ice/tree/): Displays directories as trees (with optional color and HTML output). I'm just always surprised this isn't installed by default!
 
@@ -111,7 +112,7 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
 
 #### Development and Coding Tools
 - [git](https://git-scm.com/): **The GOAT.** The most widely used distributed VCS on the planet. Always surprised this doesn't come pre-installed!
-- [delta](https://github.com/dandavison/delta): Never get confused by `git diff` again! A viewer for git and diff output with syntax highlighting and line numbers.
+  - [git-delta](https://github.com/dandavison/delta): Never get confused by `git diff` again! A viewer for git and diff output with syntax highlighting and line numbers.
 - [entr](https://github.com/eradman/entr): **Run $COMMAND when $FILE changes.** _Crazy_ useful for setting up quick little auto-compiling/testing loops during development, especially if you're using [tmux](https://github.com/tmux/tmux/wiki) or [kitty](https://sw.kovidgoyal.net/kitty/)'s tabs.
 
 #### Data Manipulation and Viewing

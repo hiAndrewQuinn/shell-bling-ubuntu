@@ -23,8 +23,14 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 
 # Install starship and add it to config.fish
 curl -sS https://starship.rs/install.sh | sh -s -- --yes
-
 echo 'starship init fish | source' >>~/.config/fish/config.fish
+
+# Install the latest zoxide and source it in the config.fish
+curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+echo 'zoxide init fish | source' >>~/.config/fish/config.fish
+
+
+
 
 set editors_descriptions '
 micro    # 🕊️ Best for beginners.    📉 Low learning curve.

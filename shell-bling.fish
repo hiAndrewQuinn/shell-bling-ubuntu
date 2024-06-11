@@ -57,6 +57,22 @@ else
     set_color normal
 end
 
+
+# Download the show_random_whatis.fish script
+curl -sS https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/show_random_whatis.fish -o ~/.config/fish/functions/show_random_whatis.fish
+
+# Append the custom fish_greeting to the config.fish
+
+echo '' >>~/.config/fish/config.fish
+echo '' >>~/.config/fish/config.fish
+echo '# Courtesy of Shell Bling Ubuntu.' >>~/.config/fish/config.fish
+echo 'function fish_greeting' >>~/.config/fish/config.fish
+echo '    echo -e "\033[34mWelcome to fish, the friendly interactive shell\033[0m"' >>~/.config/fish/config.fish
+echo '    echo -e "Type \033[32mhelp\033[0m for instructions on how to use fish"' >>~/.config/fish/config.fish
+echo '    echo' >>~/.config/fish/config.fish
+echo '    show_random_whatis' >>~/.config/fish/config.fish
+echo end >>~/.config/fish/config.fish
+
 set_color -o yellow
 echo 'INSTALLATION COMPLETE.'
 echo ''

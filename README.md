@@ -10,17 +10,16 @@ A few shell scripts to get us some command-line niceties, for a fresh new Ubuntu
 
 ## 📹 Video - silent install, 2023.12.06
 
-[output-fast.webm](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/afde99fe-0c3a-4790-bf9a-6476c5dd4c62)
+[Ubuntu-04-screen0_10x.webm](https://github.com/hiAndrewQuinn/shell-bling-ubuntu/assets/53230903/916e83a1-ba33-4969-a477-d1e1d149e79c)
 
-The above is 10x to give a feel for how the commands work, it usually takes 5 to 10 minutes.
 
-Normal-speed video: https://youtu.be/Nhf2YqibBqk?si=3AMowDq1fumrCmP-
+The above is 10x to give a feel for how the commands work, it usually takes 5 to 10 minutes. [Normal-speed video here.](https://www.youtube.com/watch?v=dytkLqD674k)
 
 
 
 ## Quickstart
 
-_From a brand spanking fresh new install of Ubuntu VM!_
+_From a brand spanking fresh new install of **Ubuntu 24.04**!_
 
 ### (optional) Bless your efforts
 

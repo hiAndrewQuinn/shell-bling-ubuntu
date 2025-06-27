@@ -9,8 +9,8 @@
 set -euo pipefail
 # If not su, sudo, or root, exit.
 if [ "$(id -u)" != "0" ]; then
-	echo "This script must be run as root. Exiting."
-	exit 1
+  echo "This script must be run as root. Exiting."
+  exit 1
 fi
 
 echo -e "\033[33mInstalling all the \"normal\" nice things.\033[0m"
@@ -21,34 +21,34 @@ add-apt-repository -y ppa:neovim-ppa/unstable
 apt update -y
 
 apt install -y fish \
-	curl \
-	git \
-	micro \
-	ripgrep \
-	jq \
-	vim \
-	tmux \
-	neovim \
-	tree \
-	htop \
-	git-delta \
-	bat \
-	fd-find \
-	kitty \
-	lnav \
-	gron \
-	csvkit \
-	entr \
-	xclip \
-	gcc \
-	g++ \
-	make \
-	nodejs
+  curl \
+  git \
+  micro \
+  ripgrep \
+  jq \
+  vim-gtk3 \
+  tmux \
+  neovim \
+  tree \
+  htop \
+  git-delta \
+  bat \
+  fd-find \
+  kitty \
+  lnav \
+  gron \
+  csvkit \
+  entr \
+  xclip \
+  gcc \
+  g++ \
+  make \
+  nodejs
 
 snap install tldr \
-	cheat \
-	bottom \
-	lsd || true
+  cheat \
+  bottom \
+  lsd || true
 
 snap install helix --classic || true
 

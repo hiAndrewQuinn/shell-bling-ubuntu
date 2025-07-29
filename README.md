@@ -4,6 +4,7 @@ A few shell scripts to get us some command-line niceties, for a fresh new Ubuntu
 
 * [Quickstart](#quickstart)
 * [FAQ](#faq)
+  + [What versions of Ubuntu does it work on?](#what-versions-of-ubuntu-does-it-work-on)
   + [What does it come with?](#what-does-it-come-with)
   + [Can I run this on a live USB?](#can-i-run-this-on-a-live-usb)
   + [Does this work on Ubuntu Server?](#does-this-work-on-ubuntu-server)
@@ -71,6 +72,29 @@ to install.
 
 ## FAQ
 
+### What versions of Ubuntu does it work on?
+
+| ✅/⚠️/❌ | Ubuntu version | YouTube video | ISO image SHA1 hash | ISO image MD5 hash | Date tested (YYYY-MM-DD) | SBU Git commit tested |
+|----------|----------------|---------------|---------------------|--------------------|--------------------------|-----------------------|
+| ✅       | 24.04.02       |               | 5ebad9f44adaf55f40d9a5430f9a02b655ddfd4b | 094aefdb1dbbdad8aa99600f8413789b | 2025-06-27 | 894e01bb1c1f271529a5f45c9f10262c6a7bf986 |
+
+I test these scripts on a best-effort basis, when I have time. To test them I:
+
+1. Download a fresh Ubuntu ISO from ubuntu.com;
+2. Set it up in a fresh VirtualBox machine;
+3. Clone that VM to a new test install VM; and
+4. Run through the instructions exactly as they are above.
+
+If everything looks hunky dory, I add a ✅ to the table above.
+Then I clone the VM again, turn on video recording, do a full installation, and
+upload it to Youtube. Finally I put *that* install into the table above.
+
+What do I mean by "hunky dory"? Mostly I just test out all of the commands
+below by hand. The scripts are intentionally kept as simple as I can possibly
+make them, so that even in the event something breaks, it is possible for you,
+dear user, to quickly debug it without actually needing to know how e.g. Ansible
+works.
+
 ### What does it come with?
 
 Look in the scripts and see for yourself! But here's a quick one-line explanation of everything in here so far, and why you might find it useful:
@@ -114,6 +138,7 @@ Look in the scripts and see for yourself! But here's a quick one-line explanatio
 #### Development and Coding Tools
 - [git](https://git-scm.com/): **The GOAT.** The most widely used distributed VCS on the planet. Always surprised this doesn't come pre-installed!
   - [git-delta](https://github.com/dandavison/delta): Never get confused by `git diff` again! A viewer for git and diff output with syntax highlighting and line numbers.
+- [lazygit](https://github.com/jesseduffield/lazygit): The best full-terminal display I've ever seen for Git. Integrates with LazyVim out of the box, too, just do `Space-g-g`.
 - [entr](https://github.com/eradman/entr): **Run $COMMAND when $FILE changes.** _Crazy_ useful for setting up quick little auto-compiling/testing loops during development, especially if you're using [tmux](https://github.com/tmux/tmux/wiki) or [kitty](https://sw.kovidgoyal.net/kitty/)'s tabs.
 
 #### Data Manipulation and Viewing
@@ -154,3 +179,30 @@ If I've forgotten anything, let me know!
 Here's a list of places your humble author has ran these scripts and found them to work unaltered:
 
 - [Laravel](https://laravel.com/)'s [Homestead](https://laravel.com/docs/8.x/homestead) VM.
+
+## Testing
+
+### Docker-based Testing
+
+You can test the installation scripts in a containerized environment:
+
+```bash
+# Build the Docker image
+docker build -t shell-bling-test .
+
+# Run the test suite
+docker run --rm shell-bling-test bash /home/testuser/test-installations.sh
+
+# Or run interactively to explore
+docker run -it --rm shell-bling-test fish
+```
+
+### Manual Testing
+
+The `test-installations.sh` script verifies that all tools are properly installed:
+
+```bash
+./test-installations.sh
+```
+
+This will check for the presence of all installed commands, configuration files, and proper symlink setup.

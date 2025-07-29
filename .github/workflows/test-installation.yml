@@ -1,0 +1,80 @@
+name: Test Shell Bling Installation
+
+on:
+  push:
+    branches: [ main, feat/containerized-testing ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-docker:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ubuntu-version: ['24.04', '22.04']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build Docker image
+      run: |
+        docker build \
+          --build-arg UBUNTU_VERSION=${{ matrix.ubuntu-version }} \
+          -t shell-bling-test:${{ matrix.ubuntu-version }} \
+          -f Dockerfile \
+          .
+    
+    - name: Run installation test
+      run: |
+        docker run --rm \
+          shell-bling-test:${{ matrix.ubuntu-version }} \
+          bash /home/testuser/test-installations.sh
+
+  test-direct:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run sudo installation script
+      run: |
+        sudo ./shell-bling-sudo.bash
+    
+    - name: Run user installation script
+      run: |
+        ./shell-bling-user.bash
+    
+    - name: Install fish shell configuration (non-interactive)
+      run: |
+        # Set up fish path
+        fish -c "fish_add_path --universal ~/.local/bin"
+        
+        # Create fish config directory
+        mkdir -p ~/.config/fish
+        
+        # Set up aliases and functions
+        fish -c "alias bat batcat; funcsave bat"
+        
+        # Install fzf
+        git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+        ~/.fzf/install --all --no-bash --no-zsh
+        
+        # Install starship
+        curl -sS https://starship.rs/install.sh | sh -s -- --yes
+        echo 'starship init fish | source' >> ~/.config/fish/config.fish
+        
+        # Install zoxide
+        curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+        echo 'zoxide init fish | source' >> ~/.config/fish/config.fish
+        
+        # Set default editor to micro for testing
+        echo "set -gx EDITOR micro" >> ~/.config/fish/config.fish
+        echo "set -gx VISUAL micro" >> ~/.config/fish/config.fish
+        
+        # Copy show_random_whatis function
+        mkdir -p ~/.config/fish/functions
+        cp show_random_whatis.fish ~/.config/fish/functions/
+    
+    - name: Run installation tests
+      run: |
+        bash test-installations.sh

@@ -197,6 +197,42 @@ docker run --rm shell-bling-test bash /home/testuser/test-installations.sh
 docker run -it --rm shell-bling-test fish
 ```
 
+### Interactive Docker Testing
+
+For a more hands-on testing experience:
+
+```bash
+# Using Docker Compose (recommended)
+docker-compose up -d
+docker-compose exec shell-bling fish
+
+# Or using the interactive Dockerfile
+docker build -f Dockerfile.interactive -t shell-bling-interactive .
+docker run -it --rm --name shell-bling-test shell-bling-interactive
+
+# Inside the container, complete the fish setup:
+/tmp/shell-bling.fish  # This will prompt for editor selection
+
+# Exit and re-enter to see the full setup
+exit
+docker exec -it shell-bling-test fish
+
+# Run tests inside the container
+./test-installations.sh
+```
+
+### Testing Different Ubuntu Versions
+
+```bash
+# Test with Ubuntu 22.04
+UBUNTU_VERSION=22.04 docker-compose up -d
+docker-compose exec shell-bling fish
+
+# Test with Ubuntu 24.04 (default)
+docker-compose up -d
+docker-compose exec shell-bling fish
+```
+
 ### Manual Testing
 
 The `test-installations.sh` script verifies that all tools are properly installed:

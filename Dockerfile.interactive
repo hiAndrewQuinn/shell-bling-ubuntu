@@ -1,0 +1,58 @@
+# Interactive Dockerfile that stops before running fish config
+# This allows manual testing of the fish configuration script
+
+ARG UBUNTU_VERSION=24.04
+FROM ubuntu:${UBUNTU_VERSION}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install essential packages
+RUN apt-get update && apt-get install -y \
+    sudo \
+    curl \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create test user
+RUN useradd -m -s /bin/bash testuser && \
+    echo 'testuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# Copy scripts
+COPY shell-bling-sudo.bash /tmp/
+COPY shell-bling-user.bash /tmp/
+COPY shell-bling.fish /tmp/
+COPY show_random_whatis.fish /tmp/
+
+# Make executable
+RUN chmod +x /tmp/*.bash /tmp/*.fish
+
+# Run sudo installation
+RUN /tmp/shell-bling-sudo.bash
+
+# Switch to testuser
+USER testuser
+WORKDIR /home/testuser
+
+# Run user installation
+RUN /tmp/shell-bling-user.bash
+
+# Set fish as default shell
+USER root
+RUN chsh -s $(which fish) testuser
+USER testuser
+
+# Copy test script
+COPY --chown=testuser:testuser test-installations.sh /home/testuser/
+
+# Create a setup script for the final fish configuration
+RUN echo '#!/bin/bash' > /home/testuser/setup-fish.sh && \
+    echo 'echo "To complete the setup, run:"' >> /home/testuser/setup-fish.sh && \
+    echo 'echo "  /tmp/shell-bling.fish"' >> /home/testuser/setup-fish.sh && \
+    echo 'echo ""' >> /home/testuser/setup-fish.sh && \
+    echo 'echo "This will prompt you to select your default editor."' >> /home/testuser/setup-fish.sh && \
+    echo 'echo "After that, exit and re-enter the container to see the full setup."' >> /home/testuser/setup-fish.sh && \
+    chmod +x /home/testuser/setup-fish.sh
+
+# Start with fish
+SHELL ["/usr/bin/fish", "-c"]
+CMD ["/usr/bin/fish"]

@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  shell-bling:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UBUNTU_VERSION: ${UBUNTU_VERSION:-24.04}
+    image: shell-bling-test:${UBUNTU_VERSION:-24.04}
+    container_name: shell-bling-test
+    stdin_open: true
+    tty: true
+    volumes:
+      # Mount the scripts as read-only for testing modifications
+      - ./shell-bling-sudo.bash:/tmp/shell-bling-sudo.bash:ro
+      - ./shell-bling-user.bash:/tmp/shell-bling-user.bash:ro
+      - ./shell-bling.fish:/tmp/shell-bling.fish:ro
+      - ./show_random_whatis.fish:/tmp/show_random_whatis.fish:ro
+      - ./test-installations.sh:/home/testuser/test-installations.sh:ro
+    environment:
+      - TERM=xterm-256color
+    command: /usr/bin/fish

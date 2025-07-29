@@ -182,63 +182,34 @@ Here's a list of places your humble author has ran these scripts and found them 
 
 ## Testing
 
-### Docker-based Testing
+Shell Bling Ubuntu includes comprehensive Docker-based testing infrastructure to validate installations without needing VMs.
 
-You can test the installation scripts in a containerized environment:
+### Quick Test
 
 ```bash
-# Build the Docker image
-docker build -t shell-bling-test .
-
-# Run the test suite
+# Run automated tests
+docker build -t shell-bling-test . && \
 docker run --rm shell-bling-test bash /home/testuser/test-installations.sh
-
-# Or run interactively to explore
-docker run -it --rm shell-bling-test fish
 ```
 
-### Interactive Docker Testing
-
-For a more hands-on testing experience:
+### Interactive Testing
 
 ```bash
-# Using Docker Compose (recommended)
+# Start test environment
 docker-compose up -d
 docker-compose exec shell-bling fish
 
-# Or using the interactive Dockerfile
-docker build -f Dockerfile.interactive -t shell-bling-interactive .
-docker run -it --rm --name shell-bling-test shell-bling-interactive
-
-# Inside the container, complete the fish setup:
-/tmp/shell-bling.fish  # This will prompt for editor selection
-
-# Exit and re-enter to see the full setup
-exit
-docker exec -it shell-bling-test fish
-
-# Run tests inside the container
-./test-installations.sh
+# When done, clean up
+docker-compose down && docker rmi shell-bling-test:24.04
 ```
 
-### Testing Different Ubuntu Versions
+### Comprehensive Testing Guide
 
-```bash
-# Test with Ubuntu 22.04
-UBUNTU_VERSION=22.04 docker-compose up -d
-docker-compose exec shell-bling fish
+For detailed testing instructions, including:
+- Multiple testing methods (Docker Compose, interactive containers, one-off tests)
+- Testing different Ubuntu versions
+- Complete setup and teardown procedures
+- Troubleshooting common issues
+- Integration with development workflows
 
-# Test with Ubuntu 24.04 (default)
-docker-compose up -d
-docker-compose exec shell-bling fish
-```
-
-### Manual Testing
-
-The `test-installations.sh` script verifies that all tools are properly installed:
-
-```bash
-./test-installations.sh
-```
-
-This will check for the presence of all installed commands, configuration files, and proper symlink setup.
+See **[TESTING.md](TESTING.md)** for the complete guide.

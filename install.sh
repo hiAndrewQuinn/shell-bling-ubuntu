@@ -112,11 +112,11 @@ log "Installing universal packages"
 case "$DISTRO" in
   ubuntu | debian)
     pkg_install \
-      curl git ca-certificates gnupg \
+      curl git ca-certificates gnupg unzip \
       fish \
       ripgrep jq tmux tree htop \
       bat fd-find xclip lnav gron \
-      micro csvkit \
+      micro \
       gcc g++ make nodejs
     # vim-gtk3 only available where a GUI stack is present; fall back to vim.
     pkg_install vim-gtk3 2> /dev/null || pkg_install vim
@@ -139,7 +139,7 @@ case "$DISTRO" in
 esac
 
 # ---------- per-tool installers (snap-free, arch-aware) -----------------------
-for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass tldr gh cheat delta; do
+for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass tldr gh cheat delta qsv rustup go; do
   # shellcheck source=/dev/null
   . "$_lib_dir/tools/$_t.sh"
   "install_$_t" || warn "install_$_t failed (continuing)"

@@ -3,9 +3,9 @@
 
 platform_macos_universal_pkgs() {
   echo "fish curl git ripgrep jq vim tmux tree htop bat fd kitty \
-        gcc make node git-delta lnav csvkit gron entr cheat lsd \
+        gcc make node git-delta lnav gron entr cheat lsd \
         helix neovim eza gh starship zoxide tealdeer gopass uv \
-        lazygit tldr fzf"
+        lazygit tldr fzf qsv rustup-init go"
 }
 
 platform_macos_preflight() {

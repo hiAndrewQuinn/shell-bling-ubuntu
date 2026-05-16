@@ -132,7 +132,25 @@ install_deb() {
 }
 
 # github_latest_tag OWNER/REPO — print the latest release tag (strips leading v).
+# Two strategies, used in order:
+#   1. The HTML redirect at github.com/<repo>/releases/latest → /tag/<tag>.
+#      Doesn't count against the (60/hour, IP-scoped, unauthenticated)
+#      api.github.com rate limit. Survives 403 errors that hit Docker /
+#      shared-IP installers in bursts.
+#   2. The JSON API at api.github.com/repos/<repo>/releases/latest as
+#      a fallback (informative error fields when the redirect strategy
+#      breaks for a repo with no formal "latest" release).
 github_latest_tag() {
+  _tag=$(curl --fail --silent --show-error --location --head \
+    --retry 3 --retry-delay 2 \
+    -o /dev/null -w '%{url_effective}\n' \
+    "https://github.com/$1/releases/latest" 2> /dev/null |
+    sed -n 's|.*/releases/tag/v\{0,1\}\(.*\)|\1|p' |
+    head -n 1 | tr -d '\r\n')
+  if [ -n "$_tag" ]; then
+    printf '%s\n' "$_tag"
+    return 0
+  fi
   curl --fail --silent --show-error --location \
     --retry 3 --retry-delay 2 \
     "https://api.github.com/repos/$1/releases/latest" |

@@ -4,8 +4,9 @@
 
 run_pickers() {
   if [ "${SHELL_BLING_NONINTERACTIVE:-0}" = 1 ]; then
-    log "Non-interactive mode; defaulting EDITOR to nvim, skipping chsh"
+    log "Non-interactive mode; defaulting EDITOR to nvim, chsh-ing to fish"
     fish_set_editor nvim
+    _chsh_to_fish
     return 0
   fi
   if ! has_cmd fzf; then
@@ -14,6 +15,33 @@ run_pickers() {
   fi
   _pick_editor
   _pick_shell
+}
+
+# Idempotent chsh to fish. Used by both the non-interactive path and the
+# interactive "yes" branch. Ensures /etc/shells lists fish first.
+_chsh_to_fish() {
+  has_cmd fish || return 0
+  has_cmd chsh || {
+    warn "chsh not available; skipping login shell switch"
+    return 0
+  }
+  _fish=$(command -v fish)
+  # Ensure fish is a registered login shell.
+  if ! grep -qxF "$_fish" /etc/shells 2> /dev/null; then
+    printf '%s\n' "$_fish" | sudo_run tee -a /etc/shells > /dev/null || true
+  fi
+  # Skip if already set.
+  _user=${USER:-$(id -un)}
+  _current=$(getent passwd "$_user" 2> /dev/null | cut -d: -f7)
+  if [ "$_current" = "$_fish" ]; then
+    log "Login shell already $_fish"
+    return 0
+  fi
+  if sudo_run chsh -s "$_fish" "$_user"; then
+    log "Login shell set to $_fish"
+  else
+    warn "chsh -s $_fish $_user failed; run it manually"
+  fi
 }
 
 _pick_editor() {
@@ -53,7 +81,7 @@ _pick_shell() {
       --header="Switch login shell to fish?" ||
     true)
   case "$_choice" in
-    yes*) chsh -s "$(command -v fish)" || warn "chsh failed; you can run it manually" ;;
+    yes*) _chsh_to_fish ;;
     *) log "Leaving login shell unchanged" ;;
   esac
 }

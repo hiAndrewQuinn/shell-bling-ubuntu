@@ -1,7 +1,7 @@
 function show_random_whatis
     set commands fzf fd ripgrep fish starship tmux kitty xclip tldr cheat zoxide \
-        lsd eza tree bat micro vim neovim helix git git-delta jq gron csvkit \
-        htop lnav curl lazygit gh uv gopass
+        lsd eza tree bat micro vim neovim helix git git-delta jq gron qsv \
+        htop lnav curl lazygit gh uv gopass rustup go pass
 
     set -l descriptions_fzf "Fuzzy search anything!"
     set -l descriptions_fd "Fastest find in the West!"
@@ -26,7 +26,10 @@ function show_random_whatis
     set -l descriptions_git_delta "Nicer git diffing!"
     set -l descriptions_jq "The JSON Swiss Army knife!"
     set -l descriptions_gron "Make JSON greppable (or rg-able)!"
-    set -l descriptions_csvkit "CSVs made easy."
+    set -l descriptions_qsv "Slice, dice, and stat CSVs. (xsv's spiritual successor.)"
+    set -l descriptions_rustup "Manage your Rust toolchain. cargo install <thing> now works."
+    set -l descriptions_go "The Go toolchain. go install <thing> now works."
+    set -l descriptions_pass "Same as gopass — symlinked for muscle memory."
     set -l descriptions_htop "See your system's stats in technicolor!"
     set -l descriptions_lnav "Slice and dice everything in /var/log/!"
     set -l descriptions_curl "Download things from the web!"

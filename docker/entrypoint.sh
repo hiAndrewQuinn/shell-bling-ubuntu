@@ -15,11 +15,25 @@ if [ "${SHELL_BLING_DEV:-0}" = 1 ]; then
 fi
 
 sh install.sh
-# Smoke test: required commands on PATH.
-for cmd in fish fzf nvim git curl rg fd bat zoxide starship; do
-  command -v "$cmd" > /dev/null 2>&1 || {
-    echo "MISSING: $cmd"
-    exit 1
-  }
+# Smoke test: required commands on PATH. ~/.cargo/bin / /usr/local/go/bin
+# aren't in this script's PATH yet (no shell restart) so source them.
+PATH="$HOME/.cargo/bin:/usr/local/go/bin:$HOME/.local/bin:$PATH"
+export PATH
+MISSING=""
+for cmd in fish fzf nvim git curl rg fd bat zoxide starship \
+  lazygit gh uv eza gopass pass qsv cargo rustc rustup go; do
+  command -v "$cmd" > /dev/null 2>&1 || MISSING="$MISSING $cmd"
 done
-echo "==> smoke test PASS"
+if [ -n "$MISSING" ]; then
+  echo "MISSING:$MISSING"
+  exit 1
+fi
+# nvim must be at least 0.11 for LazyVim.
+NVIM_VER=$(nvim --version | awk 'NR==1 {gsub(/^v/,"",$2); print $2}')
+case "$NVIM_VER" in
+  0.[0-9].* | 0.10.*)
+    echo "nvim version too old: $NVIM_VER (need >=0.11)"
+    exit 1
+    ;;
+esac
+echo "==> smoke test PASS (nvim $NVIM_VER)"

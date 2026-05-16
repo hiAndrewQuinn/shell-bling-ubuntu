@@ -1,0 +1,9 @@
+enable=all
+external-sources=true
+# We target POSIX sh for portability across dash/ash/bash-as-sh.
+shell=sh
+# Style nits we accept:
+disable=SC2250  # ${var} braces — verbose for short names
+disable=SC2312  # invoke separately to avoid masked return — acceptable for log lines
+disable=SC2154  # referenced but not assigned — many vars come from sourced detect.sh
+disable=SC1091  # source paths that shellcheck cannot follow at parse time

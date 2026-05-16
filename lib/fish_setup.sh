@@ -1,0 +1,74 @@
+#!/bin/sh
+# Fish shell config: PATH, abbreviations, starship init, zoxide init, greeting.
+# Invokes fish -c for fish-specific commands so this script stays POSIX sh.
+
+setup_fish() {
+  has_cmd fish || {
+    warn "fish not installed; skipping fish setup"
+    return 0
+  }
+
+  mkdir -p "$HOME/.config/fish/functions"
+
+  # Link fdfind -> fd (Debian/Ubuntu name fd as fdfind).
+  if has_cmd fdfind && ! has_cmd fd; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+  fi
+
+  # Universal path additions.
+  fish -c 'fish_add_path --universal --append ~/.local/bin' > /dev/null 2>&1 || true
+  fish -c 'fish_add_path --universal --append ~/.fzf/bin' > /dev/null 2>&1 || true
+
+  # Abbreviations (replaces the old `alias bat batcat` + `funcsave` hack).
+  # Abbreviations are nicer than aliases: they expand inline and don't surprise.
+  if has_cmd batcat && ! has_cmd bat; then
+    fish -c "abbr --add --universal bat batcat" > /dev/null 2>&1 || true
+  fi
+
+  # Friendly nudge when someone types `ripgrep`.
+  fish -c 'abbr --add --universal ripgrep "echo \"It is called rg.\"; rg"' > /dev/null 2>&1 || true
+
+  _config="$HOME/.config/fish/config.fish"
+  touch "$_config"
+
+  _ensure_in_config 'starship init fish | source'
+  _ensure_in_config 'zoxide init fish | source'
+
+  # Greeting + show_random_whatis function.
+  if ! grep -q 'show_random_whatis' "$_config"; then
+    cat << 'EOF' >> "$_config"
+
+# Courtesy of Shell Bling.
+function fish_greeting
+    echo -e "\033[34mWelcome to fish, the friendly interactive shell\033[0m"
+    echo -e "Type \033[32mhelp\033[0m for instructions on how to use fish"
+    echo
+    if type -q show_random_whatis
+        show_random_whatis
+    end
+end
+EOF
+  fi
+}
+
+_ensure_in_config() {
+  _line=$1
+  _config="$HOME/.config/fish/config.fish"
+  grep -qxF "$_line" "$_config" 2> /dev/null && return 0
+  printf '%s\n' "$_line" >> "$_config"
+}
+
+# Set the default editor in fish. Called from pickers.sh after fzf selection.
+fish_set_editor() {
+  _editor=$1
+  has_cmd fish || return 0
+  _config="$HOME/.config/fish/config.fish"
+  # Remove any prior EDITOR/VISUAL lines we added.
+  if [ -f "$_config" ]; then
+    sed -i.bak '/^set -gx EDITOR /d; /^set -gx VISUAL /d' "$_config"
+    rm -f "$_config.bak"
+  fi
+  printf 'set -gx EDITOR %s\nset -gx VISUAL %s\n' "$_editor" "$_editor" >> "$_config"
+  has_cmd git && git config --global core.editor "$_editor" || true
+}

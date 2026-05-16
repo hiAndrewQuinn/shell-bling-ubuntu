@@ -11,9 +11,29 @@ install_qsv() {
       ;;
   esac
 
+  # qsv's prebuilt -gnu binaries are built against a recent glibc (~2.38+).
+  # Debian 12 / Ubuntu 22.04 ship 2.36 / 2.35 and the binary won't dynamically
+  # link. Fall back to the -musl static build there.
+  _libc_variant=gnu
+  if [ -n "$(command -v ldd 2> /dev/null)" ]; then
+    _glibc_ver=$(ldd --version 2> /dev/null | awk 'NR==1 {print $NF}')
+    case "$_glibc_ver" in
+      2.[0-9] | 2.[0-9].* | 2.[12][0-9] | 2.[12][0-9].* | 2.3[0-7] | 2.3[0-7].*)
+        _libc_variant=musl
+        ;;
+    esac
+  fi
   case "$ARCH" in
-    amd64) _suffix=x86_64-unknown-linux-gnu ;;
-    arm64) _suffix=aarch64-unknown-linux-gnu ;;
+    amd64) _suffix=x86_64-unknown-linux-${_libc_variant} ;;
+    arm64)
+      # qsv only ships aarch64-unknown-linux-gnu (no musl variant). Old-glibc
+      # arm64 hosts are out of luck — warn and skip.
+      if [ "$_libc_variant" = musl ]; then
+        warn "qsv has no aarch64 musl build; skipping (glibc too old: $_glibc_ver)"
+        return 0
+      fi
+      _suffix=aarch64-unknown-linux-gnu
+      ;;
     *)
       warn "no qsv build for arch $ARCH; skipping"
       return 0

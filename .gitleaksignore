@@ -1,0 +1,3 @@
+# gitleaks fingerprints to ignore (false positives only — never silence real
+# secrets here). Each line is a fingerprint reported by gitleaks; copy from
+# the `Fingerprint:` field of a finding.

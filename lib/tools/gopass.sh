@@ -5,7 +5,11 @@
 # working (gopass is drop-in for the `pass` CLI surface).
 
 install_gopass() {
-  if has_cmd gopass; then
+  # NB: the `gopass` apt package on Debian/Ubuntu is a completely different
+  # project (pearofducks/gopass, a Tcl wrapper) — it does not understand the
+  # gopasspw.com CLI surface. Always install from upstream tarball on
+  # Debian/Ubuntu. Trust distro packaging only on Fedora and Homebrew.
+  if _gopass_is_real; then
     _gopass_link_pass
     return 0
   fi
@@ -16,16 +20,12 @@ install_gopass() {
       return 0
       ;;
     fedora)
-      if pkg_install gopass; then
+      if pkg_install gopass && _gopass_is_real; then
         _gopass_link_pass
         return 0
       fi
       ;;
   esac
-  if pkg_available gopass && pkg_install gopass; then
-    _gopass_link_pass
-    return 0
-  fi
 
   # Binary release fallback (more reliable than the apt repo across distros).
   __sb_ver=$(github_latest_tag gopasspw/gopass)
@@ -52,6 +52,14 @@ install_gopass() {
   sudo_run install -m 0755 "$__sb_dir/gopass" /usr/local/bin/gopass
   rm -rf "$__sb_dir"
   _gopass_link_pass
+}
+
+# Returns 0 iff the `gopass` on PATH is gopasspw's. The Debian/Ubuntu apt
+# `gopass` (pearofducks/gopass) errors on `--version` with "flag provided but
+# not defined"; the real one prints a version banner.
+_gopass_is_real() {
+  has_cmd gopass || return 1
+  gopass --version > /dev/null 2>&1
 }
 
 # gopass is drop-in compatible with `pass`. Skip if /usr/local/bin/pass

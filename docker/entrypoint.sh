@@ -15,25 +15,83 @@ if [ "${SHELL_BLING_DEV:-0}" = 1 ]; then
 fi
 
 sh install.sh
-# Smoke test: required commands on PATH. ~/.cargo/bin / /usr/local/go/bin
-# aren't in this script's PATH yet (no shell restart) so source them.
+# Smoke test: every installed tool must actually execute, not just exist.
+# `command -v` is not enough — a binary that SIGILLs (e.g. AVX2-using Rust
+# binary on a cpu=kvm64 VM) passes `command -v` and crashes at run time.
+# We invoke each tool's version subcommand (it's the lightest call that
+# always exercises libc, dynamic loader, and the binary's own startup).
 PATH="$HOME/.cargo/bin:/usr/local/go/bin:$HOME/.local/bin:$PATH"
 export PATH
-MISSING=""
-for cmd in fish fzf nvim git curl rg fd bat zoxide starship \
-  lazygit gh uv eza gopass pass qsv cargo rustc rustup go; do
-  command -v "$cmd" > /dev/null 2>&1 || MISSING="$MISSING $cmd"
+
+# Format: "cmd:version-subcommand". Most use --version; a few don't.
+SMOKE_TESTS="
+fish:--version
+fzf:--version
+nvim:--version
+git:--version
+curl:--version
+rg:--version
+fd:--version
+bat:--version
+zoxide:--version
+starship:--version
+lazygit:--version
+gh:--version
+uv:--version
+eza:--version
+gopass:--version
+pass:--version
+qsv:--version
+tldr:--version
+hx:--version
+delta:--version
+micro:-version
+cargo:--version
+rustc:--version
+rustup:--version
+go:version
+"
+
+# Skip cargo/rustc/rustup/go entirely under SHELL_BLING_SKIP_TOOLCHAINS=1 —
+# distro packages may not exist on every distro and that's OK.
+if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
+  SMOKE_TESTS=$(printf '%s\n' "$SMOKE_TESTS" | grep -vE '^(cargo|rustc|rustup|go):')
+fi
+
+FAILED=""
+echo "==> smoke test: invoking --version on each tool"
+for line in $SMOKE_TESTS; do
+  cmd=${line%%:*}
+  arg=${line#*:}
+  if ! command -v "$cmd" > /dev/null 2>&1; then
+    FAILED="$FAILED\n  $cmd (not found on PATH)"
+    continue
+  fi
+  # Capture rc without tripping `set -e`; POSIX `if ! foo` would clobber $? to 0/1.
+  rc=0
+  "$cmd" "$arg" > /dev/null 2>&1 || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    # Distinguish SIGILL (132) and SIGSEGV (139) from a normal nonzero exit —
+    # both are CPU-feature / link-time bugs we specifically want to catch.
+    case $rc in
+      132) FAILED="$FAILED\n  $cmd ($arg) → SIGILL (CPU feature missing? cpu=kvm64?)" ;;
+      139) FAILED="$FAILED\n  $cmd ($arg) → SIGSEGV (linker issue?)" ;;
+      *) FAILED="$FAILED\n  $cmd ($arg) → exit $rc" ;;
+    esac
+  fi
 done
-if [ -n "$MISSING" ]; then
-  echo "MISSING:$MISSING"
+
+if [ -n "$FAILED" ]; then
+  printf '==> smoke test FAIL:%b\n' "$FAILED"
   exit 1
 fi
-# nvim must be at least 0.11 for LazyVim.
+
+# Extra: nvim must be at least 0.11 for LazyVim.
 NVIM_VER=$(nvim --version | awk 'NR==1 {gsub(/^v/,"",$2); print $2}')
 case "$NVIM_VER" in
   0.[0-9].* | 0.10.*)
-    echo "nvim version too old: $NVIM_VER (need >=0.11)"
+    echo "==> smoke test FAIL: nvim version too old: $NVIM_VER (need >=0.11)"
     exit 1
     ;;
 esac
-echo "==> smoke test PASS (nvim $NVIM_VER)"
+echo "==> smoke test PASS (nvim $NVIM_VER, all tools execute)"

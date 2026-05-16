@@ -1,4 +1,13 @@
 repos:
+  # Secret scanning runs first so it fails fast. Catches AWS/Garage keys,
+  # GitHub PATs, generic high-entropy strings before they hit the remote.
+  # A leak in this 220-star public repo would be mirrored by GitHub's archive
+  # program within hours, so this hook is non-negotiable.
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -8,6 +17,8 @@ repos:
       - id: check-shebang-scripts-are-executable
       - id: mixed-line-ending
       - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=512]
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.10.0.1
     hooks:

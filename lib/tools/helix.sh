@@ -37,8 +37,17 @@ install_helix() {
     rm -rf "$_tmp"
     return 1
   }
-  tar -xJf "$_tmp/hx.tar.xz" -C "$_tmp"
+  if ! tar -xJf "$_tmp/hx.tar.xz" -C "$_tmp" 2> /dev/null; then
+    err "helix: tar -xJf failed (is xz installed?)"
+    rm -rf "$_tmp"
+    return 1
+  fi
   _src=$(find "$_tmp" -maxdepth 1 -type d -name 'helix-*' | head -n 1)
+  if [ -z "$_src" ] || [ ! -x "$_src/hx" ]; then
+    err "helix: extracted tarball missing 'helix-*/hx' (tar succeeded but hx not found)"
+    rm -rf "$_tmp"
+    return 1
+  fi
   sudo_run install -m 0755 "$_src/hx" /usr/local/bin/hx
   sudo_run mkdir -p /usr/local/share/helix
   sudo_run cp -r "$_src/runtime" /usr/local/share/helix/runtime

@@ -64,9 +64,13 @@ install_uv() {
 # Pre-install the latest stable CPython so `uv run`, `uv venv`, and
 # `python` (after PATH wiring) Just Work for the invoking user without a
 # separate trip. Best-effort: don't fail the installer if it can't reach
-# the index.
+# the index. Skipped under SHELL_BLING_SKIP_TOOLCHAINS=1.
 _uv_install_latest_python() {
   has_cmd uv || return 0
+  if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
+    log "SHELL_BLING_SKIP_TOOLCHAINS=1 — skipping uv python install"
+    return 0
+  fi
   # Skip if at least one managed CPython is already present.
   if uv python list --only-installed 2> /dev/null | grep -qi cpython; then
     return 0

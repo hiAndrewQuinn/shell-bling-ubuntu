@@ -54,6 +54,54 @@ case "$SUPPORT_TIER" in
     ;;
 esac
 
+# ---------- CPU feature probe (warn-only) -------------------------------------
+# Modern Rust prebuilt binaries (qsv, ripgrep, fd, bat, eza, zoxide, starship)
+# can assume SSE4.2/AVX2 from rustc's default codegen for x86_64-unknown-linux-
+# gnu. KVM with the default cpu=kvm64 model masks these flags and the binaries
+# SIGILL at first invocation. Warn but don't block — the install still works
+# for everything except those specific Rust binaries, and arm64/macOS users
+# legitimately don't have these flags.
+if [ "$ARCH" = amd64 ] && [ -r /proc/cpuinfo ]; then
+  if ! grep -m1 -q '^flags.*\bavx2\b' /proc/cpuinfo ||
+    ! grep -m1 -q '^flags.*\bsse4_2\b' /proc/cpuinfo; then
+    warn "CPU does not expose AVX2/SSE4.2. Some prebuilt Rust binaries"
+    warn "  (qsv, rg, fd, bat, eza, zoxide, starship) may SIGILL when run."
+    warn "  Common cause: a KVM VM with cpu=kvm64. If you control the host,"
+    warn "  switch to cpu=host or cpu=x86-64-v3 and reboot the VM."
+    warn "  This install will continue."
+  fi
+fi
+
+# ---------- Disk space preflight ----------------------------------------------
+# Round 2 peak install footprint is ~2.6 GB (Rust ~600 MB + Go ~270 MB +
+# uv-managed Python ~30 MB + apt packages + GitHub release downloads + LazyVim
+# bootstrap). Without toolchains the footprint is ~600 MB.
+# Override with SHELL_BLING_BYPASS_SIZE=1; reduce footprint with
+# SHELL_BLING_SKIP_TOOLCHAINS=1.
+if [ "${SHELL_BLING_BYPASS_SIZE:-0}" != 1 ]; then
+  # POSIX `df -P -k` gives portable output; field 4 is available KB.
+  _avail_kb=$(df -P -k "$HOME" 2> /dev/null | awk 'NR==2 {print $4}')
+  if [ -n "$_avail_kb" ]; then
+    _avail_gb=$((_avail_kb / 1024 / 1024))
+    if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
+      _need_gb=1
+      _need_label="1 GB (toolchains skipped)"
+    else
+      _need_gb=3 # 2.6 rounded up to a whole GB
+      _need_label="~2.6 GB (Rust + Go + uv-managed Python)"
+    fi
+    if [ "$_avail_gb" -lt "$_need_gb" ]; then
+      err "Not enough disk space on \$HOME: have ${_avail_gb} GB, need ${_need_label}."
+      err "Options:"
+      err "  1. Free disk space."
+      err "  2. Re-run with SHELL_BLING_SKIP_TOOLCHAINS=1 (drops Rust+Go+Python,"
+      err "     uses distro-packaged versions where available, saves ~900 MB)."
+      err "  3. Override the check with SHELL_BLING_BYPASS_SIZE=1."
+      exit 1
+    fi
+  fi
+fi
+
 # ---------- sudo preflight + keepalive ----------------------------------------
 _sudo_keepalive_pid=""
 _start_sudo_keepalive() {
@@ -112,7 +160,7 @@ log "Installing universal packages"
 case "$DISTRO" in
   ubuntu | debian)
     pkg_install \
-      curl git ca-certificates gnupg unzip \
+      curl git ca-certificates gnupg unzip xz-utils \
       fish \
       ripgrep jq tmux tree htop \
       bat fd-find xclip lnav gron \
@@ -139,7 +187,32 @@ case "$DISTRO" in
 esac
 
 # ---------- per-tool installers (snap-free, arch-aware) -----------------------
-for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass tldr gh cheat delta qsv rustup go; do
+# Toolchain installers (rustup, go, and uv's `uv python install` step) are
+# heavy — ~900 MB combined. SHELL_BLING_SKIP_TOOLCHAINS=1 disables them; the
+# user gets distro-packaged rustc/cargo/golang where available (e.g. Debian 13
+# has both), and uv installs the binary but not a managed Python interpreter.
+if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
+  log "SHELL_BLING_SKIP_TOOLCHAINS=1 — skipping rustup, go, uv-python"
+  log "  Falling back to distro packages where available."
+  case "$DISTRO" in
+    ubuntu | debian)
+      pkg_install rustc cargo golang 2> /dev/null ||
+        warn "rustc/cargo/golang not available in distro repos"
+      ;;
+    fedora)
+      pkg_install rust cargo golang 2> /dev/null ||
+        warn "rust/cargo/golang not available in distro repos"
+      ;;
+    macos)
+      brew install rust go 2> /dev/null || true
+      ;;
+  esac
+  _toolchain_tools=""
+else
+  _toolchain_tools="rustup go"
+fi
+
+for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass tldr gh cheat delta qsv $_toolchain_tools; do
   # shellcheck source=/dev/null
   . "$_lib_dir/tools/$_t.sh"
   "install_$_t" || warn "install_$_t failed (continuing)"

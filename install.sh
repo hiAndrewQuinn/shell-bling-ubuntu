@@ -63,6 +63,16 @@ _start_sudo_keepalive() {
     warn "sudo not found; assuming root"
     return 0
   }
+  # Passwordless sudo (CI, NOPASSWD)? No keepalive needed.
+  if sudo -n true 2> /dev/null; then
+    log "Passwordless sudo detected; no password needed"
+    return 0
+  fi
+  if [ "${SHELL_BLING_NONINTERACTIVE:-0}" = 1 ]; then
+    err "Non-interactive mode requested but sudo needs a password."
+    err "Configure passwordless sudo or run install.sh interactively."
+    exit 1
+  fi
   log "Asking for your password once up front (sudo)"
   sudo -v
   # Keep the timestamp fresh until install finishes.
@@ -104,11 +114,18 @@ case "$DISTRO" in
     pkg_install \
       curl git ca-certificates gnupg \
       fish \
-      ripgrep jq vim-gtk3 tmux tree htop \
-      bat fd-find kitty xclip lnav gron \
-      git-delta micro csvkit \
-      gcc g++ make nodejs \
-      software-properties-common
+      ripgrep jq tmux tree htop \
+      bat fd-find xclip lnav gron \
+      micro csvkit \
+      gcc g++ make nodejs
+    # vim-gtk3 only available where a GUI stack is present; fall back to vim.
+    pkg_install vim-gtk3 2> /dev/null || pkg_install vim
+    # kitty is GUI; not always in minimal containers.
+    pkg_install kitty 2> /dev/null || warn "kitty unavailable; skipping"
+    # Ubuntu-only: PPA helper.
+    if [ "$DISTRO" = ubuntu ]; then
+      pkg_install software-properties-common 2> /dev/null || true
+    fi
     ;;
   fedora)
     # shellcheck disable=SC2046  # word splitting wanted
@@ -122,7 +139,7 @@ case "$DISTRO" in
 esac
 
 # ---------- per-tool installers (snap-free, arch-aware) -----------------------
-for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass tldr gh cheat; do
+for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass tldr gh cheat delta; do
   # shellcheck source=/dev/null
   . "$_lib_dir/tools/$_t.sh"
   "install_$_t" || warn "install_$_t failed (continuing)"

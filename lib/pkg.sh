@@ -96,18 +96,19 @@ _install_homebrew() {
 }
 
 # fetch_to URL DEST — download with curl, with retries, atomic move.
+# Uses __sb_ prefixed locals to avoid clobbering caller's $_tmp (no `local` in POSIX).
 fetch_to() {
-  _url=$1
-  _dest=$2
-  _tmp="${_dest}.part.$$"
+  __sb_url=$1
+  __sb_dest=$2
+  __sb_part="${__sb_dest}.part.$$"
   curl --fail --silent --show-error --location \
     --retry 3 --retry-delay 2 --connect-timeout 15 \
-    -o "$_tmp" "$_url" || {
-    rm -f "$_tmp"
-    err "Download failed: $_url"
+    -o "$__sb_part" "$__sb_url" || {
+    rm -f "$__sb_part"
+    err "Download failed: $__sb_url"
     return 1
   }
-  mv -f "$_tmp" "$_dest"
+  mv -f "$__sb_part" "$__sb_dest"
 }
 
 # install_deb URL — download a .deb and install via apt to resolve deps.

@@ -17,11 +17,13 @@ help:
 lint:
 	pre-commit run --all-files
 
-build-%:
+$(addprefix build-,$(DISTROS)): build-%: FORCE
 	docker build -f docker/$*.Dockerfile -t $(IMG_PREFIX)-$* .
 
-test-%: build-%
+$(addprefix test-,$(DISTROS)): test-%: build-%
 	docker run --rm $(IMG_PREFIX)-$*
+
+FORCE:
 
 test: $(addprefix test-,$(DISTROS))
 

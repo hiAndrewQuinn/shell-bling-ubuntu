@@ -10,10 +10,13 @@ setup_fish() {
 
   mkdir -p "$HOME/.config/fish/functions"
 
-  # Link fdfind -> fd (Debian/Ubuntu name fd as fdfind).
+  # Symlink the Debian/Ubuntu-renamed binaries to their upstream names,
+  # so every shell — not just fish — finds them.
   if has_cmd fdfind && ! has_cmd fd; then
-    mkdir -p "$HOME/.local/bin"
-    ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+    sudo_run ln -sf "$(command -v fdfind)" /usr/local/bin/fd
+  fi
+  if has_cmd batcat && ! has_cmd bat; then
+    sudo_run ln -sf "$(command -v batcat)" /usr/local/bin/bat
   fi
 
   # Universal path additions.

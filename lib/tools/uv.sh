@@ -10,5 +10,9 @@ install_uv() {
       ;;
   esac
   log "Installing uv"
-  curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sudo_run sh > /dev/null
+  __sb_uv_tmp=$(mktemp -d)
+  curl -LsSf https://astral.sh/uv/install.sh -o "$__sb_uv_tmp/uv-install.sh"
+  # uv's installer respects UV_INSTALL_DIR. Drop into /usr/local/bin via sudo.
+  UV_UNMANAGED_INSTALL=/usr/local/bin sudo_run sh "$__sb_uv_tmp/uv-install.sh" > /dev/null
+  rm -rf "$__sb_uv_tmp"
 }

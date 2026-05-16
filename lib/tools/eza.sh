@@ -8,7 +8,7 @@ install_eza() {
       brew install eza
       return $?
       ;;
-    fedora) pkg_install eza && return 0 ;;
+    fedora) pkg_install eza && has_cmd eza && return 0 ;;
   esac
 
   if pkg_available eza; then

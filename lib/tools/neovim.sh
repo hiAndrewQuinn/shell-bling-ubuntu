@@ -1,8 +1,7 @@
 #!/bin/sh
 # Install latest stable Neovim. On linux we always use the official GitHub
-# release tarball — distro packages lag (Debian 13 ships 0.10.x; LazyVim
-# needs >=0.11) and AppImage needs FUSE, which is fiddly in containers.
-# On macOS, Homebrew is always current. On Fedora, dnf is current enough.
+# release tarball — distro packages lag (Debian 13 ships 0.10.x, Fedora 40
+# ships 0.10.2; LazyVim needs >=0.11). On macOS, Homebrew is always current.
 
 install_neovim() {
   has_cmd nvim && return 0
@@ -10,9 +9,6 @@ install_neovim() {
     macos)
       brew install neovim
       return $?
-      ;;
-    fedora)
-      pkg_install neovim && return 0
       ;;
   esac
 

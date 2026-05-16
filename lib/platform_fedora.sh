@@ -4,13 +4,11 @@
 
 platform_fedora_universal_pkgs() {
   # Fedora package names. Some differ from Debian.
+  # Only packages that exist in the default Fedora repos go here. Anything
+  # COPR-only or missing entirely (gron, cheat, micro on some versions) is
+  # handled by the per-tool installers in lib/tools/*. Toolchains
+  # (rustup, golang) are installed separately by their own lib/tools scripts.
   echo "fish curl git ripgrep jq vim tmux tree htop bat fd-find kitty xclip \
-        gcc gcc-c++ make nodejs git-delta lnav gron entr-doesnt-exist unzip \
-        cheat lsd helix neovim eza gh starship zoxide tealdeer gopass \
-        rustup golang"
-  # Note: gron / cheat may need pip / COPR — pkg_install will tolerate
-  # missing packages individually if you split the call; for simplicity the
-  # caller can try each universal pkg one-by-one if the bulk install fails.
-  # qsv comes from the GitHub release; rustup/golang are best-effort distro
-  # packages but lib/tools/rustup.sh + lib/tools/go.sh will handle install.
+        gcc gcc-c++ make nodejs git-delta lnav unzip xz micro \
+        lsd eza gh starship zoxide tealdeer gopass"
 }

@@ -8,7 +8,7 @@ install_starship() {
       brew install starship
       return $?
       ;;
-    fedora) pkg_install starship && return 0 ;;
+    fedora) pkg_install starship && has_cmd starship && return 0 ;;
   esac
   log "Installing starship"
   curl -fsSL https://starship.rs/install.sh | sudo_run sh -s -- --yes > /dev/null

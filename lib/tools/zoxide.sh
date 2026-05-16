@@ -8,7 +8,7 @@ install_zoxide() {
       brew install zoxide
       return $?
       ;;
-    fedora) pkg_install zoxide && return 0 ;;
+    fedora) pkg_install zoxide && has_cmd zoxide && return 0 ;;
   esac
   if pkg_available zoxide; then
     pkg_install zoxide && return 0

@@ -60,7 +60,11 @@ pkg_install() {
       sudo_run env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"
       ;;
     fedora)
-      sudo_run dnf -y install "$@"
+      # --setopt=strict=0 → skip individual packages that don't exist instead
+      # of failing the entire batch. Fedora repos are split across base + RPM
+      # Fusion + COPR; a single missing universal package (e.g. starship,
+      # lazygit) would otherwise abort and leave the rest uninstalled.
+      sudo_run dnf -y --setopt=strict=0 install "$@"
       ;;
     macos)
       brew install "$@"

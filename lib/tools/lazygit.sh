@@ -8,7 +8,7 @@ install_lazygit() {
       brew install lazygit
       return $?
       ;;
-    fedora) pkg_install lazygit && return 0 ;;
+    fedora) pkg_install lazygit && has_cmd lazygit && return 0 ;;
   esac
 
   _ver=$(github_latest_tag jesseduffield/lazygit)

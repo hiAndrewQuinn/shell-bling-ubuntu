@@ -8,7 +8,7 @@ install_helix() {
       brew install helix
       return $?
       ;;
-    fedora) pkg_install helix && return 0 ;;
+    fedora) pkg_install helix && has_cmd hx && return 0 ;;
   esac
   # Debian 13+ / Ubuntu 24.04+ have helix in apt.
   if pkg_available helix; then

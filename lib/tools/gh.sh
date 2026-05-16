@@ -8,7 +8,7 @@ install_gh() {
       brew install gh
       return $?
       ;;
-    fedora) pkg_install gh && return 0 ;;
+    fedora) pkg_install gh && has_cmd gh && return 0 ;;
   esac
   if pkg_available gh; then
     pkg_install gh && return 0

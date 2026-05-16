@@ -8,7 +8,7 @@ install_lsd() {
       brew install lsd
       return $?
       ;;
-    fedora) pkg_install lsd && return 0 ;;
+    fedora) pkg_install lsd && has_cmd lsd && return 0 ;;
   esac
   if pkg_available lsd; then
     pkg_install lsd && return 0

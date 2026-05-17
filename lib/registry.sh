@@ -98,6 +98,8 @@ GH_BIN_IN_ARCHIVE_arm64="gh_${GH_VERSION}_linux_arm64/bin/gh"
 GH_INSTALL_AS=/usr/local/bin/gh
 GH_SMOKE="gh --version"
 GH_FALLBACK_PKG=github-cli
+GH_SIG_TYPE=shasums-plain
+GH_SIG_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_checksums.txt"
 
 # ----- gopass ----- Go binary; gnu+musl tarballs published per arch.
 GOPASS_VERSION=1.16.1
@@ -118,6 +120,8 @@ GOPASS_BIN_IN_ARCHIVE=gopass
 GOPASS_INSTALL_AS=/usr/local/bin/gopass
 GOPASS_SYMLINKS="pass" # /usr/local/bin/pass -> gopass (compat with existing pass muscle memory)
 GOPASS_SMOKE="gopass --version"
+GOPASS_SIG_TYPE=shasums-plain
+GOPASS_SIG_URL="https://github.com/gopasspw/gopass/releases/download/v${GOPASS_VERSION}/gopass_${GOPASS_VERSION}_SHA256SUMS"
 
 # ----- lazygit ----- Go binary; one tarball runs on glibc and musl.
 LAZYGIT_VERSION=0.61.1
@@ -137,6 +141,8 @@ LAZYGIT_ARCHIVE=tar.gz
 LAZYGIT_BIN_IN_ARCHIVE=lazygit
 LAZYGIT_INSTALL_AS=/usr/local/bin/lazygit
 LAZYGIT_SMOKE="lazygit --version"
+LAZYGIT_SIG_TYPE=shasums-plain
+LAZYGIT_SIG_URL="https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/checksums.txt"
 
 # ----- lsd ----- gnu+musl tarballs, both arches.
 LSD_VERSION=1.2.0
@@ -329,6 +335,8 @@ FZF_BIN_IN_ARCHIVE=fzf
 FZF_INSTALL_AS=/usr/local/bin/fzf
 FZF_SMOKE="fzf --version"
 FZF_POSTINSTALL_HOOK=fzf_postinstall
+FZF_SIG_TYPE=shasums-plain
+FZF_SIG_URL="https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf_${FZF_VERSION}_checksums.txt"
 
 # ----- ripgrep ----- Rust tarball; gnu+musl for both arches.
 RIPGREP_VERSION=15.1.0
@@ -415,6 +423,8 @@ JQ_ARCHIVE=none
 JQ_BIN_IN_ARCHIVE=.
 JQ_INSTALL_AS=/usr/local/bin/jq
 JQ_SMOKE="jq --version"
+JQ_SIG_TYPE=shasums-plain
+JQ_SIG_URL="https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/sha256sum.txt"
 
 # ----- delta (git-delta) ----- Rust tarball; gnu+musl for amd64.
 DELTA_VERSION=0.19.2

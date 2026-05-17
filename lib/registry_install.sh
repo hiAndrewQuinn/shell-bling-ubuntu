@@ -249,6 +249,19 @@ _reg_install_one() {
     log "  $__sb_t:$__sb_hash_summary"
   fi
 
+  # Upstream signature/checksums cross-check (lib/registry_sigverify.sh).
+  # rc=0 verified, rc=1 mismatch/fetch failure (terminal — no fallback),
+  # rc=2 no SIG_TYPE declared for this tool (silent skip).
+  __sb_sv_rc=0
+  _reg_verify_signature "$__sb_t" "$__sb_archive" || __sb_sv_rc=$?
+  case $__sb_sv_rc in
+    0 | 2) ;;
+    *)
+      err "  $__sb_t: upstream signature/sums verification failed"
+      return 2
+      ;;
+  esac
+
   __sb_ext=$(_reg_field "$__sb_t" ARCHIVE)
   __sb_bin_in_archive=$(_reg_bin_in_archive "$__sb_t")
   __sb_install_as=$(_reg_field "$__sb_t" INSTALL_AS)

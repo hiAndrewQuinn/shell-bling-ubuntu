@@ -40,6 +40,8 @@ fi
 . "$_lib_dir/registry.sh"
 # shellcheck source=lib/registry_install.sh
 . "$_lib_dir/registry_install.sh"
+# shellcheck source=lib/registry_sigverify.sh
+. "$_lib_dir/registry_sigverify.sh"
 # shellcheck source=lib/registry_verify.sh
 . "$_lib_dir/registry_verify.sh"
 

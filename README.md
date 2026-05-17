@@ -70,7 +70,7 @@ installer runs. Great for kicking the tires.
 <details>
 <summary><strong>Help & cheatsheets</strong></summary>
 
-- **[tldr](https://tldr.sh/)** (via [tealdeer](https://github.com/dbrgn/tealdeer) when available) — simplified man pages.
+- **[tldr](https://tldr.sh/)** (the [tealdeer](https://github.com/tealdeer-rs/tealdeer) Rust client) — simplified man pages.
 - **[cheat](https://github.com/cheat/cheat)** — interactive cheatsheets.
 
 </details>
@@ -130,24 +130,16 @@ installer runs. Great for kicking the tires.
 
 ## Environment variables
 
-| Var                              | Effect                                                                                                                                                                  |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SHELL_BLING_NONINTERACTIVE=1`   | Skip fzf pickers; default editor=`nvim`; `chsh` to fish without asking.                                                                                                 |
-| `SHELL_BLING_SKIP_LAZYVIM=1`     | Don't clone LazyVim starter.                                                                                                                                            |
-| `SHELL_BLING_SKIP_TOOLCHAINS=1`  | Skip `rustup`, `go` tarball, and `uv python install`. Falls back to distro-packaged `rustc`/`cargo`/`golang` where available. Saves ~900 MB of disk.                    |
-| `SHELL_BLING_BYPASS_SIZE=1`      | Override the disk-space preflight (which needs ~2.6 GB on `$HOME`, or ~1 GB with `SHELL_BLING_SKIP_TOOLCHAINS=1`).                                                      |
-| `SHELL_BLING_LIB_DIR=PATH`       | Override where `lib/` is loaded from.                                                                                                                                   |
+| Var                              | Effect                                                                                                              |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `SHELL_BLING_NONINTERACTIVE=1`   | Skip fzf pickers; default editor=`nvim`; `chsh` to fish without asking.                                             |
+| `SHELL_BLING_SKIP_LAZYVIM=1`     | Don't clone LazyVim starter.                                                                                        |
+| `SHELL_BLING_BYPASS_SIZE=1`      | Override the disk-space preflight (which needs ~1 GB free on `$HOME`).                                              |
+| `SHELL_BLING_LIB_DIR=PATH`       | Override where `lib/` is loaded from.                                                                               |
 
-### Saving disk space
+### Footprint
 
-The default install lands ~1.5 GB resident (Rust toolchain ~600 MB, Go toolchain ~270 MB, uv-managed Python ~30 MB, plus Neovim + LazyVim + apt packages + everything else). Peak during install is ~2.6 GB. If you're on a small VPS or container:
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh \
-  | SHELL_BLING_SKIP_TOOLCHAINS=1 bash
-```
-
-You'll get the same shell + editor + CLI tools, plus whatever your distro packages for Rust/Go. On Debian 13 that's `rustc 1.85` and `go 1.24` — older than what `rustup`/`go.dev` provide, but real and usable. On Alpine/Arch you'll get current versions from the rolling repos. On older distros you may get nothing — in which case `cargo install` and `go install` won't work until you install a toolchain yourself.
+Resident install is ~600 MB (Neovim + LazyVim + apt packages + the registry-installed static binaries). shell-bling no longer installs language toolchains — if you want Rust, Go, or uv, install them yourself from their official sources after shell-bling runs. The principle: shell-bling is a productive-shell installer, not a language-toolchain manager.
 
 ## Hacking on it
 

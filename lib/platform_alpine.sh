@@ -8,12 +8,17 @@
 
 platform_alpine_universal_pkgs() {
   echo "fish bash curl git ca-certificates ripgrep jq vim tmux tree htop \
-        bat fd kitty xclip xz unzip micro \
-        gcc make nodejs delta lnav \
-        lsd eza github-cli starship zoxide gopass \
-        helix lazygit fzf neovim shadow sudo"
-  # Notes on omissions:
-  #   - tealdeer: not packaged on Alpine (cargo install tealdeer if wanted)
-  #   - rust/go: glibc-only upstream tarballs; SHELL_BLING_SKIP_TOOLCHAINS=1
-  #     users get them via apk (rust + go are in community).
+        bat fd kitty xclip xz unzip \
+        gcc make nodejs lnav delta \
+        helix fzf neovim shadow sudo"
+  # Notes:
+  #   - cheat, eza, gh, gopass, lazygit, lsd, micro, qsv, starship, tealdeer,
+  #     zoxide: lib/registry.sh installs the upstream binary directly (works
+  #     on musl). The registry's pkg_install fallback covers what little
+  #     doesn't have an upstream Linux binary.
+  #   - delta, helix, fzf: still legacy lib/tools/* in R4.2 transition; move
+  #     to registry once their post-install hooks land.
+  #   - neovim stays in apt because its upstream tarball is glibc-only; on
+  #     Alpine apk's neovim is the right binary anyway.
+  #   - gron: not in Alpine repos. Skipped on this distro.
 }

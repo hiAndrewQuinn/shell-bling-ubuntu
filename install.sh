@@ -77,30 +77,17 @@ if [ "$ARCH" = amd64 ] && [ -r /proc/cpuinfo ]; then
 fi
 
 # ---------- Disk space preflight ----------------------------------------------
-# Round 2 peak install footprint is ~2.6 GB (Rust ~600 MB + Go ~270 MB +
-# uv-managed Python ~30 MB + apt packages + GitHub release downloads + LazyVim
-# bootstrap). Without toolchains the footprint is ~600 MB.
-# Override with SHELL_BLING_BYPASS_SIZE=1; reduce footprint with
-# SHELL_BLING_SKIP_TOOLCHAINS=1.
+# Peak install footprint is ~1 GB: apt packages + GitHub release downloads
+# for the registry tools + LazyVim bootstrap. Override with
+# SHELL_BLING_BYPASS_SIZE=1.
 if [ "${SHELL_BLING_BYPASS_SIZE:-0}" != 1 ]; then
   # POSIX `df -P -k` gives portable output; field 4 is available KB.
   _avail_kb=$(df -P -k "$HOME" 2> /dev/null | awk 'NR==2 {print $4}')
   if [ -n "$_avail_kb" ]; then
     _avail_gb=$((_avail_kb / 1024 / 1024))
-    if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
-      _need_gb=1
-      _need_label="1 GB (toolchains skipped)"
-    else
-      _need_gb=3 # 2.6 rounded up to a whole GB
-      _need_label="~2.6 GB (Rust + Go + uv-managed Python)"
-    fi
-    if [ "$_avail_gb" -lt "$_need_gb" ]; then
-      err "Not enough disk space on \$HOME: have ${_avail_gb} GB, need ${_need_label}."
-      err "Options:"
-      err "  1. Free disk space."
-      err "  2. Re-run with SHELL_BLING_SKIP_TOOLCHAINS=1 (drops Rust+Go+Python,"
-      err "     uses distro-packaged versions where available, saves ~900 MB)."
-      err "  3. Override the check with SHELL_BLING_BYPASS_SIZE=1."
+    if [ "$_avail_gb" -lt 1 ]; then
+      err "Not enough disk space on \$HOME: have ${_avail_gb} GB, need ~1 GB."
+      err "Free some disk, or override with SHELL_BLING_BYPASS_SIZE=1."
       exit 1
     fi
   fi
@@ -175,12 +162,14 @@ fi
 log "Installing universal packages"
 case "$DISTRO" in
   ubuntu | debian)
+    # micro, cheat, eza, gh, gopass, lazygit, lsd, neovim, qsv, starship,
+    # tealdeer, zoxide are all installed from upstream via lib/registry.sh.
+    # Anything not in the registry goes here.
     pkg_install \
       curl git ca-certificates gnupg unzip xz-utils \
       fish \
       ripgrep jq tmux tree htop \
       bat fd-find xclip lnav gron \
-      micro \
       gcc g++ make nodejs
     # vim-gtk3 only available where a GUI stack is present; fall back to vim.
     pkg_install vim-gtk3 2> /dev/null || pkg_install vim
@@ -217,62 +206,30 @@ case "$DISTRO" in
     ;;
 esac
 
-# ---------- per-tool installers (snap-free, arch-aware) -----------------------
-# Toolchain installers (rustup, go, and uv's `uv python install` step) are
-# heavy — ~900 MB combined. SHELL_BLING_SKIP_TOOLCHAINS=1 disables them; the
-# user gets distro-packaged rustc/cargo/golang where available (e.g. Debian 13
-# has both), and uv installs the binary but not a managed Python interpreter.
-if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
-  log "SHELL_BLING_SKIP_TOOLCHAINS=1 — skipping rustup, go, uv-python"
-  log "  Falling back to distro packages where available."
-  case "$DISTRO" in
-    ubuntu | debian)
-      pkg_install rustc cargo golang 2> /dev/null ||
-        warn "rustc/cargo/golang not available in distro repos"
-      ;;
-    fedora)
-      pkg_install rust cargo golang 2> /dev/null ||
-        warn "rust/cargo/golang not available in distro repos"
-      ;;
-    arch)
-      pkg_install rust go 2> /dev/null ||
-        warn "rust/go not available in distro repos"
-      ;;
-    alpine)
-      pkg_install rust cargo go 2> /dev/null ||
-        warn "rust/cargo/go not available in distro repos"
-      ;;
-    opensuse)
-      pkg_install rust cargo go 2> /dev/null ||
-        warn "rust/cargo/go not available in distro repos"
-      ;;
-    macos)
-      brew install rust go 2> /dev/null || true
-      ;;
-  esac
-  _toolchain_tools=""
-else
-  _toolchain_tools="rustup go"
-fi
+# ---------- per-tool installers ----------------------------------------------
+# Source every lib/tools/*.sh so registry post-install hooks and the remaining
+# legacy install_<tool> functions are all defined before we run the engine.
+# Sourcing is side-effect-free (each file just defines functions).
+for _f in "$_lib_dir"/tools/*.sh; do
+  # shellcheck source=/dev/null
+  . "$_f"
+done
 
 # ---------- registry-driven static-binary installs ----------------------------
-# Round 4.1: pull static binaries straight from upstream (GitHub releases) for
-# tools whose vendor publishes one. Parallel fetch + sequential install. All
-# version pinning lives in lib/registry.sh. Per-(arch,libc) URL gaps fall
-# back to pkg_install automatically.
+# Pull static binaries straight from upstream (vendor releases) for every tool
+# whose vendor publishes one. Parallel fetch + sequential install + smoke
+# test. All version pinning lives in lib/registry.sh; per-(arch,libc) URL
+# gaps fall back to pkg_install automatically.
 _reg_workdir=$(mktemp -d -t shell-bling-registry-XXXXXX)
 trap 'rm -rf "$_reg_workdir"; _stop_sudo_keepalive' EXIT INT TERM
-registry_fetch_all "$REGISTRY_R41_TOOLS" "$_reg_workdir"
-registry_install_all "$REGISTRY_R41_TOOLS" "$_reg_workdir"
+registry_fetch_all "$REGISTRY_TOOLS" "$_reg_workdir"
+registry_install_all "$REGISTRY_TOOLS" "$_reg_workdir"
 
-# ---------- remaining per-tool installers (legacy, pending R4.3 migration) ----
-# Order note: rustup/go come before tldr so tldr.sh can fall back to
-# `cargo install tealdeer` on distros without a tldr/tealdeer package
-# (Alpine today). helix has a runtime/ dir story; fzf+uv+delta have their
-# own post-install steps. R4.3 migrates these to registry + post-install hooks.
-for _t in helix fzf uv delta $_toolchain_tools tldr; do
-  # shellcheck source=/dev/null
-  . "$_lib_dir/tools/$_t.sh"
+# ---------- remaining legacy installers (pending R4.2 migration) --------------
+# helix needs a runtime/ dir + HELIX_RUNTIME export; fzf needs shell-integration
+# scripts; delta is a plain binary that still has its own .sh file. These move
+# into the registry later in R4.2.
+for _t in helix fzf delta; do
   "install_$_t" || warn "install_$_t failed (continuing)"
 done
 

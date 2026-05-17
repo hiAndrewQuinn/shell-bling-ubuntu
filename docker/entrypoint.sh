@@ -20,10 +20,12 @@ sh install.sh
 # binary on a cpu=kvm64 VM) passes `command -v` and crashes at run time.
 # We invoke each tool's version subcommand (it's the lightest call that
 # always exercises libc, dynamic loader, and the binary's own startup).
-PATH="$HOME/.cargo/bin:/usr/local/go/bin:$HOME/.local/bin:$PATH"
+PATH="$HOME/.local/bin:$PATH"
 export PATH
 
 # Format: "cmd:version-subcommand". Most use --version; a few don't.
+# No rustup/cargo/go/uv — those toolchains were dropped in R4.2 (shell-bling
+# is a productive-shell installer, not a language-toolchain installer).
 SMOKE_TESTS="
 fish:--version
 fzf:--version
@@ -37,7 +39,6 @@ zoxide:--version
 starship:--version
 lazygit:--version
 gh:--version
-uv:--version
 eza:--version
 gopass:--version
 pass:--version
@@ -46,17 +47,7 @@ tldr:--version
 hx:--version
 delta:--version
 micro:-version
-cargo:--version
-rustc:--version
-rustup:--version
-go:version
 "
-
-# Skip cargo/rustc/rustup/go entirely under SHELL_BLING_SKIP_TOOLCHAINS=1 —
-# distro packages may not exist on every distro and that's OK.
-if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
-  SMOKE_TESTS=$(printf '%s\n' "$SMOKE_TESTS" | grep -vE '^(cargo|rustc|rustup|go):')
-fi
 
 FAILED=""
 # SHELL_BLING_SMOKE_OPTIONAL: space-separated tool names that are allowed to

@@ -183,9 +183,24 @@ ZOXIDE_BIN_IN_ARCHIVE=zoxide
 ZOXIDE_INSTALL_AS=/usr/local/bin/zoxide
 ZOXIDE_SMOKE="zoxide --version"
 
-# REGISTRY_R41_TOOLS is the canonical list of tools handled by the engine in
-# Round 4.1. install.sh sources this file, reads this variable, and hands it
-# to registry_fetch_all + registry_install_all. Adding a new tool means:
-# (1) append a block above, (2) add the lowercase name to this list,
-# (3) delete the now-obsolete lib/tools/<tool>.sh if any.
-REGISTRY_R41_TOOLS="cheat eza gh gopass lazygit lsd micro neovim qsv starship zoxide"
+# ----- tealdeer ----- musl-static raw binary; no archive.
+# Installed as /usr/local/bin/tldr (the binary IS tealdeer; the install path
+# is the conventional name). Post-install hook primes the cache so `tldr fd`
+# works offline on first invocation.
+TEALDEER_VERSION=1.8.1
+TEALDEER_URL_amd64_gnu="https://github.com/tealdeer-rs/tealdeer/releases/download/v${TEALDEER_VERSION}/tealdeer-linux-x86_64-musl"
+TEALDEER_URL_amd64_musl="$TEALDEER_URL_amd64_gnu"
+TEALDEER_URL_arm64_gnu="https://github.com/tealdeer-rs/tealdeer/releases/download/v${TEALDEER_VERSION}/tealdeer-linux-aarch64-musl"
+TEALDEER_URL_arm64_musl="$TEALDEER_URL_arm64_gnu"
+TEALDEER_ARCHIVE=none
+TEALDEER_BIN_IN_ARCHIVE=.
+TEALDEER_INSTALL_AS=/usr/local/bin/tldr
+TEALDEER_SMOKE="tldr --version"
+TEALDEER_POSTINSTALL_HOOK=tealdeer_postinstall
+
+# REGISTRY_TOOLS is the canonical list of tools handled by the engine. install.sh
+# sources this file, reads this variable, and hands it to registry_fetch_all +
+# registry_install_all. Adding a new tool means: (1) append a block above,
+# (2) add the lowercase name to this list, (3) delete the now-obsolete
+# lib/tools/<tool>.sh if any.
+REGISTRY_TOOLS="cheat eza gh gopass lazygit lsd micro neovim qsv starship tealdeer zoxide"

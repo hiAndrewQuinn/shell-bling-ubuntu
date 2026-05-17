@@ -9,11 +9,9 @@
 # installer's GitHub-release path the same way Fedora does.
 
 platform_opensuse_universal_pkgs() {
+  # Anything in the registry (lib/registry.sh) is excluded — the registry
+  # installs the upstream binary directly.
   echo "fish curl git ripgrep jq vim tmux tree htop bat fd kitty xclip \
-        gcc gcc-c++ make nodejs git-delta lnav unzip xz \
-        lsd eza gh starship zoxide gopass helix lazygit fzf neovim gron"
-  # Notes:
-  #   - tealdeer: not in Tumbleweed's main repos — tldr.sh's cargo-install
-  #     fallback handles it (rustup is installed before tldr in install.sh).
-  #   - rustup / go: have lib/tools/* installers that always run.
+        gcc gcc-c++ make nodejs git-delta lnav gron unzip xz \
+        helix fzf"
 }

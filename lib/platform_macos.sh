@@ -2,10 +2,12 @@
 # Experimental: macOS support via Homebrew.
 
 platform_macos_universal_pkgs() {
+  # macOS Homebrew names. Anything in the registry (lib/registry.sh) is
+  # excluded — the registry installs the upstream binary directly (macOS
+  # URLs to be added in a future round; right now macOS leans more on
+  # Homebrew than the registry).
   echo "fish curl git ripgrep jq vim tmux tree htop bat fd kitty \
-        gcc make node git-delta lnav gron entr cheat lsd \
-        helix neovim eza gh starship zoxide tealdeer gopass uv \
-        lazygit tldr fzf qsv rustup-init go"
+        gcc make node git-delta lnav helix fzf"
 }
 
 platform_macos_preflight() {

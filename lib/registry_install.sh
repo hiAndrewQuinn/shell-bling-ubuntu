@@ -55,6 +55,23 @@ _reg_glibc_lt() {
   return 1
 }
 
+# _reg_hash TOOL ALGO  → echo the pinned hash (sha256|sha512) for the
+# current (ARCH, LIBC), or empty if none was pinned. Uses the same
+# arch/libc fallback as _reg_url (gnu→musl when host glibc is too old)
+# so the hash matches the file we actually downloaded.
+_reg_hash() {
+  __sb_T=$(printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_')
+  __sb_algo=$(printf '%s' "$2" | tr '[:lower:]' '[:upper:]')
+  __sb_libc=$LIBC
+  if [ "$__sb_libc" = gnu ] && [ -n "$GLIBC_VERSION" ]; then
+    __sb_min=$(eval printf '%s' "\"\${${__sb_T}_GLIBC_MIN:-}\"")
+    if [ -n "$__sb_min" ] && _reg_glibc_lt "$GLIBC_VERSION" "$__sb_min"; then
+      __sb_libc=musl
+    fi
+  fi
+  eval printf '%s' "\"\${${__sb_T}_${__sb_algo}_${ARCH}_${__sb_libc}:-}\""
+}
+
 # _reg_bin_in_archive TOOL  → path relative to the extracted archive root.
 # Tries _BIN_IN_ARCHIVE_${ARCH}_${LIBC} → _BIN_IN_ARCHIVE_${ARCH} → _BIN_IN_ARCHIVE.
 _reg_bin_in_archive() {
@@ -137,12 +154,17 @@ registry_install_all() {
   __sb_workdir=$2
   __sb_failed=""
 
+  __sb_terminal=""
   for __sb_t in $__sb_tools; do
-    if _reg_install_one "$__sb_t" "$__sb_workdir"; then
-      :
-    else
-      __sb_failed="$__sb_failed $__sb_t"
-    fi
+    # Use && / || idiom so set -e doesn't fire on a return 2 from
+    # _reg_install_one; we explicitly want to keep going.
+    __sb_rc=0
+    _reg_install_one "$__sb_t" "$__sb_workdir" || __sb_rc=$?
+    case $__sb_rc in
+      0) ;;                                        # success
+      2) __sb_terminal="$__sb_terminal $__sb_t" ;; # hash/sig mismatch — no fallback
+      *) __sb_failed="$__sb_failed $__sb_t" ;;     # soft failure — try distro pkg
+    esac
   done
 
   if [ -n "$__sb_failed" ]; then
@@ -150,6 +172,13 @@ registry_install_all() {
     for __sb_t in $__sb_failed; do
       _reg_fallback "$__sb_t" || warn "$__sb_t: distro fallback also failed"
     done
+  fi
+
+  if [ -n "$__sb_terminal" ]; then
+    err "Registry: terminal verification failure for:$__sb_terminal"
+    err "  These tools were NOT installed via fallback (intentional)."
+    err "  Investigate the source of the byte mismatch before re-running."
+    return 1
   fi
 }
 
@@ -186,6 +215,38 @@ _reg_install_one() {
   if [ ! -s "$__sb_archive" ]; then
     warn "  $__sb_t: fetched archive missing or empty"
     return 1
+  fi
+
+  # Hash-pin verification — runs between fetch-success and extract.
+  # Empty pin = skip silently (lets the engine ship before all tools are
+  # pinned). Any mismatch is terminal: we deliberately do NOT fall back to
+  # the distro package on a hash failure, because byte-level disagreement
+  # between what we recorded in registry.sh and what the upstream URL now
+  # serves is exactly the supply-chain signal we want operators to see.
+  #
+  # We check every pinned algorithm — both must agree if both are pinned.
+  # Independent algorithm families (SHA-2/256 + SHA-2/512) catch a class of
+  # collision-style attacks that a single algorithm wouldn't.
+  __sb_hash_summary=""
+  for __sb_algo in sha256 sha512; do
+    __sb_expected_h=$(_reg_hash "$__sb_t" "$__sb_algo")
+    [ -n "$__sb_expected_h" ] || continue
+    __sb_actual_h=$("${__sb_algo}sum" "$__sb_archive" 2> /dev/null | cut -d' ' -f1)
+    if [ -z "$__sb_actual_h" ]; then
+      err "  $__sb_t: ${__sb_algo}sum unavailable — cannot verify pin"
+      return 1
+    fi
+    if [ "$__sb_actual_h" != "$__sb_expected_h" ]; then
+      err "  $__sb_t: $(printf '%s' "$__sb_algo" | tr '[:lower:]' '[:upper:]') MISMATCH"
+      err "    expected: $__sb_expected_h"
+      err "    got:      $__sb_actual_h"
+      err "    aborting install (no distro-pkg fallback on hash failure)"
+      return 2
+    fi
+    __sb_hash_summary="$__sb_hash_summary $__sb_algo ✓"
+  done
+  if [ -n "$__sb_hash_summary" ]; then
+    log "  $__sb_t:$__sb_hash_summary"
   fi
 
   __sb_ext=$(_reg_field "$__sb_t" ARCHIVE)

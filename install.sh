@@ -40,6 +40,8 @@ fi
 . "$_lib_dir/registry.sh"
 # shellcheck source=lib/registry_install.sh
 . "$_lib_dir/registry_install.sh"
+# shellcheck source=lib/registry_verify.sh
+. "$_lib_dir/registry_verify.sh"
 
 log "Detected platform:"
 detect_print_summary
@@ -218,6 +220,13 @@ _stop_sudo_keepalive
 # shellcheck source=lib/pickers.sh
 . "$_lib_dir/pickers.sh"
 run_pickers
+
+# Post-install sanity check: every registry tool's --version must report
+# the version we pinned. Default warn-only — operator sees a table at the
+# end and decides whether drift is acceptable. SHELL_BLING_STRICT_VERSIONS=1
+# (set by docker/entrypoint.sh + the Jenkins matrix) turns drift into a
+# hard install failure.
+registry_verify_all "$REGISTRY_TOOLS" || exit $?
 
 printf '\033[1;32m==> Shell Bling installed.\033[0m\n'
 printf 'Restart your terminal to pick up everything. Welcome.\n'

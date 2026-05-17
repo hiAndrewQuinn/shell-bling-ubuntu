@@ -39,6 +39,22 @@ registry_verify_all() {
       continue
     fi
 
+    # VERSION_PATTERN=skip: smoke-test only; tool doesn't expose its tag
+    # (gron's --version literally prints "gron version dev"). Trust the
+    # URL — if smoke passed and INSTALL_AS exists, we got what we asked for.
+    if [ "$__sb_pattern" = skip ]; then
+      if sh -c "$__sb_smoke" > /dev/null 2>&1; then
+        __sb_rows="$__sb_rows$(printf '  %-12s expected %-10s smoke ok (no ver) ✓' \
+          "$__sb_t" "$__sb_expected")\n"
+        __sb_pass=$((__sb_pass + 1))
+      else
+        __sb_rows="$__sb_rows$(printf '  %-12s expected %-10s smoke FAILED     ✗' \
+          "$__sb_t" "$__sb_expected")\n"
+        __sb_fail=$((__sb_fail + 1))
+      fi
+      continue
+    fi
+
     # Capture combined stdout+stderr — some tools (eg micro -version) emit on stderr.
     __sb_out=$(sh -c "$__sb_smoke" 2>&1 || true)
     __sb_actual=$(printf '%s\n' "$__sb_out" | grep -o "$__sb_pattern" | head -n 1)

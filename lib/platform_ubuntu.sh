@@ -14,8 +14,7 @@ platform_ubuntu_universal_pkgs() {
   # install (with the runtime/ dir) instead.
   echo "curl git ca-certificates gnupg unzip xz-utils \
         fish \
-        ripgrep jq tmux tree htop \
-        bat fd-find xclip lnav gron \
+        tmux tree htop xclip \
         gcc g++ make nodejs \
         fzf"
 }

@@ -173,10 +173,9 @@ registry_fetch_all "$REGISTRY_TOOLS" "$_reg_workdir"
 registry_install_all "$REGISTRY_TOOLS" "$_reg_workdir"
 
 # ---------- remaining legacy installers (pending R4.2 migration) --------------
-# helix needs a runtime/ dir + HELIX_RUNTIME export; fzf needs shell-integration
-# scripts; delta is a plain binary that still has its own .sh file. These move
-# into the registry later in R4.2.
-for _t in helix fzf delta; do
+# helix needs a runtime/ dir; fzf needs shell-integration scripts. Both move
+# into the registry next.
+for _t in helix fzf; do
   "install_$_t" || warn "install_$_t failed (continuing)"
 done
 

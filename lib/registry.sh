@@ -183,6 +183,101 @@ ZOXIDE_BIN_IN_ARCHIVE=zoxide
 ZOXIDE_INSTALL_AS=/usr/local/bin/zoxide
 ZOXIDE_SMOKE="zoxide --version"
 
+# ----- ripgrep ----- Rust tarball; gnu+musl for both arches.
+RIPGREP_VERSION=15.1.0
+RIPGREP_URL_amd64_gnu="https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+RIPGREP_URL_amd64_musl="$RIPGREP_URL_amd64_gnu"
+RIPGREP_URL_arm64_gnu="https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-aarch64-unknown-linux-gnu.tar.gz"
+RIPGREP_URL_arm64_musl="$RIPGREP_URL_arm64_gnu"
+RIPGREP_ARCHIVE=tar.gz
+RIPGREP_BIN_IN_ARCHIVE_amd64="ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg"
+RIPGREP_BIN_IN_ARCHIVE_arm64="ripgrep-${RIPGREP_VERSION}-aarch64-unknown-linux-gnu/rg"
+RIPGREP_BIN_IN_ARCHIVE="$RIPGREP_BIN_IN_ARCHIVE_amd64"
+RIPGREP_INSTALL_AS=/usr/local/bin/rg
+RIPGREP_SMOKE="rg --version"
+RIPGREP_FALLBACK_PKG=ripgrep
+
+# ----- bat ----- Rust tarball; gnu+musl for amd64, gnu only for arm64.
+BAT_VERSION=0.26.1
+BAT_URL_amd64_gnu="https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+BAT_URL_amd64_musl="https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+BAT_URL_arm64_gnu="https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-aarch64-unknown-linux-gnu.tar.gz"
+BAT_URL_arm64_musl="$BAT_URL_arm64_gnu"
+BAT_ARCHIVE=tar.gz
+BAT_BIN_IN_ARCHIVE_amd64_gnu="bat-v${BAT_VERSION}-x86_64-unknown-linux-gnu/bat"
+BAT_BIN_IN_ARCHIVE_amd64_musl="bat-v${BAT_VERSION}-x86_64-unknown-linux-musl/bat"
+BAT_BIN_IN_ARCHIVE_arm64="bat-v${BAT_VERSION}-aarch64-unknown-linux-gnu/bat"
+BAT_BIN_IN_ARCHIVE="$BAT_BIN_IN_ARCHIVE_amd64_gnu"
+BAT_INSTALL_AS=/usr/local/bin/bat
+BAT_SMOKE="bat --version"
+
+# ----- fd ----- Rust tarball; gnu+musl for amd64, gnu only for arm64.
+FD_VERSION=10.4.2
+FD_URL_amd64_gnu="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+FD_URL_amd64_musl="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+FD_URL_arm64_gnu="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-aarch64-unknown-linux-gnu.tar.gz"
+FD_URL_arm64_musl="$FD_URL_arm64_gnu"
+FD_ARCHIVE=tar.gz
+FD_BIN_IN_ARCHIVE_amd64_gnu="fd-v${FD_VERSION}-x86_64-unknown-linux-gnu/fd"
+FD_BIN_IN_ARCHIVE_amd64_musl="fd-v${FD_VERSION}-x86_64-unknown-linux-musl/fd"
+FD_BIN_IN_ARCHIVE_arm64="fd-v${FD_VERSION}-aarch64-unknown-linux-gnu/fd"
+FD_BIN_IN_ARCHIVE="$FD_BIN_IN_ARCHIVE_amd64_gnu"
+FD_INSTALL_AS=/usr/local/bin/fd
+FD_SMOKE="fd --version"
+FD_FALLBACK_PKG=fd-find
+
+# ----- jq ----- raw single-file binaries (no archive).
+JQ_VERSION=1.8.1
+JQ_URL_amd64_gnu="https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/jq-linux-amd64"
+JQ_URL_amd64_musl="$JQ_URL_amd64_gnu"
+JQ_URL_arm64_gnu="https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/jq-linux-arm64"
+JQ_URL_arm64_musl="$JQ_URL_arm64_gnu"
+JQ_ARCHIVE=none
+JQ_BIN_IN_ARCHIVE=.
+JQ_INSTALL_AS=/usr/local/bin/jq
+JQ_SMOKE="jq --version"
+
+# ----- delta (git-delta) ----- Rust tarball; gnu+musl for amd64.
+DELTA_VERSION=0.19.2
+DELTA_URL_amd64_gnu="https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
+DELTA_URL_amd64_musl="https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz"
+DELTA_URL_arm64_gnu="https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-aarch64-unknown-linux-gnu.tar.gz"
+DELTA_URL_arm64_musl="$DELTA_URL_arm64_gnu"
+DELTA_ARCHIVE=tar.gz
+DELTA_BIN_IN_ARCHIVE_amd64_gnu="delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu/delta"
+DELTA_BIN_IN_ARCHIVE_amd64_musl="delta-${DELTA_VERSION}-x86_64-unknown-linux-musl/delta"
+DELTA_BIN_IN_ARCHIVE_arm64="delta-${DELTA_VERSION}-aarch64-unknown-linux-gnu/delta"
+DELTA_BIN_IN_ARCHIVE="$DELTA_BIN_IN_ARCHIVE_amd64_gnu"
+DELTA_INSTALL_AS=/usr/local/bin/delta
+DELTA_SMOKE="delta --version"
+DELTA_FALLBACK_PKG=git-delta
+
+# ----- lnav ----- musl-only zip; works on both glibc and musl.
+LNAV_VERSION=0.14.0
+LNAV_URL_amd64_gnu="https://github.com/tstack/lnav/releases/download/v${LNAV_VERSION}/lnav-${LNAV_VERSION}-linux-musl-x86_64.zip"
+LNAV_URL_amd64_musl="$LNAV_URL_amd64_gnu"
+LNAV_URL_arm64_gnu="https://github.com/tstack/lnav/releases/download/v${LNAV_VERSION}/lnav-${LNAV_VERSION}-linux-musl-arm64.zip"
+LNAV_URL_arm64_musl="$LNAV_URL_arm64_gnu"
+LNAV_ARCHIVE=zip
+LNAV_BIN_IN_ARCHIVE="lnav-${LNAV_VERSION}/lnav"
+LNAV_INSTALL_AS=/usr/local/bin/lnav
+LNAV_SMOKE="lnav --version"
+
+# ----- gron ----- Go binary (static); flat tarball.
+GRON_VERSION=0.7.1
+GRON_URL_amd64_gnu="https://github.com/tomnomnom/gron/releases/download/v${GRON_VERSION}/gron-linux-amd64-${GRON_VERSION}.tgz"
+GRON_URL_amd64_musl="$GRON_URL_amd64_gnu"
+GRON_URL_arm64_gnu="https://github.com/tomnomnom/gron/releases/download/v${GRON_VERSION}/gron-linux-arm64-${GRON_VERSION}.tgz"
+GRON_URL_arm64_musl="$GRON_URL_arm64_gnu"
+GRON_ARCHIVE=tar.gz
+GRON_BIN_IN_ARCHIVE=gron
+GRON_INSTALL_AS=/usr/local/bin/gron
+GRON_SMOKE="gron --version"
+# gron's --version output is `gron version dev` (Go build embeds "dev"
+# instead of the tag). Skip version-string verification; smoke alone is
+# what we can check.
+GRON_VERSION_PATTERN=skip
+
 # ----- tealdeer ----- musl-static raw binary; no archive.
 # Installed as /usr/local/bin/tldr (the binary IS tealdeer; the install path
 # is the conventional name). Post-install hook primes the cache so `tldr fd`
@@ -203,4 +298,4 @@ TEALDEER_POSTINSTALL_HOOK=tealdeer_postinstall
 # registry_install_all. Adding a new tool means: (1) append a block above,
 # (2) add the lowercase name to this list, (3) delete the now-obsolete
 # lib/tools/<tool>.sh if any.
-REGISTRY_TOOLS="cheat eza gh gopass lazygit lsd micro neovim qsv starship tealdeer zoxide"
+REGISTRY_TOOLS="bat cheat delta eza fd gh gopass gron jq lazygit lnav lsd micro neovim qsv ripgrep starship tealdeer zoxide"

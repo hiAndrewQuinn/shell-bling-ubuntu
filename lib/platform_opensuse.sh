@@ -11,7 +11,7 @@
 platform_opensuse_universal_pkgs() {
   # Anything in the registry (lib/registry.sh) is excluded — the registry
   # installs the upstream binary directly.
-  echo "fish curl git ripgrep jq vim tmux tree htop bat fd kitty xclip \
-        gcc gcc-c++ make nodejs git-delta lnav gron unzip xz \
+  echo "fish curl git vim tmux tree htop kitty xclip \
+        gcc gcc-c++ make nodejs unzip xz \
         helix fzf"
 }

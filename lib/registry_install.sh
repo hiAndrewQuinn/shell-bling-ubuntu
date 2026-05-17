@@ -158,11 +158,15 @@ _reg_install_one() {
   __sb_t=$1
   __sb_workdir=$2
 
-  # Idempotency: if the smoke test already passes, skip extract+install
-  # — but still re-apply symlinks (a previous distro-pkg install may have
-  # landed gopass without a `pass` shim, etc.).
+  # Idempotency: if our INSTALL_AS file already exists AND the smoke test
+  # passes, skip extract+install. We deliberately check the target path,
+  # not just `command -v`, because a distro pkg may have provided the
+  # binary at /usr/bin/ — we still want OUR pinned version at
+  # /usr/local/bin/ to shadow it. Symlinks are re-applied either way.
   __sb_smoke=$(_reg_field "$__sb_t" SMOKE)
-  if [ -n "$__sb_smoke" ] && sh -c "$__sb_smoke" > /dev/null 2>&1; then
+  __sb_install_as=$(_reg_field "$__sb_t" INSTALL_AS)
+  if [ -e "$__sb_install_as" ] && [ -n "$__sb_smoke" ] &&
+    sh -c "$__sb_smoke" > /dev/null 2>&1; then
     log "  $__sb_t: already installed; skipping (ensuring symlinks)"
     _reg_apply_symlinks "$__sb_t"
     return 0

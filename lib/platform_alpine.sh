@@ -7,18 +7,16 @@
 # on Alpine) when run.
 
 platform_alpine_universal_pkgs() {
-  echo "fish bash curl git ca-certificates ripgrep jq vim tmux tree htop \
-        bat fd kitty xclip xz unzip \
-        gcc make nodejs lnav delta \
+  echo "fish bash curl git ca-certificates vim tmux tree htop \
+        kitty xclip xz unzip \
+        gcc make nodejs \
         helix fzf neovim shadow sudo"
   # Notes:
-  #   - cheat, eza, gh, gopass, lazygit, lsd, micro, qsv, starship, tealdeer,
-  #     zoxide: lib/registry.sh installs the upstream binary directly (works
-  #     on musl). The registry's pkg_install fallback covers what little
-  #     doesn't have an upstream Linux binary.
-  #   - delta, helix, fzf: still legacy lib/tools/* in R4.2 transition; move
-  #     to registry once their post-install hooks land.
+  #   - The registry (lib/registry.sh) installs every other tool from the
+  #     upstream binary directly (musl variants where required); the
+  #     pkg_install fallback covers gaps.
   #   - neovim stays in apt because its upstream tarball is glibc-only; on
-  #     Alpine apk's neovim is the right binary anyway.
-  #   - gron: not in Alpine repos. Skipped on this distro.
+  #     Alpine apk's neovim is the right binary anyway (musl-linked).
+  #   - gron has no Alpine apk; the registry's gron entry uses the Go-static
+  #     amd64/arm64 tarball, which runs on musl too.
 }

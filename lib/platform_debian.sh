@@ -14,8 +14,7 @@ platform_debian_universal_pkgs() {
   # handles the upstream tarball install (with the runtime/ dir) instead.
   echo "curl git ca-certificates gnupg unzip xz-utils \
         fish \
-        ripgrep jq tmux tree htop \
-        bat fd-find xclip lnav gron \
+        tmux tree htop xclip \
         gcc g++ make nodejs \
         fzf"
 }

@@ -45,6 +45,46 @@ make dev DISTRO=ubuntu-24.04   # or debian-13, ubuntu-22.04, etc.
 This drops you into an interactive shell inside a fresh container after the
 installer runs. Great for kicking the tires.
 
+### Poking at it like a real machine (SSH into the container)
+
+If you want the container to stick around — to attach from a second terminal,
+`scp` files in/out, or just have it feel like a remote machine:
+
+```sh
+make dev-bg DISTRO=debian-13          # also installs sshd, port 2222
+# wait for the "dev container ready" marker, then:
+ssh -p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null dev@localhost
+# or attach in-place:
+docker exec -it sbu-dev-debian-13 fish
+# tear down when done:
+make dev-down DISTRO=debian-13
+```
+
+Don't want to remember the distro string? Skip `DISTRO=` and the script
+pops an fzf picker (or falls back to a numbered prompt) listing every
+`docker/*.Dockerfile` it finds:
+
+```sh
+sh docker/dev-bg.sh                   # interactive picker
+sh docker/dev-bg.sh random            # roll one at random
+sh docker/dev-bg.sh --list            # just print available distros
+```
+
+`dev-bg` copies every `~/.ssh/*.pub` you have into the container's
+`authorized_keys` so any of your existing keys will get you in.
+Override the port with `DEV_PORT=2244`, or pin to one specific key
+with `DEV_PUBKEY_GLOB='~/.ssh/work_*.pub'`.
+
+Differences from `make dev`:
+
+| | `make dev` | `make dev-bg` |
+|---|---|---|
+| install runs | yes | yes (non-interactively) |
+| stays up after install | no (drops to foreground shell, exits on logout) | yes (until `make dev-down`) |
+| sshd | no | yes, port `$DEV_PORT` (default 2222) |
+| fzf pickers | yes (real tty) | no (skipped via `SHELL_BLING_NONINTERACTIVE=1`) |
+| best for | first-time "look around" | repeated experimentation |
+
 ## What's in the box
 
 <details>

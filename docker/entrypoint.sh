@@ -59,11 +59,22 @@ if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
 fi
 
 FAILED=""
+# SHELL_BLING_SMOKE_OPTIONAL: space-separated tool names that are allowed to
+# be missing on this distro (e.g. tldr on Alpine — no apk package). Tools in
+# this list still fail the smoke test if they exist but crash on --version;
+# they only get a pass when entirely absent.
+_optional=${SHELL_BLING_SMOKE_OPTIONAL:-}
 echo "==> smoke test: invoking --version on each tool"
 for line in $SMOKE_TESTS; do
   cmd=${line%%:*}
   arg=${line#*:}
   if ! command -v "$cmd" > /dev/null 2>&1; then
+    case " $_optional " in
+      *" $cmd "*)
+        echo "  $cmd (skipped — optional on this distro)"
+        continue
+        ;;
+    esac
     FAILED="$FAILED\n  $cmd (not found on PATH)"
     continue
   fi
@@ -86,10 +97,21 @@ if [ -n "$FAILED" ]; then
   exit 1
 fi
 
-# Extra: nvim must be at least 0.11 for LazyVim.
+# Extra: nvim must be at least 0.11 for LazyVim. On distros where Neovim 0.11+
+# isn't available without building from source (Alpine ships 0.10.x on edge),
+# set SHELL_BLING_ALLOW_OLD_NVIM=1 — we still verify nvim runs, just don't
+# block on version.
+if ! command -v nvim > /dev/null 2>&1; then
+  echo "==> smoke test PASS (nvim absent on this distro, all other tools execute)"
+  exit 0
+fi
 NVIM_VER=$(nvim --version | awk 'NR==1 {gsub(/^v/,"",$2); print $2}')
 case "$NVIM_VER" in
   0.[0-9].* | 0.10.*)
+    if [ "${SHELL_BLING_ALLOW_OLD_NVIM:-0}" = 1 ]; then
+      echo "==> smoke test PASS (nvim $NVIM_VER, all tools execute; LazyVim skipped — too old)"
+      exit 0
+    fi
     echo "==> smoke test FAIL: nvim version too old: $NVIM_VER (need >=0.11)"
     exit 1
     ;;

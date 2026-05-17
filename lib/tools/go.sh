@@ -10,6 +10,12 @@ install_go() {
       brew install go
       return $?
       ;;
+    alpine)
+      # go.dev tarballs are glibc-only. Alpine ships its own musl Go in
+      # community; use it (currently 1.23.x). Latest stable from go.dev is
+      # unattainable without building from source on musl.
+      pkg_install go && has_cmd go && return 0
+      ;;
   esac
 
   case "$ARCH" in

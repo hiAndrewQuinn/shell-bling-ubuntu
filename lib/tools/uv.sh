@@ -21,9 +21,15 @@ install_uv() {
       ;;
   esac
 
+  # uv ships dedicated musl builds — use them on Alpine (and any other
+  # musl-only host) so the binary actually runs.
+  _uv_libc=gnu
+  if ldd --version 2>&1 | head -1 | grep -qi musl; then
+    _uv_libc=musl
+  fi
   case "$ARCH" in
-    amd64) _suffix=x86_64-unknown-linux-gnu ;;
-    arm64) _suffix=aarch64-unknown-linux-gnu ;;
+    amd64) _suffix=x86_64-unknown-linux-${_uv_libc} ;;
+    arm64) _suffix=aarch64-unknown-linux-${_uv_libc} ;;
     *)
       err "no uv build for arch $ARCH"
       return 1
@@ -69,6 +75,13 @@ _uv_install_latest_python() {
   has_cmd uv || return 0
   if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
     log "SHELL_BLING_SKIP_TOOLCHAINS=1 — skipping uv python install"
+    return 0
+  fi
+  # Alpine: uv's prebuilt CPython interpreters are gnu-only (link against
+  # /lib64/ld-linux-*) and crash on musl. Skip the python install; users
+  # can `apk add python3` if they want a system Python.
+  if [ "$DISTRO" = alpine ]; then
+    log "Alpine: skipping uv python install (musl-incompatible prebuilds)"
     return 0
   fi
   # Skip if at least one managed CPython is already present.

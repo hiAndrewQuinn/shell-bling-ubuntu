@@ -42,6 +42,9 @@ pkg_update() {
     arch)
       sudo_run pacman -Sy --noconfirm
       ;;
+    alpine)
+      sudo_run apk update
+      ;;
     macos)
       has_cmd brew || _install_homebrew
       brew update
@@ -75,6 +78,11 @@ pkg_install() {
       # `has_cmd <bin>` before declaring success.
       sudo_run pacman -S --needed --noconfirm "$@"
       ;;
+    alpine)
+      # `apk add` aborts the batch on any unknown package, so per-tool
+      # callers post-check with `has_cmd <bin>`.
+      sudo_run apk add --no-cache "$@"
+      ;;
     macos)
       brew install "$@"
       ;;
@@ -91,6 +99,7 @@ pkg_available() {
     ubuntu | debian) apt-cache show "$1" > /dev/null 2>&1 ;;
     fedora) dnf info "$1" > /dev/null 2>&1 ;;
     arch) pacman -Si "$1" > /dev/null 2>&1 ;;
+    alpine) apk info -e "$1" > /dev/null 2>&1 || apk search -e "$1" 2> /dev/null | grep -q . ;;
     macos) brew info --formula "$1" > /dev/null 2>&1 ;;
     *) return 1 ;;
   esac

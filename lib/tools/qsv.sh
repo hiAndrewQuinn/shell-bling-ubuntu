@@ -15,13 +15,20 @@ install_qsv() {
   # Debian 12 / Ubuntu 22.04 ship 2.36 / 2.35 and the binary won't dynamically
   # link. Fall back to the -musl static build there.
   _libc_variant=gnu
+  _glibc_ver=""
   if [ -n "$(command -v ldd 2> /dev/null)" ]; then
-    _glibc_ver=$(ldd --version 2> /dev/null | awk 'NR==1 {print $NF}')
-    case "$_glibc_ver" in
-      2.[0-9] | 2.[0-9].* | 2.[12][0-9] | 2.[12][0-9].* | 2.3[0-7] | 2.3[0-7].*)
-        _libc_variant=musl
-        ;;
-    esac
+    _ldd_out=$(ldd --version 2>&1 | head -2)
+    # Alpine / musl-based: ldd --version prints "musl libc (x86_64)\nVersion ..."
+    if printf '%s\n' "$_ldd_out" | grep -qi musl; then
+      _libc_variant=musl
+    else
+      _glibc_ver=$(printf '%s\n' "$_ldd_out" | awk 'NR==1 {print $NF}')
+      case "$_glibc_ver" in
+        2.[0-9] | 2.[0-9].* | 2.[12][0-9] | 2.[12][0-9].* | 2.3[0-7] | 2.3[0-7].*)
+          _libc_variant=musl
+          ;;
+      esac
+    fi
   fi
   case "$ARCH" in
     amd64) _suffix=x86_64-unknown-linux-${_libc_variant} ;;

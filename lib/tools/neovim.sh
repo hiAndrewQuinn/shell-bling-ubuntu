@@ -10,6 +10,11 @@ install_neovim() {
       brew install neovim
       return $?
       ;;
+    alpine)
+      # Neovim's tarball is glibc-only. Use apk's neovim (currently 0.10.x on
+      # Alpine 3.23 — too old for LazyVim, which is skipped on Alpine).
+      pkg_install neovim && has_cmd nvim && return 0
+      ;;
   esac
 
   case "$ARCH" in

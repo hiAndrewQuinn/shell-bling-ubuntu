@@ -8,10 +8,12 @@ install_delta() {
       brew install git-delta
       return $?
       ;;
-    fedora) pkg_install git-delta && return 0 ;;
+    fedora) pkg_install git-delta && has_cmd delta && return 0 ;;
+    # Alpine + Arch package is `delta` (provides /usr/bin/delta).
+    alpine | arch) pkg_install delta && has_cmd delta && return 0 ;;
   esac
   if pkg_available git-delta; then
-    pkg_install git-delta && return 0
+    pkg_install git-delta && has_cmd delta && return 0
   fi
 
   __sb_ver=$(github_latest_tag dandavison/delta)

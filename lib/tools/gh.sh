@@ -9,10 +9,19 @@ install_gh() {
       return $?
       ;;
     fedora) pkg_install gh && has_cmd gh && return 0 ;;
+    # Alpine + Arch package is `github-cli` (provides /usr/bin/gh).
+    alpine | arch) pkg_install github-cli && has_cmd gh && return 0 ;;
   esac
   if pkg_available gh; then
-    pkg_install gh && return 0
+    pkg_install gh && has_cmd gh && return 0
   fi
+  case "$DISTRO" in
+    ubuntu | debian) ;;
+    *)
+      warn "no apt repo strategy for $DISTRO; skipping gh"
+      return 0
+      ;;
+  esac
 
   log "Adding GitHub CLI apt repo"
   sudo_run mkdir -p -m 755 /etc/apt/keyrings

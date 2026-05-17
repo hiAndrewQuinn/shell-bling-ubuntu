@@ -152,6 +152,10 @@ case "$DISTRO" in
     # shellcheck source=lib/platform_arch.sh
     . "$_lib_dir/platform_arch.sh"
     ;;
+  alpine)
+    # shellcheck source=lib/platform_alpine.sh
+    . "$_lib_dir/platform_alpine.sh"
+    ;;
 esac
 if [ "$IS_WSL" = 1 ]; then
   # shellcheck source=lib/platform_wsl.sh
@@ -189,6 +193,11 @@ case "$DISTRO" in
     pkg_install $(platform_arch_universal_pkgs) ||
       warn "some Arch packages may not be available; per-tool installers will fill in"
     ;;
+  alpine)
+    # shellcheck disable=SC2046  # word splitting wanted
+    pkg_install $(platform_alpine_universal_pkgs) ||
+      warn "some Alpine packages may not be available; per-tool installers will fill in"
+    ;;
   macos)
     # shellcheck disable=SC2046
     pkg_install $(platform_macos_universal_pkgs)
@@ -215,6 +224,10 @@ if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
     arch)
       pkg_install rust go 2> /dev/null ||
         warn "rust/go not available in distro repos"
+      ;;
+    alpine)
+      pkg_install rust cargo go 2> /dev/null ||
+        warn "rust/cargo/go not available in distro repos"
       ;;
     macos)
       brew install rust go 2> /dev/null || true
@@ -243,7 +256,19 @@ done
 
 setup_kitty
 setup_git
-[ "${SHELL_BLING_SKIP_LAZYVIM:-0}" = 1 ] || setup_lazyvim
+# LazyVim needs Neovim >= 0.11. If nvim is older (e.g. Alpine's apk-shipped
+# 0.10.x), skip the starter clone so we don't leave a broken config behind.
+_skip_lazyvim=${SHELL_BLING_SKIP_LAZYVIM:-0}
+if [ "$_skip_lazyvim" != 1 ] && has_cmd nvim; then
+  _nvim_ver=$(nvim --version 2> /dev/null | awk 'NR==1 {gsub(/^v/,"",$2); print $2}')
+  case "$_nvim_ver" in
+    0.[0-9].* | 0.10.*)
+      warn "Neovim $_nvim_ver < 0.11 — skipping LazyVim starter clone"
+      _skip_lazyvim=1
+      ;;
+  esac
+fi
+[ "$_skip_lazyvim" = 1 ] || setup_lazyvim
 setup_fish
 
 # show_random_whatis function — keep in sync with what's installed.

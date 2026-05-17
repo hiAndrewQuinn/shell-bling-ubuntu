@@ -43,6 +43,19 @@ elif [ -r /etc/os-release ]; then
   DISTRO=${ID:-unknown}
   CODENAME=${VERSION_CODENAME:-}
   VERSION_ID=${VERSION_ID:-}
+  # Normalize SUSE family: ID is "opensuse-tumbleweed" or "opensuse-leap", but
+  # every per-tool installer just wants "opensuse". Stash the original in
+  # CODENAME so callers can still distinguish if they need to.
+  case "$DISTRO" in
+    opensuse-tumbleweed)
+      DISTRO=opensuse
+      CODENAME=tumbleweed
+      ;;
+    opensuse-leap)
+      DISTRO=opensuse
+      CODENAME=leap
+      ;;
+  esac
 fi
 
 case "$DISTRO:$CODENAME" in
@@ -52,7 +65,7 @@ case "$DISTRO:$CODENAME" in
   debian:bookworm | debian:trixie)
     SUPPORT_TIER=tier1
     ;;
-  fedora:* | macos:* | arch:* | alpine:*)
+  fedora:* | macos:* | arch:* | alpine:* | opensuse:*)
     SUPPORT_TIER=experimental
     ;;
 esac

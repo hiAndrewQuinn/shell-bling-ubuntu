@@ -45,6 +45,9 @@ pkg_update() {
     alpine)
       sudo_run apk update
       ;;
+    opensuse)
+      sudo_run zypper --non-interactive refresh
+      ;;
     macos)
       has_cmd brew || _install_homebrew
       brew update
@@ -83,6 +86,17 @@ pkg_install() {
       # callers post-check with `has_cmd <bin>`.
       sudo_run apk add --no-cache "$@"
       ;;
+    opensuse)
+      # zypper exits 104 ("no provider") if any requested package is
+      # unknown — and aborts the rest. Install one at a time so a single
+      # missing package doesn't strand the batch (same intent as dnf's
+      # --setopt=strict=0 and our per-package handling on Alpine).
+      __sb_rc=0
+      for __sb_p in "$@"; do
+        sudo_run zypper --non-interactive install --no-recommends "$__sb_p" || __sb_rc=$?
+      done
+      return "$__sb_rc"
+      ;;
     macos)
       brew install "$@"
       ;;
@@ -100,6 +114,7 @@ pkg_available() {
     fedora) dnf info "$1" > /dev/null 2>&1 ;;
     arch) pacman -Si "$1" > /dev/null 2>&1 ;;
     alpine) apk info -e "$1" > /dev/null 2>&1 || apk search -e "$1" 2> /dev/null | grep -q . ;;
+    opensuse) zypper --non-interactive info "$1" 2> /dev/null | grep -q '^Repository' ;;
     macos) brew info --formula "$1" > /dev/null 2>&1 ;;
     *) return 1 ;;
   esac

@@ -156,6 +156,10 @@ case "$DISTRO" in
     # shellcheck source=lib/platform_alpine.sh
     . "$_lib_dir/platform_alpine.sh"
     ;;
+  opensuse)
+    # shellcheck source=lib/platform_opensuse.sh
+    . "$_lib_dir/platform_opensuse.sh"
+    ;;
 esac
 if [ "$IS_WSL" = 1 ]; then
   # shellcheck source=lib/platform_wsl.sh
@@ -198,6 +202,11 @@ case "$DISTRO" in
     pkg_install $(platform_alpine_universal_pkgs) ||
       warn "some Alpine packages may not be available; per-tool installers will fill in"
     ;;
+  opensuse)
+    # shellcheck disable=SC2046  # word splitting wanted
+    pkg_install $(platform_opensuse_universal_pkgs) ||
+      warn "some openSUSE packages may not be available; per-tool installers will fill in"
+    ;;
   macos)
     # shellcheck disable=SC2046
     pkg_install $(platform_macos_universal_pkgs)
@@ -229,6 +238,10 @@ if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
       pkg_install rust cargo go 2> /dev/null ||
         warn "rust/cargo/go not available in distro repos"
       ;;
+    opensuse)
+      pkg_install rust cargo go 2> /dev/null ||
+        warn "rust/cargo/go not available in distro repos"
+      ;;
     macos)
       brew install rust go 2> /dev/null || true
       ;;
@@ -241,7 +254,7 @@ fi
 # Order note: rustup/go come before tldr so tldr.sh can fall back to
 # `cargo install tealdeer` on distros without a tldr/tealdeer package
 # (Alpine today). The fzf/uv/etc. ordering is otherwise alphabetical.
-for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass gh cheat delta qsv $_toolchain_tools tldr; do
+for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass gh cheat delta qsv micro $_toolchain_tools tldr; do
   # shellcheck source=/dev/null
   . "$_lib_dir/tools/$_t.sh"
   "install_$_t" || warn "install_$_t failed (continuing)"

@@ -10,10 +10,11 @@ USER dev
 # after the install. nvim is too old (0.10.x) on Alpine 3.23 for LazyVim,
 # so LazyVim is skipped here. Go's official tarball is glibc-only — toolchain
 # falls back to apk's `go` package via SHELL_BLING_SKIP_TOOLCHAINS=1.
-# tldr (tealdeer) has no apk package — optional. Allow nvim 0.10.x since
-# Alpine has no 0.11+ package and LazyVim setup is auto-skipped accordingly.
-ENV SHELL_BLING_SMOKE_OPTIONAL="tldr" \
-    SHELL_BLING_ALLOW_OLD_NVIM=1
+# Alpine 3.23's apk-shipped nvim has been 0.11+ in practice (currently 0.11.7),
+# so LazyVim works. SHELL_BLING_ALLOW_OLD_NVIM=1 is defensive — if a future
+# Alpine downgrades the nvim package below 0.11, smoke tests still pass and
+# install.sh auto-skips LazyVim setup rather than leaving a broken config.
+ENV SHELL_BLING_ALLOW_OLD_NVIM=1
 WORKDIR /home/dev
 COPY --chown=dev . /home/dev/shell-bling-ubuntu
 ENTRYPOINT ["/home/dev/shell-bling-ubuntu/docker/entrypoint.sh"]

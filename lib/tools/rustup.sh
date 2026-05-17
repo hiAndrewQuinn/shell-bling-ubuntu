@@ -29,5 +29,17 @@ install_rustup() {
     > /dev/null
   _rc=$?
   rm -f /tmp/rustup-init.sh
+  # Make cargo/rustc visible to *this* shell so later per-tool installers
+  # in the same install.sh run (e.g. tealdeer via `cargo install` on Alpine)
+  # can find them without waiting for a fresh login shell.
+  if [ -d "$HOME/.cargo/bin" ]; then
+    case ":$PATH:" in
+      *":$HOME/.cargo/bin:"*) ;;
+      *)
+        PATH="$HOME/.cargo/bin:$PATH"
+        export PATH
+        ;;
+    esac
+  fi
   return "$_rc"
 }

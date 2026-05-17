@@ -238,7 +238,10 @@ else
   _toolchain_tools="rustup go"
 fi
 
-for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass tldr gh cheat delta qsv $_toolchain_tools; do
+# Order note: rustup/go come before tldr so tldr.sh can fall back to
+# `cargo install tealdeer` on distros without a tldr/tealdeer package
+# (Alpine today). The fzf/uv/etc. ordering is otherwise alphabetical.
+for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass gh cheat delta qsv $_toolchain_tools tldr; do
   # shellcheck source=/dev/null
   . "$_lib_dir/tools/$_t.sh"
   "install_$_t" || warn "install_$_t failed (continuing)"

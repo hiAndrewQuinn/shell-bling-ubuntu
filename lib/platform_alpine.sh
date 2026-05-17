@@ -8,7 +8,8 @@
 
 platform_alpine_universal_pkgs() {
   echo "bash curl git ca-certificates vim tmux tree htop \
-        kitty xclip xz unzip \
+        kitty xclip wl-clipboard xz unzip \
+        sqlite rsync \
         gcc make nodejs \
         neovim shadow sudo"
   # Notes:

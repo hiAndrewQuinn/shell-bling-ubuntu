@@ -5,7 +5,8 @@
 platform_fedora_universal_pkgs() {
   # Fedora package names. Anything in the registry (lib/registry.sh) is
   # excluded — the registry installs the upstream binary directly.
-  echo "curl git vim tmux tree htop kitty xclip \
+  echo "curl git vim tmux tree htop kitty xclip wl-clipboard \
+        sqlite rsync \
         gcc gcc-c++ make nodejs unzip xz \
        "
 }

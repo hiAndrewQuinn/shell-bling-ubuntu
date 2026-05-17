@@ -103,7 +103,7 @@ Differences from `make dev`:
 - **[starship](https://starship.rs)** — fast, minimal, customizable prompt.
 - **[tmux](https://github.com/tmux/tmux/wiki)** — terminal multiplexer.
 - **[kitty](https://sw.kovidgoyal.net/kitty/)** — GPU-based terminal with ligature support, set up with FiraCode Nerd Font.
-- **[xclip](https://github.com/astrand/xclip)** — pipe to/from the clipboard.
+- **[xclip](https://github.com/astrand/xclip)** + **[wl-clipboard](https://github.com/bugaevc/wl-clipboard)** — pipe to/from the system clipboard. Both installed so the same scripts work on X11 *and* Wayland (each one no-ops on the other's display server).
 
 </details>
 
@@ -121,6 +121,7 @@ Differences from `make dev`:
 - **[zoxide](https://github.com/ajeetdsouza/zoxide)** — smarter `cd` that learns your habits.
 - **[lsd](https://github.com/lsd-rs/lsd)** + **[eza](https://eza.rocks/)** — modern `ls` with icons & colors.
 - **[tree](http://mama.indstate.edu/users/ice/tree/)** — directories as a tree.
+- **[rsync](https://rsync.samba.org/)** — smart file copy/sync, locally or over ssh.
 
 </details>
 
@@ -149,7 +150,8 @@ Differences from `make dev`:
 <summary><strong>Data wrangling</strong></summary>
 
 - **[jq](https://stedolan.github.io/jq/)** + **[gron](https://github.com/tomnomnom/gron)** — JSON.
-- **[csvkit](https://csvkit.readthedocs.io/)** — CSV scalpels.
+- **[qsv](https://github.com/dathere/qsv)** — fast CSV scalpels (sub-commands for select, search, stats, join, frequency, etc.).
+- **[sqlite3](https://sqlite.org/)** — the world's most-used database, on tap for any "I need a real query for ten minutes" moment.
 
 </details>
 

@@ -148,6 +148,10 @@ case "$DISTRO" in
     # shellcheck source=lib/platform_fedora.sh
     . "$_lib_dir/platform_fedora.sh"
     ;;
+  arch)
+    # shellcheck source=lib/platform_arch.sh
+    . "$_lib_dir/platform_arch.sh"
+    ;;
 esac
 if [ "$IS_WSL" = 1 ]; then
   # shellcheck source=lib/platform_wsl.sh
@@ -180,6 +184,11 @@ case "$DISTRO" in
     pkg_install $(platform_fedora_universal_pkgs) ||
       warn "some Fedora packages may not be available; per-tool installers will fill in"
     ;;
+  arch)
+    # shellcheck disable=SC2046  # word splitting wanted
+    pkg_install $(platform_arch_universal_pkgs) ||
+      warn "some Arch packages may not be available; per-tool installers will fill in"
+    ;;
   macos)
     # shellcheck disable=SC2046
     pkg_install $(platform_macos_universal_pkgs)
@@ -202,6 +211,10 @@ if [ "${SHELL_BLING_SKIP_TOOLCHAINS:-0}" = 1 ]; then
     fedora)
       pkg_install rust cargo golang 2> /dev/null ||
         warn "rust/cargo/golang not available in distro repos"
+      ;;
+    arch)
+      pkg_install rust go 2> /dev/null ||
+        warn "rust/go not available in distro repos"
       ;;
     macos)
       brew install rust go 2> /dev/null || true

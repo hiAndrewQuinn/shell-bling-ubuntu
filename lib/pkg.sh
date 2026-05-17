@@ -39,6 +39,9 @@ pkg_update() {
     fedora)
       sudo_run dnf -y makecache
       ;;
+    arch)
+      sudo_run pacman -Sy --noconfirm
+      ;;
     macos)
       has_cmd brew || _install_homebrew
       brew update
@@ -66,6 +69,12 @@ pkg_install() {
       # lazygit) would otherwise abort and leave the rest uninstalled.
       sudo_run dnf -y --setopt=strict=0 install "$@"
       ;;
+    arch)
+      # --needed → skip already-installed; pacman aborts the whole batch on
+      # missing packages, so per-tool callers should still post-check with
+      # `has_cmd <bin>` before declaring success.
+      sudo_run pacman -S --needed --noconfirm "$@"
+      ;;
     macos)
       brew install "$@"
       ;;
@@ -81,6 +90,7 @@ pkg_available() {
   case "$DISTRO" in
     ubuntu | debian) apt-cache show "$1" > /dev/null 2>&1 ;;
     fedora) dnf info "$1" > /dev/null 2>&1 ;;
+    arch) pacman -Si "$1" > /dev/null 2>&1 ;;
     macos) brew info --formula "$1" > /dev/null 2>&1 ;;
     *) return 1 ;;
   esac

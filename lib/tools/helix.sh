@@ -10,9 +10,10 @@ install_helix() {
       ;;
     fedora) pkg_install helix && has_cmd hx && return 0 ;;
   esac
-  # Debian 13+ / Ubuntu 24.04+ have helix in apt.
+  # Debian 13+ / Ubuntu 24.04+ have helix in apt as /usr/bin/hx. Arch ships
+  # /usr/bin/helix (no `hx`), so post-check the binary name we actually want.
   if pkg_available helix; then
-    pkg_install helix && return 0
+    pkg_install helix && has_cmd hx && return 0
   fi
 
   _ver=$(github_latest_tag helix-editor/helix)

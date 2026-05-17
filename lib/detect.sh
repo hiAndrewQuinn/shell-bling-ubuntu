@@ -52,7 +52,7 @@ case "$DISTRO:$CODENAME" in
   debian:bookworm | debian:trixie)
     SUPPORT_TIER=tier1
     ;;
-  fedora:* | macos:*)
+  fedora:* | macos:* | arch:*)
     SUPPORT_TIER=experimental
     ;;
 esac

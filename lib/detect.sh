@@ -5,6 +5,7 @@
 #   CODENAME    - e.g. noble, bookworm, ""  (empty on macos)
 #   VERSION_ID  - e.g. 24.04, 13, 39
 #   ARCH        - amd64 | arm64 | unknown
+#   LIBC        - gnu | musl  (Linux only; "gnu" on macOS by convention)
 #   IS_WSL      - 1 | 0
 #   SUPPORT_TIER - tier1 | experimental | unsupported
 
@@ -13,6 +14,7 @@ DISTRO=unknown
 CODENAME=""
 VERSION_ID=""
 ARCH=unknown
+LIBC=gnu
 IS_WSL=0
 SUPPORT_TIER=unsupported
 
@@ -33,6 +35,24 @@ if [ "$OS_FAMILY" = linux ] && [ -r /proc/version ]; then
     IS_WSL=1
   fi
 fi
+
+# libc detection — needed for picking the right upstream-binary asset
+# (gnu vs musl) in lib/registry.sh. Alpine's ldd --version prints
+# "musl libc (x86_64)..."; glibc's prints a version. Default to gnu so
+# macOS / non-Linux hosts don't get caught in the musl branch.
+# Also expose GLIBC_VERSION so the registry engine can fall back to musl
+# variants when a tool's prebuilt -gnu binary requires a newer glibc than
+# the host has (qsv on Debian 12 / Ubuntu 22.04 is the canonical case —
+# its -gnu binary needs glibc >= 2.38).
+GLIBC_VERSION=""
+if [ "$OS_FAMILY" = linux ] && command -v ldd > /dev/null 2>&1; then
+  if ldd --version 2>&1 | head -2 | grep -qi musl; then
+    LIBC=musl
+  else
+    GLIBC_VERSION=$(ldd --version 2>&1 | awk 'NR==1 {print $NF}')
+  fi
+fi
+export GLIBC_VERSION
 
 if [ "$OS_FAMILY" = darwin ]; then
   DISTRO=macos
@@ -76,12 +96,12 @@ if [ "$IS_WSL" = 1 ]; then
   SUPPORT_TIER=experimental
 fi
 
-export OS_FAMILY DISTRO CODENAME VERSION_ID ARCH IS_WSL SUPPORT_TIER
+export OS_FAMILY DISTRO CODENAME VERSION_ID ARCH LIBC IS_WSL SUPPORT_TIER
 
 detect_print_summary() {
   printf 'OS family:    %s\n' "$OS_FAMILY"
   printf 'Distro:       %s %s (%s)\n' "$DISTRO" "$VERSION_ID" "$CODENAME"
-  printf 'Architecture: %s\n' "$ARCH"
+  printf 'Architecture: %s (%s libc)\n' "$ARCH" "$LIBC"
   printf 'WSL:          %s\n' "$IS_WSL"
   printf 'Support tier: %s\n' "$SUPPORT_TIER"
 }

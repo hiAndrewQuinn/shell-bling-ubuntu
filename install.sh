@@ -36,6 +36,10 @@ fi
 . "$_lib_dir/detect.sh"
 # shellcheck source=lib/pkg.sh
 . "$_lib_dir/pkg.sh"
+# shellcheck source=lib/registry.sh
+. "$_lib_dir/registry.sh"
+# shellcheck source=lib/registry_install.sh
+. "$_lib_dir/registry_install.sh"
 
 log "Detected platform:"
 detect_print_summary
@@ -251,10 +255,22 @@ else
   _toolchain_tools="rustup go"
 fi
 
+# ---------- registry-driven static-binary installs ----------------------------
+# Round 4.1: pull static binaries straight from upstream (GitHub releases) for
+# tools whose vendor publishes one. Parallel fetch + sequential install. All
+# version pinning lives in lib/registry.sh. Per-(arch,libc) URL gaps fall
+# back to pkg_install automatically.
+_reg_workdir=$(mktemp -d -t shell-bling-registry-XXXXXX)
+trap 'rm -rf "$_reg_workdir"; _stop_sudo_keepalive' EXIT INT TERM
+registry_fetch_all "$REGISTRY_R41_TOOLS" "$_reg_workdir"
+registry_install_all "$REGISTRY_R41_TOOLS" "$_reg_workdir"
+
+# ---------- remaining per-tool installers (legacy, pending R4.3 migration) ----
 # Order note: rustup/go come before tldr so tldr.sh can fall back to
 # `cargo install tealdeer` on distros without a tldr/tealdeer package
-# (Alpine today). The fzf/uv/etc. ordering is otherwise alphabetical.
-for _t in neovim lazygit helix lsd eza starship zoxide fzf uv gopass gh cheat delta qsv micro $_toolchain_tools tldr; do
+# (Alpine today). helix has a runtime/ dir story; fzf+uv+delta have their
+# own post-install steps. R4.3 migrates these to registry + post-install hooks.
+for _t in helix fzf uv delta $_toolchain_tools tldr; do
   # shellcheck source=/dev/null
   . "$_lib_dir/tools/$_t.sh"
   "install_$_t" || warn "install_$_t failed (continuing)"

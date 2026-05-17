@@ -9,7 +9,7 @@ platform_arch_universal_pkgs() {
   # Arch package names. Anything in the registry (lib/registry.sh) is
   # excluded — the registry installs the upstream binary directly,
   # giving Arch users the same version as every other distro.
-  echo "fish curl git vim tmux tree htop kitty xclip \
+  echo "curl git vim tmux tree htop kitty xclip \
         gcc make nodejs unzip xz \
        "
 }

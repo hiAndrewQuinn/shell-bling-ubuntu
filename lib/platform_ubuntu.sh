@@ -10,7 +10,6 @@
 platform_ubuntu_universal_pkgs() {
   # Same shape as Debian; everything else lives in lib/registry.sh.
   echo "curl git ca-certificates gnupg unzip xz-utils \
-        fish \
         tmux tree htop xclip \
         gcc g++ make nodejs"
 }

@@ -13,7 +13,6 @@ platform_debian_universal_pkgs() {
   # tealdeer, zoxide) ships from lib/registry.sh as a pinned upstream
   # binary — same version across every distro.
   echo "curl git ca-certificates gnupg unzip xz-utils \
-        fish \
         tmux tree htop xclip \
         gcc g++ make nodejs"
 }

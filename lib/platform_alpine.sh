@@ -7,7 +7,7 @@
 # on Alpine) when run.
 
 platform_alpine_universal_pkgs() {
-  echo "fish bash curl git ca-certificates vim tmux tree htop \
+  echo "bash curl git ca-certificates vim tmux tree htop \
         kitty xclip xz unzip \
         gcc make nodejs \
         neovim shadow sudo"

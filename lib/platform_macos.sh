@@ -6,7 +6,7 @@ platform_macos_universal_pkgs() {
   # excluded — the registry installs the upstream binary directly (macOS
   # URLs to be added in a future round; right now macOS leans more on
   # Homebrew than the registry).
-  echo "fish curl git ripgrep jq vim tmux tree htop bat fd kitty \
+  echo "curl git ripgrep jq vim tmux tree htop bat fd kitty \
         gcc make node git-delta lnav"
 }
 

@@ -183,6 +183,21 @@ ZOXIDE_BIN_IN_ARCHIVE=zoxide
 ZOXIDE_INSTALL_AS=/usr/local/bin/zoxide
 ZOXIDE_SMOKE="zoxide --version"
 
+# ----- fish ----- fish 4.x ships a "standalone" tarball with a single
+# statically-linked binary. One URL per arch; works on glibc and musl.
+# Post-install hook registers the binary path in /etc/shells so chsh works.
+FISH_VERSION=4.7.1
+FISH_URL_amd64_gnu="https://github.com/fish-shell/fish-shell/releases/download/${FISH_VERSION}/fish-${FISH_VERSION}-linux-x86_64.tar.xz"
+FISH_URL_amd64_musl="$FISH_URL_amd64_gnu"
+FISH_URL_arm64_gnu="https://github.com/fish-shell/fish-shell/releases/download/${FISH_VERSION}/fish-${FISH_VERSION}-linux-aarch64.tar.xz"
+FISH_URL_arm64_musl="$FISH_URL_arm64_gnu"
+FISH_ARCHIVE=tar.xz
+FISH_BIN_IN_ARCHIVE=fish
+FISH_INSTALL_AS=/usr/local/bin/fish
+FISH_SMOKE="fish --version"
+FISH_POSTINSTALL_HOOK=fish_postinstall
+FISH_FALLBACK_PKG=fish
+
 # ----- helix ----- editor; glibc-only tarball; ships a runtime/ dir its
 # binary needs at runtime. Post-install hook copies runtime/ into
 # /usr/local/share/helix/ via REGISTRY_TMP_DIR.
@@ -328,4 +343,4 @@ TEALDEER_POSTINSTALL_HOOK=tealdeer_postinstall
 # registry_install_all. Adding a new tool means: (1) append a block above,
 # (2) add the lowercase name to this list, (3) delete the now-obsolete
 # lib/tools/<tool>.sh if any.
-REGISTRY_TOOLS="bat cheat delta eza fd fzf gh gopass gron helix jq lazygit lnav lsd micro neovim qsv ripgrep starship tealdeer zoxide"
+REGISTRY_TOOLS="bat cheat delta eza fd fish fzf gh gopass gron helix jq lazygit lnav lsd micro neovim qsv ripgrep starship tealdeer zoxide"

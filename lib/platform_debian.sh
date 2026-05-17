@@ -8,15 +8,14 @@
 # directly, giving Debian users the same version as every other distro.
 
 platform_debian_universal_pkgs() {
-  # helix is intentionally absent — Debian doesn't ship a `helix` apt
-  # package, and one missing name makes apt's transactional install
-  # abort the whole batch. The legacy install_helix() in lib/tools/helix.sh
-  # handles the upstream tarball install (with the runtime/ dir) instead.
+  # Everything else (bat, cheat, delta, eza, fd, fzf, gh, gopass, gron,
+  # helix, jq, lazygit, lnav, lsd, micro, neovim, qsv, ripgrep, starship,
+  # tealdeer, zoxide) ships from lib/registry.sh as a pinned upstream
+  # binary — same version across every distro.
   echo "curl git ca-certificates gnupg unzip xz-utils \
         fish \
         tmux tree htop xclip \
-        gcc g++ make nodejs \
-        fzf"
+        gcc g++ make nodejs"
 }
 
 platform_debian_preflight() {

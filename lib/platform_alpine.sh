@@ -10,7 +10,7 @@ platform_alpine_universal_pkgs() {
   echo "fish bash curl git ca-certificates vim tmux tree htop \
         kitty xclip xz unzip \
         gcc make nodejs \
-        helix fzf neovim shadow sudo"
+        neovim shadow sudo"
   # Notes:
   #   - The registry (lib/registry.sh) installs every other tool from the
   #     upstream binary directly (musl variants where required); the

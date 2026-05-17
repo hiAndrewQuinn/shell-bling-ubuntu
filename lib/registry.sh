@@ -183,6 +183,36 @@ ZOXIDE_BIN_IN_ARCHIVE=zoxide
 ZOXIDE_INSTALL_AS=/usr/local/bin/zoxide
 ZOXIDE_SMOKE="zoxide --version"
 
+# ----- helix ----- editor; glibc-only tarball; ships a runtime/ dir its
+# binary needs at runtime. Post-install hook copies runtime/ into
+# /usr/local/share/helix/ via REGISTRY_TMP_DIR.
+HELIX_VERSION=25.07.1
+HELIX_URL_amd64_gnu="https://github.com/helix-editor/helix/releases/download/${HELIX_VERSION}/helix-${HELIX_VERSION}-x86_64-linux.tar.xz"
+HELIX_URL_amd64_musl=""
+HELIX_URL_arm64_gnu="https://github.com/helix-editor/helix/releases/download/${HELIX_VERSION}/helix-${HELIX_VERSION}-aarch64-linux.tar.xz"
+HELIX_URL_arm64_musl=""
+HELIX_ARCHIVE=tar.xz
+HELIX_BIN_IN_ARCHIVE_amd64="helix-${HELIX_VERSION}-x86_64-linux/hx"
+HELIX_BIN_IN_ARCHIVE_arm64="helix-${HELIX_VERSION}-aarch64-linux/hx"
+HELIX_BIN_IN_ARCHIVE="$HELIX_BIN_IN_ARCHIVE_amd64"
+HELIX_INSTALL_AS=/usr/local/bin/hx
+HELIX_SMOKE="hx --version"
+HELIX_POSTINSTALL_HOOK=helix_postinstall
+HELIX_FALLBACK_PKG=helix
+
+# ----- fzf ----- Go binary tarball; shell-integration scripts come from the
+# source repo (raw.githubusercontent.com) pinned to the same tag, via hook.
+FZF_VERSION=0.72.0
+FZF_URL_amd64_gnu="https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz"
+FZF_URL_amd64_musl="$FZF_URL_amd64_gnu"
+FZF_URL_arm64_gnu="https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_arm64.tar.gz"
+FZF_URL_arm64_musl="$FZF_URL_arm64_gnu"
+FZF_ARCHIVE=tar.gz
+FZF_BIN_IN_ARCHIVE=fzf
+FZF_INSTALL_AS=/usr/local/bin/fzf
+FZF_SMOKE="fzf --version"
+FZF_POSTINSTALL_HOOK=fzf_postinstall
+
 # ----- ripgrep ----- Rust tarball; gnu+musl for both arches.
 RIPGREP_VERSION=15.1.0
 RIPGREP_URL_amd64_gnu="https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz"
@@ -298,4 +328,4 @@ TEALDEER_POSTINSTALL_HOOK=tealdeer_postinstall
 # registry_install_all. Adding a new tool means: (1) append a block above,
 # (2) add the lowercase name to this list, (3) delete the now-obsolete
 # lib/tools/<tool>.sh if any.
-REGISTRY_TOOLS="bat cheat delta eza fd gh gopass gron jq lazygit lnav lsd micro neovim qsv ripgrep starship tealdeer zoxide"
+REGISTRY_TOOLS="bat cheat delta eza fd fzf gh gopass gron helix jq lazygit lnav lsd micro neovim qsv ripgrep starship tealdeer zoxide"

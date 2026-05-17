@@ -172,12 +172,7 @@ trap 'rm -rf "$_reg_workdir"; _stop_sudo_keepalive' EXIT INT TERM
 registry_fetch_all "$REGISTRY_TOOLS" "$_reg_workdir"
 registry_install_all "$REGISTRY_TOOLS" "$_reg_workdir"
 
-# ---------- remaining legacy installers (pending R4.2 migration) --------------
-# helix needs a runtime/ dir; fzf needs shell-integration scripts. Both move
-# into the registry next.
-for _t in helix fzf; do
-  "install_$_t" || warn "install_$_t failed (continuing)"
-done
+# All tools now flow through the registry — no legacy per-tool loop.
 
 # ---------- user-level setup --------------------------------------------------
 # shellcheck source=lib/kitty_setup.sh

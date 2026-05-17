@@ -283,13 +283,22 @@ _reg_install_one() {
   fi
 
   _reg_apply_symlinks "$__sb_t"
-  rm -rf "$__sb_tmp"
-
-  # Post-install hook (e.g. tealdeer cache prime, fzf shell scripts).
+  # Post-install hook (e.g. tealdeer cache prime, helix runtime/ copy,
+  # fzf shell scripts). The hook runs BEFORE we clean up the tmp dir so
+  # it can read extra files out of the extracted archive — REGISTRY_TMP_DIR
+  # is the per-tool tmp path, REGISTRY_TOOL is the lowercase tool name.
   __sb_hook=$(_reg_field "$__sb_t" POSTINSTALL_HOOK)
   if [ -n "$__sb_hook" ]; then
+    # Exported so hooks defined in lib/tools/<tool>.sh can read them.
+    # shellcheck disable=SC2034  # consumed by sourced hook functions
+    REGISTRY_TMP_DIR=$__sb_tmp
+    # shellcheck disable=SC2034
+    REGISTRY_TOOL=$__sb_t
+    export REGISTRY_TMP_DIR REGISTRY_TOOL
     "$__sb_hook" || warn "  $__sb_t: post-install hook returned non-zero"
   fi
+
+  rm -rf "$__sb_tmp"
 
   # Smoke test the installed binary.
   if [ -n "$__sb_smoke" ] && ! sh -c "$__sb_smoke" > /dev/null 2>&1; then

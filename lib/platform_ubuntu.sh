@@ -8,15 +8,11 @@
 # registry installs the upstream binary directly.
 
 platform_ubuntu_universal_pkgs() {
-  # helix is intentionally absent — Ubuntu doesn't ship a `helix` apt
-  # package on tier-1 versions (jammy/noble/oracular). The legacy
-  # install_helix() in lib/tools/helix.sh handles the upstream tarball
-  # install (with the runtime/ dir) instead.
+  # Same shape as Debian; everything else lives in lib/registry.sh.
   echo "curl git ca-certificates gnupg unzip xz-utils \
         fish \
         tmux tree htop xclip \
-        gcc g++ make nodejs \
-        fzf"
+        gcc g++ make nodejs"
 }
 
 platform_ubuntu_preflight() {

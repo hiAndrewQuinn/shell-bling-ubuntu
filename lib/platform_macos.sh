@@ -7,7 +7,7 @@ platform_macos_universal_pkgs() {
   # URLs to be added in a future round; right now macOS leans more on
   # Homebrew than the registry).
   echo "fish curl git ripgrep jq vim tmux tree htop bat fd kitty \
-        gcc make node git-delta lnav helix fzf"
+        gcc make node git-delta lnav"
 }
 
 platform_macos_preflight() {

@@ -129,82 +129,27 @@ trap _stop_sudo_keepalive EXIT INT TERM
 _start_sudo_keepalive
 
 # ---------- platform-specific preflight ---------------------------------------
-case "$DISTRO" in
-  macos)
-    # shellcheck source=lib/platform_macos.sh
-    . "$_lib_dir/platform_macos.sh"
-    platform_macos_preflight
-    ;;
-  fedora)
-    # shellcheck source=lib/platform_fedora.sh
-    . "$_lib_dir/platform_fedora.sh"
-    ;;
-  arch)
-    # shellcheck source=lib/platform_arch.sh
-    . "$_lib_dir/platform_arch.sh"
-    ;;
-  alpine)
-    # shellcheck source=lib/platform_alpine.sh
-    . "$_lib_dir/platform_alpine.sh"
-    ;;
-  opensuse)
-    # shellcheck source=lib/platform_opensuse.sh
-    . "$_lib_dir/platform_opensuse.sh"
-    ;;
-esac
+# Every supported distro has its own lib/platform_<distro>.sh, which exposes
+# platform_<distro>_universal_pkgs() and (optionally) platform_<distro>_preflight().
+# shellcheck source=/dev/null
+. "$_lib_dir/platform_$DISTRO.sh"
+if command -v "platform_${DISTRO}_preflight" > /dev/null 2>&1; then
+  "platform_${DISTRO}_preflight"
+fi
 if [ "$IS_WSL" = 1 ]; then
   # shellcheck source=lib/platform_wsl.sh
   . "$_lib_dir/platform_wsl.sh"
   platform_wsl_preflight
 fi
 
-# ---------- universal packages (apt/dnf/brew) ---------------------------------
+# ---------- universal packages (apt/dnf/pacman/apk/zypper/brew) ---------------
+# Every supported distro exposes its package list via the same function
+# pattern: platform_<distro>_universal_pkgs. install.sh dispatches to it
+# uniformly — Ubuntu and Debian no longer have a hardcoded inline list.
 log "Installing universal packages"
-case "$DISTRO" in
-  ubuntu | debian)
-    # micro, cheat, eza, gh, gopass, lazygit, lsd, neovim, qsv, starship,
-    # tealdeer, zoxide are all installed from upstream via lib/registry.sh.
-    # Anything not in the registry goes here.
-    pkg_install \
-      curl git ca-certificates gnupg unzip xz-utils \
-      fish \
-      ripgrep jq tmux tree htop \
-      bat fd-find xclip lnav gron \
-      gcc g++ make nodejs
-    # vim-gtk3 only available where a GUI stack is present; fall back to vim.
-    pkg_install vim-gtk3 2> /dev/null || pkg_install vim
-    # kitty is GUI; not always in minimal containers.
-    pkg_install kitty 2> /dev/null || warn "kitty unavailable; skipping"
-    # Ubuntu-only: PPA helper.
-    if [ "$DISTRO" = ubuntu ]; then
-      pkg_install software-properties-common 2> /dev/null || true
-    fi
-    ;;
-  fedora)
-    # shellcheck disable=SC2046  # word splitting wanted
-    pkg_install $(platform_fedora_universal_pkgs) ||
-      warn "some Fedora packages may not be available; per-tool installers will fill in"
-    ;;
-  arch)
-    # shellcheck disable=SC2046  # word splitting wanted
-    pkg_install $(platform_arch_universal_pkgs) ||
-      warn "some Arch packages may not be available; per-tool installers will fill in"
-    ;;
-  alpine)
-    # shellcheck disable=SC2046  # word splitting wanted
-    pkg_install $(platform_alpine_universal_pkgs) ||
-      warn "some Alpine packages may not be available; per-tool installers will fill in"
-    ;;
-  opensuse)
-    # shellcheck disable=SC2046  # word splitting wanted
-    pkg_install $(platform_opensuse_universal_pkgs) ||
-      warn "some openSUSE packages may not be available; per-tool installers will fill in"
-    ;;
-  macos)
-    # shellcheck disable=SC2046
-    pkg_install $(platform_macos_universal_pkgs)
-    ;;
-esac
+# shellcheck disable=SC2046  # word splitting is the goal
+pkg_install $("platform_${DISTRO}_universal_pkgs") ||
+  warn "some $DISTRO packages may not be available; per-tool / registry installers will fill in"
 
 # ---------- per-tool installers ----------------------------------------------
 # Source every lib/tools/*.sh so registry post-install hooks and the remaining

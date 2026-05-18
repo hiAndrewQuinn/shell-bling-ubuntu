@@ -95,6 +95,18 @@ elif [ -r /etc/os-release ]; then
       DISTRO=rhel
       CODENAME=amzn
       ;;
+    # Debian-family derivatives: Kali rolling tracks Debian sid closely.
+    # Same apt machinery, same platform_debian.sh — only the ID differs.
+    kali)
+      DISTRO=debian
+      CODENAME=kali-rolling
+      ;;
+    # Arch-family derivatives: Manjaro tracks Arch with a small delay and
+    # its own repos, but pacman and the package names are the same.
+    manjaro | manjaro-arm)
+      DISTRO=arch
+      CODENAME=manjaro
+      ;;
   esac
 fi
 
@@ -102,7 +114,7 @@ case "$DISTRO:$CODENAME" in
   ubuntu:focal | ubuntu:jammy | ubuntu:noble | ubuntu:oracular | ubuntu:plucky | ubuntu:questing | ubuntu:resolute)
     SUPPORT_TIER=tier1
     ;;
-  debian:bullseye | debian:bookworm | debian:trixie)
+  debian:bullseye | debian:bookworm | debian:trixie | debian:kali-rolling)
     SUPPORT_TIER=tier1
     ;;
   fedora:* | macos:* | arch:* | alpine:* | opensuse:* | rhel:*)

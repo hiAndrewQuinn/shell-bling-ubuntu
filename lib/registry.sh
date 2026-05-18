@@ -219,10 +219,10 @@ NEOVIM_EXTRA_ROOT_INSTALL=1
 
 # ----- qsv ----- gnu-only on arm64; gnu+musl on amd64.
 # Note: qsv's versions are unprefixed (no leading v); tag "20.0.0" — not "0.20.0".
-# qsv's prebuilt -gnu binaries need glibc >= 2.38 — Debian 12 ships 2.36,
-# Ubuntu 22.04 ships 2.35. The engine falls back to the -musl variant
-# automatically when host glibc is older than QSV_GLIBC_MIN.
-QSV_GLIBC_MIN=2.38
+# qsv's prebuilt -gnu binaries need glibc >= 2.39 (the binary segfaults on
+# 2.38; surfaced on openSUSE Leap 15.6). Bumped from 2.38 to 2.39 to push
+# Leap-and-older onto the musl variant which works on any glibc.
+QSV_GLIBC_MIN=2.39
 QSV_VERSION=20.0.0
 QSV_URL_amd64_gnu="https://github.com/dathere/qsv/releases/download/${QSV_VERSION}/qsv-${QSV_VERSION}-x86_64-unknown-linux-gnu.zip"
 QSV_SHA256_amd64_gnu=e22aa273e9b2a5674e1be3974acf58eea5364986a54e7b22c93f09e650b694e3

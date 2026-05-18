@@ -4,7 +4,8 @@
 DISTROS := ubuntu-20.04 ubuntu-22.04 ubuntu-24.04 ubuntu-26.04 \
            debian-11 debian-12 debian-13 \
            fedora-40 fedora-41 fedora-42 fedora-43 fedora-44 \
-           arch alpine opensuse-tumbleweed \
+           arch manjaro alpine opensuse-tumbleweed opensuse-leap-15.6 \
+           kali \
            rocky-8 rocky-9 rocky-10 alma-8 alma-9 alma-10 \
            centos-stream-9 centos-stream-10 \
            amazon-linux-2023

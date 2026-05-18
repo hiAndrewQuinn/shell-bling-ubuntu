@@ -37,7 +37,13 @@ pkg_update() {
       sudo_run env DEBIAN_FRONTEND=noninteractive apt-get update -y
       ;;
     fedora | rhel)
-      sudo_run dnf -y makecache
+      # dnf for RHEL 8+ / Fedora / AL2023; yum for the legacy yum-era
+      # distros (CentOS 7, Amazon Linux 2). Both accept `makecache`.
+      if has_cmd dnf; then
+        sudo_run dnf -y makecache
+      else
+        sudo_run yum -y makecache fast
+      fi
       ;;
     arch)
       sudo_run pacman -Sy --noconfirm
@@ -77,7 +83,13 @@ pkg_install() {
       # Fusion + COPR; RHEL clones split across base + AppStream + EPEL +
       # (Amazon Linux) extras. A single missing package would otherwise
       # abort and leave the rest uninstalled.
-      sudo_run dnf -y --setopt=strict=0 install "$@"
+      # CentOS 7 and Amazon Linux 2 ship `yum` instead of `dnf`; --skip-broken
+      # is yum's equivalent of dnf's --setopt=strict=0.
+      if has_cmd dnf; then
+        sudo_run dnf -y --setopt=strict=0 install "$@"
+      else
+        sudo_run yum -y --skip-broken install "$@"
+      fi
       ;;
     arch)
       # --needed → skip already-installed; pacman aborts the whole batch on
@@ -125,7 +137,13 @@ pkg_install() {
 pkg_available() {
   case "$DISTRO" in
     ubuntu | debian) apt-cache show "$1" > /dev/null 2>&1 ;;
-    fedora | rhel) dnf info "$1" > /dev/null 2>&1 ;;
+    fedora | rhel)
+      if has_cmd dnf; then
+        dnf info "$1" > /dev/null 2>&1
+      else
+        yum info "$1" > /dev/null 2>&1
+      fi
+      ;;
     arch) pacman -Si "$1" > /dev/null 2>&1 ;;
     alpine) apk info -e "$1" > /dev/null 2>&1 || apk search -e "$1" 2> /dev/null | grep -q . ;;
     opensuse) zypper --non-interactive info "$1" 2> /dev/null | grep -q '^Repository' ;;

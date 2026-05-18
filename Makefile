@@ -7,8 +7,8 @@ DISTROS := ubuntu-20.04 ubuntu-22.04 ubuntu-24.04 ubuntu-26.04 \
            arch manjaro alpine opensuse-tumbleweed opensuse-leap-15.6 \
            kali void \
            rocky-8 rocky-9 rocky-10 alma-8 alma-9 alma-10 \
-           centos-stream-9 centos-stream-10 \
-           amazon-linux-2023
+           centos-7 centos-stream-9 centos-stream-10 \
+           amazon-linux-2 amazon-linux-2023
 DISTRO  ?= ubuntu-24.04
 DEV_PORT ?= 2222
 IMG_PREFIX := shell-bling-test

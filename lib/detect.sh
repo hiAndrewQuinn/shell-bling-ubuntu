@@ -89,11 +89,21 @@ elif [ -r /etc/os-release ]; then
       ;;
     centos)
       DISTRO=rhel
-      CODENAME=centos-stream
+      # CentOS 7 (yum-era, EOL) and CentOS Stream (newer, dnf) both have
+      # ID=centos. Disambiguate via major version so platform_rhel.sh can
+      # branch on yum-vs-dnf and very-old-glibc.
+      case "${VERSION_ID%%.*}" in
+        7) CODENAME=centos7 ;;
+        *) CODENAME=centos-stream ;;
+      esac
       ;;
     amzn)
       DISTRO=rhel
-      CODENAME=amzn
+      # AL2 (yum, glibc 2.26) vs AL2023 (dnf, glibc 2.34). Both ID=amzn.
+      case "$VERSION_ID" in
+        2) CODENAME=amzn-2 ;;
+        *) CODENAME=amzn ;;
+      esac
       ;;
     # Debian-family derivatives: Kali rolling tracks Debian sid closely.
     # Same apt machinery, same platform_debian.sh — only the ID differs.

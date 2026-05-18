@@ -23,15 +23,28 @@ platform_rhel_universal_pkgs() {
 
 platform_rhel_preflight() {
   # EPEL provides several of the universal packages (wl-clipboard, kitty,
-  # etc.) on Rocky/Alma/CentOS Stream. Amazon Linux 2023 does NOT have a
-  # working EPEL; the install just no-ops there and any EPEL-only package
-  # falls through to the registry/static-binary path (or stays missing).
+  # etc.). Different RHEL clones reach it differently — branch by CODENAME:
   case "$CODENAME" in
     amzn)
       # AL2023 has no EPEL. Skip; the missing pkgs (wl-clipboard, kitty)
       # are non-fatal — wl-clipboard is desktop-only on the airgapped
       # AWS shape anyway.
       :
+      ;;
+    amzn-2)
+      # Amazon Linux 2 reaches EPEL via amazon-linux-extras. Tolerate
+      # failure — the extras command can be flaky on stale base images.
+      sudo_run amazon-linux-extras install -y epel 2> /dev/null ||
+        warn "amazon-linux-extras epel failed; wl-clipboard / kitty may be skipped"
+      ;;
+    centos7)
+      # CentOS 7 EPEL repos still exist (vault.centos.org / fedoraproject
+      # archive) but the default mirrorlist URLs in the EOL repos point
+      # at unreachable hosts. Just attempt — falls through cleanly if
+      # the mirror is gone. Many CentOS 7 boxes in the wild already
+      # have EPEL configured anyway.
+      pkg_install epel-release 2> /dev/null ||
+        warn "epel-release unavailable on CentOS 7 (likely mirror dead); wl-clipboard / kitty may be skipped"
       ;;
     *)
       pkg_install epel-release 2> /dev/null ||
@@ -56,6 +69,16 @@ platform_rhel_known_unavailable() {
       printf '%s\n' \
         'helix    upstream tarball needs glibc 2.34+ (Rocky/Alma 8 ships 2.28); no upstream musl build; not in base or EPEL 8.' \
         'neovim   upstream tarball needs glibc 2.34+; dnf installs nvim 0.8.0 from EPEL 8 instead. LazyVim auto-skipped (needs nvim >= 0.11).'
+      ;;
+    centos7:* | amzn-2:*)
+      # Pre-2.28 glibc territory (CentOS 7 = 2.17, AL2 = 2.26). Both helix
+      # and neovim's upstream binaries are far out of reach; bat/fd/eza/
+      # lsd/starship now use their musl variants via GLIBC_MIN, so they
+      # install cleanly. Old nvim from the distro repos is good enough
+      # for muscle-memory; LazyVim auto-skips.
+      printf '%s\n' \
+        'helix    upstream tarball needs glibc 2.34+ (this distro ships <2.28); no upstream musl build; not packaged here.' \
+        'neovim   upstream tarball needs glibc 2.34+; distro package installs an older nvim (<0.11). LazyVim auto-skipped.'
       ;;
   esac
 }

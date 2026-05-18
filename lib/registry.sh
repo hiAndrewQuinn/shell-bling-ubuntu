@@ -58,6 +58,9 @@ CHEAT_INSTALL_AS=/usr/local/bin/cheat
 CHEAT_SMOKE="cheat --version"
 
 # ----- eza ----- gnu and musl tarballs for both arches.
+# Modern Rust gnu binaries don't work on glibc < ~2.27; push CentOS 7
+# (2.17) and Amazon Linux 2 (2.26) to the musl variant.
+EZA_GLIBC_MIN=2.28
 EZA_VERSION=0.23.4
 EZA_URL_amd64_gnu="https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_x86_64-unknown-linux-gnu.tar.gz"
 EZA_SHA256_amd64_gnu=0c38665440226cd8bef5d1d4f3bc6ff77c927fb0d68b752739105db7ab5b358d
@@ -145,6 +148,8 @@ LAZYGIT_SIG_TYPE=shasums-plain
 LAZYGIT_SIG_URL="https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/checksums.txt"
 
 # ----- lsd ----- gnu+musl tarballs, both arches.
+# See EZA_GLIBC_MIN comment — same heuristic for the legacy-glibc cliff.
+LSD_GLIBC_MIN=2.28
 LSD_VERSION=1.2.0
 LSD_URL_amd64_gnu="https://github.com/lsd-rs/lsd/releases/download/v${LSD_VERSION}/lsd-v${LSD_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
 LSD_SHA256_amd64_gnu=57d3b5859254adcfb8374ce98159cca97a14959997d2ae1176d2cff59556d829
@@ -241,6 +246,8 @@ QSV_INSTALL_AS=/usr/local/bin/qsv
 QSV_SMOKE="qsv --version"
 
 # ----- starship ----- arm64 ships musl-only; amd64 has both. Musl works on glibc.
+# See EZA_GLIBC_MIN comment — same heuristic for the legacy-glibc cliff.
+STARSHIP_GLIBC_MIN=2.28
 STARSHIP_VERSION=1.25.1
 STARSHIP_URL_amd64_gnu="https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-gnu.tar.gz"
 STARSHIP_SHA256_amd64_gnu=4488c11ca632327d1f1f16fb2f102c0646094c35479cd5435991385da43c61ac
@@ -371,6 +378,8 @@ RIPGREP_SMOKE="rg --version"
 RIPGREP_FALLBACK_PKG=ripgrep
 
 # ----- bat ----- Rust tarball; gnu+musl for amd64, gnu only for arm64.
+# See EZA_GLIBC_MIN comment — same heuristic for the legacy-glibc cliff.
+BAT_GLIBC_MIN=2.28
 BAT_VERSION=0.26.1
 BAT_URL_amd64_gnu="https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
 BAT_SHA256_amd64_gnu=726f04c8f576a7fd18b7634f1bbf2f915c43494c1c0f013baa3287edb0d5a2a3
@@ -393,6 +402,8 @@ BAT_INSTALL_AS=/usr/local/bin/bat
 BAT_SMOKE="bat --version"
 
 # ----- fd ----- Rust tarball; gnu+musl for amd64, gnu only for arm64.
+# See EZA_GLIBC_MIN comment — same heuristic for the legacy-glibc cliff.
+FD_GLIBC_MIN=2.28
 FD_VERSION=10.4.2
 FD_URL_amd64_gnu="https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
 FD_SHA256_amd64_gnu=def59805cd14b5651b68990855f426ad087f3b96881296d963910431ba3143c8

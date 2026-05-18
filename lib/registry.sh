@@ -514,9 +514,37 @@ TEALDEER_INSTALL_AS=/usr/local/bin/tldr
 TEALDEER_SMOKE="tldr --version"
 TEALDEER_POSTINSTALL_HOOK=tealdeer_postinstall
 
+# ----- toybox ----- Rob Landley's static musl multi-call binary; "last-ditch
+# coreutils" for the offline-bundle scenario (target host so broken that mv,
+# cp, chmod are missing). Same single binary works on glibc and musl. The
+# binary is installed at /usr/local/bin/toybox but NOT symlinked to coreutil
+# names — invoke as `toybox <cmd>` (e.g. `toybox cp`), or run
+# `toybox --install -s /usr/local/bin` manually to opt into symlinks. We do
+# not auto-symlink because shadowing system coreutils on a healthy box would
+# be disastrous. Upstream publishes no signatures or checksums file — the
+# inline SHA256+SHA512 pins are the only verification (acceptable for a
+# rescue tool; same-channel risk is inherent to the upstream's choice).
+TOYBOX_VERSION=0.8.13
+TOYBOX_URL_amd64_gnu="https://landley.net/toybox/bin/toybox-x86_64"
+TOYBOX_SHA256_amd64_gnu=8c98795a15db31ea55c8065fed379db3669766b7a714c46b009d8bfb87b25ffd
+TOYBOX_SHA512_amd64_gnu=bae01b3bb5c617216bee0dc8152ee2b4d88f03e0c8e5f468520a60c636ce1444d6042d4ae78209bfb46184d44d3dbf12af8ec6742703a0abbe16e0c7fbd2e970
+TOYBOX_URL_amd64_musl="$TOYBOX_URL_amd64_gnu"
+TOYBOX_SHA256_amd64_musl=8c98795a15db31ea55c8065fed379db3669766b7a714c46b009d8bfb87b25ffd
+TOYBOX_SHA512_amd64_musl=bae01b3bb5c617216bee0dc8152ee2b4d88f03e0c8e5f468520a60c636ce1444d6042d4ae78209bfb46184d44d3dbf12af8ec6742703a0abbe16e0c7fbd2e970
+TOYBOX_URL_arm64_gnu="https://landley.net/toybox/bin/toybox-aarch64"
+TOYBOX_SHA256_arm64_gnu=b3508e5f51a0d429c1bda9d500d98d97dc0b86571762eeb099495eb238a8c52a
+TOYBOX_SHA512_arm64_gnu=cccb0bb55926727ef0ba86f66a19f913daffe8667d44676d491d6894436f6b69caad9b202532f81e693299e4c135fba3e6963f135ca6c40fa6c54a008193cf5d
+TOYBOX_URL_arm64_musl="$TOYBOX_URL_arm64_gnu"
+TOYBOX_SHA256_arm64_musl=b3508e5f51a0d429c1bda9d500d98d97dc0b86571762eeb099495eb238a8c52a
+TOYBOX_SHA512_arm64_musl=cccb0bb55926727ef0ba86f66a19f913daffe8667d44676d491d6894436f6b69caad9b202532f81e693299e4c135fba3e6963f135ca6c40fa6c54a008193cf5d
+TOYBOX_ARCHIVE=none
+TOYBOX_BIN_IN_ARCHIVE=.
+TOYBOX_INSTALL_AS=/usr/local/bin/toybox
+TOYBOX_SMOKE="toybox --version"
+
 # REGISTRY_TOOLS is the canonical list of tools handled by the engine. install.sh
 # sources this file, reads this variable, and hands it to registry_fetch_all +
 # registry_install_all. Adding a new tool means: (1) append a block above,
 # (2) add the lowercase name to this list, (3) delete the now-obsolete
 # lib/tools/<tool>.sh if any.
-REGISTRY_TOOLS="bat cheat delta eza fd fish fzf gh gopass gron helix jq lazygit lnav lsd micro neovim qsv ripgrep starship tealdeer zoxide"
+REGISTRY_TOOLS="bat cheat delta eza fd fish fzf gh gopass gron helix jq lazygit lnav lsd micro neovim qsv ripgrep starship tealdeer toybox zoxide"

@@ -7,6 +7,7 @@ platform_fedora_universal_pkgs() {
   # excluded — the registry installs the upstream binary directly.
   echo "curl git vim tmux tree htop kitty xclip wl-clipboard \
         sqlite rsync \
+        zstd lz4 xxhash \
         gcc gcc-c++ make nodejs unzip xz \
        "
 }

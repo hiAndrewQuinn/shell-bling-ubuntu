@@ -8,6 +8,7 @@ platform_macos_universal_pkgs() {
   # Homebrew than the registry).
   echo "curl git ripgrep jq vim tmux tree htop bat fd kitty \
         sqlite rsync \
+        zstd lz4 xxhash \
         gcc make node git-delta lnav"
 }
 

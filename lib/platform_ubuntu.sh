@@ -12,6 +12,7 @@ platform_ubuntu_universal_pkgs() {
   echo "curl git ca-certificates gnupg unzip xz-utils \
         tmux tree htop xclip wl-clipboard \
         sqlite3 rsync \
+        zstd lz4 xxhash \
         gcc g++ make nodejs"
 }
 

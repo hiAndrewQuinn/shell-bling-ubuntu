@@ -17,6 +17,7 @@ platform_rhel_universal_pkgs() {
   # already in the base.
   echo "curl git vim tmux tree htop xclip wl-clipboard \
         sqlite rsync tar \
+        zstd lz4 xxhash \
         gcc gcc-c++ make nodejs unzip xz \
        "
 }

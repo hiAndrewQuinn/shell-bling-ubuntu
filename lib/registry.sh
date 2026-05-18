@@ -566,9 +566,31 @@ TOYBOX_BIN_IN_ARCHIVE=.
 TOYBOX_INSTALL_AS=/usr/local/bin/toybox
 TOYBOX_SMOKE="toybox --version"
 
+# ----- b3sum (BLAKE3 reference CLI) ----- fast modern cryptographic hash;
+# pairs with the zstd/lz4/xxhsum trio in universal_pkgs for the
+# tar | b3sum / xxhsum --check / etc. pipelines from jolynch's
+# "fast data algorithms" post. Upstream ships a static-pie linked
+# amd64-only binary; arm64 and musl fall through to the distro package
+# via _reg_fallback (b3sum is in Debian 12+, Ubuntu 22.04+, Fedora 40+,
+# Arch, Alpine, openSUSE Tumbleweed, Void, Kali, brew). Older RHEL-family
+# distros without b3sum in their repos surface as a Known limitation.
+B3SUM_VERSION=1.8.5
+B3SUM_URL_amd64_gnu="https://github.com/BLAKE3-team/BLAKE3/releases/download/${B3SUM_VERSION}/b3sum_linux_x64_bin"
+B3SUM_SHA256_amd64_gnu=f50bce4fc682c2eba7e417fdc271c3e7ea6e9511568213878dbf2c115facf6f4
+B3SUM_SHA512_amd64_gnu=0437c3a2653bf8783f2f627285944fea213edf813b0daf6f4f3af552ade090f43d9c8e7d50bd4cc8427c9bbf5a3baedff602a3dfe9a201a6ba31f65faa877f65
+# amd64-musl: BLAKE3's release binary is static-pie linked and works
+# on musl in practice, but we pin only the gnu URL — if you're on
+# Alpine and want b3sum, the distro package is canonical there anyway.
+# arm64-gnu, arm64-musl: no upstream binary; fall through to pkg.
+B3SUM_ARCHIVE=none
+B3SUM_BIN_IN_ARCHIVE=.
+B3SUM_INSTALL_AS=/usr/local/bin/b3sum
+B3SUM_SMOKE="b3sum --version"
+B3SUM_FALLBACK_PKG="b3sum"
+
 # REGISTRY_TOOLS is the canonical list of tools handled by the engine. install.sh
 # sources this file, reads this variable, and hands it to registry_fetch_all +
 # registry_install_all. Adding a new tool means: (1) append a block above,
 # (2) add the lowercase name to this list, (3) delete the now-obsolete
 # lib/tools/<tool>.sh if any.
-REGISTRY_TOOLS="bat cheat delta eza fd fish fzf gh gopass gron helix jq lazygit lnav lsd micro neovim qsv ripgrep starship tealdeer toybox zoxide"
+REGISTRY_TOOLS="b3sum bat cheat delta eza fd fish fzf gh gopass gron helix jq lazygit lnav lsd micro neovim qsv ripgrep starship tealdeer toybox zoxide"

@@ -47,6 +47,10 @@ tldr:--version
 hx:--version
 delta:--version
 micro:-version
+zstd:--version
+lz4:--version
+xxhsum:--version
+b3sum:--version
 "
 
 FAILED=""

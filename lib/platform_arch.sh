@@ -11,6 +11,7 @@ platform_arch_universal_pkgs() {
   # giving Arch users the same version as every other distro.
   echo "curl git vim tmux tree htop kitty xclip wl-clipboard \
         sqlite rsync \
+        zstd lz4 xxhash \
         gcc make nodejs unzip xz \
        "
 }

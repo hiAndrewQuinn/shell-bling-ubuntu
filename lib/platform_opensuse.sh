@@ -13,6 +13,7 @@ platform_opensuse_universal_pkgs() {
   # installs the upstream binary directly.
   echo "curl git vim tmux tree htop kitty xclip wl-clipboard \
         sqlite3 rsync \
+        zstd lz4 xxhash \
         gcc gcc-c++ make nodejs unzip xz \
        "
 }

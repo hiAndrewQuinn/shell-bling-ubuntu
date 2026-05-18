@@ -49,11 +49,13 @@ platform_rhel_preflight() {
 # knowledge of failures here — leave empty until smoke testing surfaces
 # something concrete.
 platform_rhel_known_unavailable() {
-  case "$CODENAME" in
-    *)
-      # No declared unavailable tools yet — populated as the test matrix
-      # reveals specific known-impossible cases per (codename, version_id).
-      :
+  # Case key is "${CODENAME}:${MAJOR_VERSION}" — codename alone isn't
+  # specific enough since e.g. Rocky 8/9/10 all share CODENAME=rocky.
+  case "${CODENAME}:${VERSION_ID%%.*}" in
+    rocky:8 | alma:8)
+      printf '%s\n' \
+        'helix    upstream tarball needs glibc 2.34+ (Rocky/Alma 8 ships 2.28); no upstream musl build; not in base or EPEL 8.' \
+        'neovim   upstream tarball needs glibc 2.34+; dnf installs nvim 0.8.0 from EPEL 8 instead. LazyVim auto-skipped (needs nvim >= 0.11).'
       ;;
   esac
 }

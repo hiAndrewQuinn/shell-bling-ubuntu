@@ -23,16 +23,84 @@ Close and reopen your terminal when it finishes.
 
 ## Supported platforms
 
-| Platform                              | Tier         | x86_64 | arm64 |
-| ------------------------------------- | ------------ | :----: | :---: |
-| Ubuntu 22.04 / 24.04 / 26.04          | tier 1       |   ✅   |   ✅  |
-| Debian 12 / 13                        | tier 1       |   ✅   |   ✅  |
-| Fedora (current stable)               | experimental |   ✅   |   ✅  |
-| macOS (Intel + Apple Silicon)         | experimental |   ✅   |   ✅  |
-| WSL2 (Ubuntu/Debian under Windows)    | experimental |   ✅   |   ✅  |
+Shell Bling runs in a Docker matrix of **30 distros across 7 package-manager
+families** on every change. Today the matrix is amd64-only; arm64 coverage
+is in flight. macOS is supported (via Homebrew) but not Docker-tested.
+
+### Tier 1 — fully supported
+
+All 23 tools install at pinned version. Smoke test PASS without softening.
+
+| Distro                                 | Notes                       |
+| -------------------------------------- | --------------------------- |
+| Ubuntu 22.04, 24.04, 26.04             | jammy, noble, resolute      |
+| Debian 12, 13                          | bookworm, trixie            |
+| Kali Linux rolling                     | tracks Debian sid           |
+
+### Experimental — full install, file issues if anything breaks
+
+All 23 tools land cleanly; either modern enough not to need any softening,
+or quirks we haven't fully characterized:
+
+| Distro                                 | Pkg manager      |
+| -------------------------------------- | ---------------- |
+| Fedora 40, 41, 42, 43, 44              | dnf              |
+| Rocky Linux 9, 10                      | dnf + EPEL       |
+| AlmaLinux 9, 10                        | dnf + EPEL       |
+| CentOS Stream 9, 10                    | dnf + EPEL       |
+| Amazon Linux 2023                      | dnf (no EPEL)    |
+| Arch Linux                             | pacman           |
+| Manjaro                                | pacman           |
+| Alpine Linux                           | apk (musl)       |
+| openSUSE Tumbleweed                    | zypper           |
+| Void Linux                             | xbps             |
+| macOS (Intel + Apple Silicon)          | Homebrew         |
+| WSL2 (Ubuntu/Debian under Windows)     | inherits parent  |
+
+### Experimental — degraded with explicit Known Limitations
+
+Install succeeds; the engine prints a "Known limitations on this platform"
+notice explaining which specific tools couldn't land and why. Almost always
+it's `helix` and `neovim` — their upstream binaries require glibc 2.34+ and
+ship no musl variant, so older distros either fall through to an older
+distro-packaged `nvim` (which works fine) or end up genuinely missing `hx`.
+
+| Distro                                 | Tools landed | What's degraded |
+| -------------------------------------- | :----------: | --------------- |
+| openSUSE Leap 15.6                     | 23/23        | None — `qsv` routes to its musl variant transparently (glibc 2.38) |
+| Debian 11 bullseye                     | 21/23        | `helix`, `neovim` (glibc 2.31; nvim distro fallback installs 0.4.4) |
+| Ubuntu 20.04 focal                     | 21/23        | `helix`, `neovim` (glibc 2.31; same shape as Debian 11) |
+| Rocky Linux 8, AlmaLinux 8             | 21/23        | `helix`, `neovim` (glibc 2.28; EPEL 8 has nvim 0.8.0) |
+| Amazon Linux 2                         | 21/23        | `helix`, `neovim` (glibc 2.26; yum-era) |
+| CentOS 7                               | 21/23        | `helix`, `neovim` (glibc 2.17; yum-era; Dockerfile points yum at vault.centos.org since the base mirror was decommissioned post-EOL) |
+
+For the legacy-glibc distros (anything in the table above with glibc < 2.28),
+five Rust binaries — `bat`, `fd`, `eza`, `lsd`, `starship` — automatically
+route to their musl variants via the registry's `GLIBC_MIN` fallback. You'll
+get the same version of those tools as on a modern distro, just statically
+linked against musl.
+
+### What we don't test
+
+This isn't a "we couldn't be bothered" list — these are deliberately out of
+scope, mostly because they're architectural mismatches with shell-bling's
+"drop pinned binaries into `/usr/local/bin`" model:
+
+- **NixOS, GuixSD** — functional package management. Tools should be in
+  `/nix/store` with proper Nix expressions, not bolted into `/usr/local/bin`.
+- **CoreOS, Flatcar, Bottlerocket, ChromeOS** — immutable OSes; `/usr` is
+  read-only.
+- **The BSDs (FreeBSD, OpenBSD, NetBSD)** — different OS family; most of our
+  pinned upstream binaries don't have BSD variants.
+- **SLES 15** — official Docker images require a SUSE subscription.
+  openSUSE Leap 15.6 (which we DO test) is the open-source counterpart.
+- **Linux Mint LMDE, Pop!_OS, EndeavourOS, Parrot OS** — covered
+  transitively by their parent distros (Debian / Ubuntu / Arch). Should
+  Just Work, but we don't run them through CI.
 
 Tier-1 platforms are tested in CI on every commit. Experimental platforms
-are best-effort — please file issues.
+are best-effort — please file issues if you hit something the Known
+Limitations notice doesn't cover.
 
 ## Try before you install
 

@@ -188,6 +188,13 @@ MICRO_INSTALL_AS=/usr/local/bin/micro
 MICRO_SMOKE="micro -version"
 
 # ----- neovim ----- glibc-only tarballs (Alpine falls through to apk).
+# nvim 0.12.x's upstream tarball is linked against glibc 2.34+. On older
+# distros (Debian 11/Ubuntu 20.04, both ship glibc 2.31) the engine
+# fallback path matches qsv's: no -musl variant pinned → URL resolves to
+# empty → pkg_install fallback installs whatever the distro carries
+# (e.g. nvim 0.4.x from bullseye). Older nvim is still nvim; lazyvim
+# bootstrap may need adjustments but the editor works.
+NEOVIM_GLIBC_MIN=2.34
 NEOVIM_VERSION=0.12.2
 NEOVIM_URL_amd64_gnu="https://github.com/neovim/neovim/releases/download/v${NEOVIM_VERSION}/nvim-linux-x86_64.tar.gz"
 NEOVIM_SHA256_amd64_gnu=31cf85945cb600d96cdf69f88bc68bec814acbff50863c5546adef3a1bcef260
@@ -297,6 +304,9 @@ FISH_FALLBACK_PKG=fish
 # ----- helix ----- editor; glibc-only tarball; ships a runtime/ dir its
 # binary needs at runtime. Post-install hook copies runtime/ into
 # /usr/local/share/helix/ via REGISTRY_TMP_DIR.
+# Upstream tarball requires glibc 2.34+; older distros fall through to
+# pkg_install (e.g. helix from bullseye-backports if enabled, or nothing).
+HELIX_GLIBC_MIN=2.34
 HELIX_VERSION=25.07.1
 HELIX_URL_amd64_gnu="https://github.com/helix-editor/helix/releases/download/${HELIX_VERSION}/helix-${HELIX_VERSION}-x86_64-linux.tar.xz"
 HELIX_SHA256_amd64_gnu=3f08e63ecd388fff657ad39722f88bb03dcf326f1f2da2700d99e1dc40ab2e8b
@@ -427,6 +437,9 @@ JQ_SIG_TYPE=shasums-plain
 JQ_SIG_URL="https://github.com/jqlang/jq/releases/download/jq-${JQ_VERSION}/sha256sum.txt"
 
 # ----- delta (git-delta) ----- Rust tarball; gnu+musl for amd64.
+# Upstream gnu binary needs glibc 2.34+; older distros fall through to
+# the musl variant automatically (delta has musl variants pinned).
+DELTA_GLIBC_MIN=2.34
 DELTA_VERSION=0.19.2
 DELTA_URL_amd64_gnu="https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
 DELTA_SHA256_amd64_gnu=8e695c5f586a8c53d6c3b01be0b4a422ed218bfed2a56191caebe373a1c18ab2

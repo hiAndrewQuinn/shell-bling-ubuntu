@@ -57,7 +57,7 @@ case "$SUPPORT_TIER" in
     ;;
   unsupported)
     err "Unsupported platform: $DISTRO $CODENAME ($OS_FAMILY/$ARCH)"
-    err "Supported: Ubuntu 22.04/24.04/26.04, Debian 12/13. Experimental: Fedora, macOS, WSL2."
+    err "Supported: Ubuntu 20.04/22.04/24.04/26.04, Debian 11/12/13. Experimental: Fedora, macOS, WSL2, Arch, Alpine, openSUSE."
     exit 1
     ;;
 esac
@@ -223,6 +223,24 @@ run_pickers
 # (set by docker/entrypoint.sh + the Jenkins matrix) turns drift into a
 # hard install failure.
 registry_verify_all "$REGISTRY_TOOLS" || exit $?
+
+# Known-unavailable surface: if the current platform has declared specific
+# tools that genuinely cannot be installed (every fallback exhausted),
+# call that out as a structured notice rather than letting it look like
+# an unexpected verify failure. Strict-by-default posture is preserved;
+# this only fires when we have *explicit* knowledge (a static list in
+# lib/platform_<distro>.sh).
+_known_fn="platform_${DISTRO}_known_unavailable"
+if command -v "$_known_fn" > /dev/null 2>&1; then
+  _known_out=$("$_known_fn" 2> /dev/null || true)
+  if [ -n "$_known_out" ]; then
+    echo
+    printf '\033[33m==> Known limitations on %s %s:\033[0m\n' "$DISTRO" "$CODENAME"
+    printf '%s\n' "$_known_out" | sed 's/^/  /'
+    echo
+  fi
+fi
+unset _known_fn _known_out
 
 printf '\033[1;32m==> Shell Bling installed.\033[0m\n'
 printf 'Restart your terminal to pick up everything. Welcome.\n'

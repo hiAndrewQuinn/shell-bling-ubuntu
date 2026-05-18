@@ -21,12 +21,15 @@ _reg_field() {
   eval printf '%s' "\"\${${__sb_T}_$2:-}\""
 }
 
-# _reg_url TOOL  → echo the URL for (ARCH, LIBC), or empty.
-# Falls back from gnu→musl when host glibc < ${TOOL}_GLIBC_MIN. Concretely:
-# qsv's -gnu prebuilt needs glibc 2.38, but Debian 12 / Ubuntu 22.04 ship
-# 2.36 / 2.35 — without this fallback those distros get a broken binary
-# that exits 1 on --version.
-_reg_url() {
+# _reg_effective_libc TOOL  → echo "gnu" or "musl" after applying the
+# gnu→musl swap when host glibc < ${TOOL}_GLIBC_MIN. Single source of
+# truth for the libc-swap logic; called by _reg_url, _reg_hash, AND
+# _reg_bin_in_archive so all three agree on which variant is in play.
+# Before this helper existed, _reg_bin_in_archive used raw $LIBC while
+# the URL/hash lookups had already swapped to musl — extracting a musl
+# tarball using the gnu archive's internal path. Surfaced on Debian 11
+# (delta's -musl tarball has a -musl-named subdir).
+_reg_effective_libc() {
   __sb_T=$(printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_')
   __sb_libc=$LIBC
   if [ "$__sb_libc" = gnu ] && [ -n "$GLIBC_VERSION" ]; then
@@ -35,6 +38,17 @@ _reg_url() {
       __sb_libc=musl
     fi
   fi
+  printf '%s' "$__sb_libc"
+}
+
+# _reg_url TOOL  → echo the URL for (ARCH, effective-LIBC), or empty.
+# Falls back from gnu→musl when host glibc < ${TOOL}_GLIBC_MIN. Concretely:
+# qsv's -gnu prebuilt needs glibc 2.38, but Debian 12 / Ubuntu 22.04 ship
+# 2.36 / 2.35 — without this fallback those distros get a broken binary
+# that exits 1 on --version.
+_reg_url() {
+  __sb_T=$(printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_')
+  __sb_libc=$(_reg_effective_libc "$1")
   eval printf '%s' "\"\${${__sb_T}_URL_${ARCH}_${__sb_libc}:-}\""
 }
 
@@ -56,27 +70,24 @@ _reg_glibc_lt() {
 }
 
 # _reg_hash TOOL ALGO  → echo the pinned hash (sha256|sha512) for the
-# current (ARCH, LIBC), or empty if none was pinned. Uses the same
-# arch/libc fallback as _reg_url (gnu→musl when host glibc is too old)
-# so the hash matches the file we actually downloaded.
+# current (ARCH, effective-LIBC), or empty if none was pinned. Uses the
+# same arch/libc fallback as _reg_url so the hash matches the file we
+# actually downloaded.
 _reg_hash() {
   __sb_T=$(printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_')
   __sb_algo=$(printf '%s' "$2" | tr '[:lower:]' '[:upper:]')
-  __sb_libc=$LIBC
-  if [ "$__sb_libc" = gnu ] && [ -n "$GLIBC_VERSION" ]; then
-    __sb_min=$(eval printf '%s' "\"\${${__sb_T}_GLIBC_MIN:-}\"")
-    if [ -n "$__sb_min" ] && _reg_glibc_lt "$GLIBC_VERSION" "$__sb_min"; then
-      __sb_libc=musl
-    fi
-  fi
+  __sb_libc=$(_reg_effective_libc "$1")
   eval printf '%s' "\"\${${__sb_T}_${__sb_algo}_${ARCH}_${__sb_libc}:-}\""
 }
 
 # _reg_bin_in_archive TOOL  → path relative to the extracted archive root.
-# Tries _BIN_IN_ARCHIVE_${ARCH}_${LIBC} → _BIN_IN_ARCHIVE_${ARCH} → _BIN_IN_ARCHIVE.
+# Tries _BIN_IN_ARCHIVE_${ARCH}_${effective-LIBC} → _BIN_IN_ARCHIVE_${ARCH}
+# → _BIN_IN_ARCHIVE. Honors the same gnu→musl swap as _reg_url so we
+# extract from the actual downloaded archive's directory layout.
 _reg_bin_in_archive() {
   __sb_T=$(printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_')
-  __sb_v=$(eval printf '%s' "\"\${${__sb_T}_BIN_IN_ARCHIVE_${ARCH}_${LIBC}:-}\"")
+  __sb_libc=$(_reg_effective_libc "$1")
+  __sb_v=$(eval printf '%s' "\"\${${__sb_T}_BIN_IN_ARCHIVE_${ARCH}_${__sb_libc}:-}\"")
   [ -n "$__sb_v" ] && {
     printf '%s\n' "$__sb_v"
     return

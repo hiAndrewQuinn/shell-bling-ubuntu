@@ -24,3 +24,19 @@ platform_debian_preflight() {
   # kitty is GUI; not always in minimal containers — graceful skip.
   pkg_install kitty 2> /dev/null || warn "kitty unavailable; skipping"
 }
+
+# platform_debian_known_unavailable — tools the engine cannot install on this
+# Debian release because every fallback path is exhausted (upstream binary
+# needs newer glibc, no musl variant pinned, and the distro package doesn't
+# exist or is too old). install.sh prints this as a "Known limitations"
+# notice rather than treating the smoke failure as unexpected. Format:
+# one "TOOL    one-line reason" per line.
+platform_debian_known_unavailable() {
+  case "$CODENAME" in
+    bullseye)
+      printf '%s\n' \
+        'helix    upstream tarball needs glibc 2.34+ (Debian 11 has 2.31); no upstream musl build; no apt package in bullseye.' \
+        'neovim   upstream tarball needs glibc 2.34+; apt installs nvim 0.4.4 from bullseye instead. LazyVim auto-skipped (needs nvim >= 0.11).'
+      ;;
+  esac
+}

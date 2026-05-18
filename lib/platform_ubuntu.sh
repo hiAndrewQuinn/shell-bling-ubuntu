@@ -25,3 +25,15 @@ platform_ubuntu_preflight() {
   # assume `add-apt-repository` works out of the box.
   pkg_install software-properties-common 2> /dev/null || true
 }
+
+# Same shape as platform_debian_known_unavailable — see that function's
+# header comment in lib/platform_debian.sh for the contract.
+platform_ubuntu_known_unavailable() {
+  case "$CODENAME" in
+    focal)
+      printf '%s\n' \
+        'helix    upstream tarball needs glibc 2.34+ (Ubuntu 20.04 has 2.31); no upstream musl build; no apt package in focal.' \
+        'neovim   upstream tarball needs glibc 2.34+; apt installs an older nvim from focal instead. LazyVim auto-skipped (needs nvim >= 0.11).'
+      ;;
+  esac
+}

@@ -1,7 +1,9 @@
 # shell-bling Makefile.
 # Targets: lint, test, test-<distro>, dev, dev-bg, dev-down, build-all, clean.
 
-DISTROS := ubuntu-22.04 ubuntu-24.04 ubuntu-26.04 debian-12 debian-13 fedora-40 arch alpine opensuse-tumbleweed
+DISTROS := ubuntu-20.04 ubuntu-22.04 ubuntu-24.04 ubuntu-26.04 \
+           debian-11 debian-12 debian-13 \
+           fedora-40 arch alpine opensuse-tumbleweed
 DISTRO  ?= ubuntu-24.04
 DEV_PORT ?= 2222
 IMG_PREFIX := shell-bling-test

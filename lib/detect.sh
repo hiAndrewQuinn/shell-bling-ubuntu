@@ -79,10 +79,10 @@ elif [ -r /etc/os-release ]; then
 fi
 
 case "$DISTRO:$CODENAME" in
-  ubuntu:jammy | ubuntu:noble | ubuntu:oracular | ubuntu:plucky | ubuntu:questing | ubuntu:resolute)
+  ubuntu:focal | ubuntu:jammy | ubuntu:noble | ubuntu:oracular | ubuntu:plucky | ubuntu:questing | ubuntu:resolute)
     SUPPORT_TIER=tier1
     ;;
-  debian:bookworm | debian:trixie)
+  debian:bullseye | debian:bookworm | debian:trixie)
     SUPPORT_TIER=tier1
     ;;
   fedora:* | macos:* | arch:* | alpine:* | opensuse:*)

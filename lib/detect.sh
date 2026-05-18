@@ -117,7 +117,7 @@ case "$DISTRO:$CODENAME" in
   debian:bullseye | debian:bookworm | debian:trixie | debian:kali-rolling)
     SUPPORT_TIER=tier1
     ;;
-  fedora:* | macos:* | arch:* | alpine:* | opensuse:* | rhel:*)
+  fedora:* | macos:* | arch:* | alpine:* | opensuse:* | rhel:* | void:*)
     SUPPORT_TIER=experimental
     ;;
 esac

@@ -48,6 +48,9 @@ pkg_update() {
     opensuse)
       sudo_run zypper --non-interactive refresh
       ;;
+    void)
+      sudo_run xbps-install -Sy
+      ;;
     macos)
       has_cmd brew || _install_homebrew
       brew update
@@ -98,6 +101,16 @@ pkg_install() {
       done
       return "$__sb_rc"
       ;;
+    void)
+      # xbps-install exits non-zero per missing package but doesn't
+      # abort the whole batch. -y for non-interactive; per-package loop
+      # so a single unknown package doesn't poison the return code.
+      __sb_rc=0
+      for __sb_p in "$@"; do
+        sudo_run xbps-install -y "$__sb_p" || __sb_rc=$?
+      done
+      return "$__sb_rc"
+      ;;
     macos)
       brew install "$@"
       ;;
@@ -116,6 +129,7 @@ pkg_available() {
     arch) pacman -Si "$1" > /dev/null 2>&1 ;;
     alpine) apk info -e "$1" > /dev/null 2>&1 || apk search -e "$1" 2> /dev/null | grep -q . ;;
     opensuse) zypper --non-interactive info "$1" 2> /dev/null | grep -q '^Repository' ;;
+    void) xbps-query -Rs "$1" 2> /dev/null | grep -q "^\[" ;;
     macos) brew info --formula "$1" > /dev/null 2>&1 ;;
     *) return 1 ;;
   esac

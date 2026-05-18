@@ -75,6 +75,26 @@ elif [ -r /etc/os-release ]; then
       DISTRO=opensuse
       CODENAME=leap
       ;;
+    # Normalize the RHEL family: ID varies across Rocky/Alma/CentOS Stream/
+    # Amazon Linux but all four use dnf and share enough package names that
+    # a single platform_rhel.sh covers them. Original ID kept in CODENAME so
+    # per-distro logic (e.g. AL2023's lack of EPEL) can still branch.
+    rocky)
+      DISTRO=rhel
+      CODENAME=rocky
+      ;;
+    almalinux)
+      DISTRO=rhel
+      CODENAME=alma
+      ;;
+    centos)
+      DISTRO=rhel
+      CODENAME=centos-stream
+      ;;
+    amzn)
+      DISTRO=rhel
+      CODENAME=amzn
+      ;;
   esac
 fi
 
@@ -85,7 +105,7 @@ case "$DISTRO:$CODENAME" in
   debian:bullseye | debian:bookworm | debian:trixie)
     SUPPORT_TIER=tier1
     ;;
-  fedora:* | macos:* | arch:* | alpine:* | opensuse:*)
+  fedora:* | macos:* | arch:* | alpine:* | opensuse:* | rhel:*)
     SUPPORT_TIER=experimental
     ;;
 esac

@@ -3,7 +3,10 @@
 
 DISTROS := ubuntu-20.04 ubuntu-22.04 ubuntu-24.04 ubuntu-26.04 \
            debian-11 debian-12 debian-13 \
-           fedora-40 arch alpine opensuse-tumbleweed
+           fedora-40 arch alpine opensuse-tumbleweed \
+           rocky-9 rocky-10 alma-9 alma-10 \
+           centos-stream-9 centos-stream-10 \
+           amazon-linux-2023
 DISTRO  ?= ubuntu-24.04
 DEV_PORT ?= 2222
 IMG_PREFIX := shell-bling-test

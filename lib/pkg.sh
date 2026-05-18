@@ -36,7 +36,7 @@ pkg_update() {
     ubuntu | debian)
       sudo_run env DEBIAN_FRONTEND=noninteractive apt-get update -y
       ;;
-    fedora)
+    fedora | rhel)
       sudo_run dnf -y makecache
       ;;
     arch)
@@ -68,11 +68,12 @@ pkg_install() {
     ubuntu | debian)
       sudo_run env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "$@"
       ;;
-    fedora)
+    fedora | rhel)
       # --setopt=strict=0 → skip individual packages that don't exist instead
       # of failing the entire batch. Fedora repos are split across base + RPM
-      # Fusion + COPR; a single missing universal package (e.g. starship,
-      # lazygit) would otherwise abort and leave the rest uninstalled.
+      # Fusion + COPR; RHEL clones split across base + AppStream + EPEL +
+      # (Amazon Linux) extras. A single missing package would otherwise
+      # abort and leave the rest uninstalled.
       sudo_run dnf -y --setopt=strict=0 install "$@"
       ;;
     arch)
@@ -111,7 +112,7 @@ pkg_install() {
 pkg_available() {
   case "$DISTRO" in
     ubuntu | debian) apt-cache show "$1" > /dev/null 2>&1 ;;
-    fedora) dnf info "$1" > /dev/null 2>&1 ;;
+    fedora | rhel) dnf info "$1" > /dev/null 2>&1 ;;
     arch) pacman -Si "$1" > /dev/null 2>&1 ;;
     alpine) apk info -e "$1" > /dev/null 2>&1 || apk search -e "$1" 2> /dev/null | grep -q . ;;
     opensuse) zypper --non-interactive info "$1" 2> /dev/null | grep -q '^Repository' ;;

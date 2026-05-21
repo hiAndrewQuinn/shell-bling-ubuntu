@@ -185,12 +185,26 @@ _detect_fmt_kb() {
   }'
 }
 
-# detect_print_resources — system-resources block, printed once at install
-# start. Designed so a log alone is enough to diagnose space/RAM/extract
-# failures without spinning up the host. /tmp's mount type matters because
-# it's tmpfs on Debian 13 + modern Ubuntu, which caps extract scratch
-# at ~half-RAM regardless of disk size.
+# detect_print_resources [PHASE] — system-resources block, printed once
+# per install phase. Designed so a log alone is enough to diagnose
+# space/RAM/extract failures without spinning up the host. /tmp's mount
+# type matters because it's tmpfs on Debian 13 + modern Ubuntu, which
+# caps extract scratch at ~half-RAM regardless of disk size.
+#
+# Emits two things per call:
+#   1. A pretty multi-line block for humans.
+#   2. A single "==> resources-kv phase=X k=v k=v …" line for
+#      grep/awk/ripgrep: `rg '^==> resources-kv' run.log` extracts the
+#      whole timeline in one shot, one record per phase.
+#
+# PHASE defaults to "snapshot" if omitted. Conventional phase names:
+#   start    — install.sh just got platform-detected
+#   post-apt — universal apt phase finished
+#   pre-install — registry_fetch_all done, before install_all
+#   end      — everything done, just before exit
 detect_print_resources() {
+  _phase=${1:-snapshot}
+
   _ram_total_kb=$(awk '/^MemTotal:/  {print $2; exit}' /proc/meminfo 2> /dev/null)
   _ram_free_kb=$(awk '/^MemAvailable:/ {print $2; exit}' /proc/meminfo 2> /dev/null)
   if [ -n "$_ram_total_kb" ]; then
@@ -198,6 +212,13 @@ detect_print_resources() {
       "$(_detect_fmt_kb "$_ram_total_kb")" \
       "$(_detect_fmt_kb "${_ram_free_kb:-0}")"
   fi
+
+  # Per-mountpoint snapshot. We collect kv fragments into _kv as we go,
+  # then emit one summary line at the end so the pretty + kv views stay
+  # in sync without re-reading the same files twice.
+  _kv="phase=${_phase}"
+  [ -n "$_ram_total_kb" ] && _kv="${_kv} ram_total_kb=${_ram_total_kb}"
+  [ -n "$_ram_free_kb" ] && _kv="${_kv} ram_avail_kb=${_ram_free_kb}"
 
   # df -P -k: portable, kilobytes; field 1=source, 2=total, 4=avail.
   for _p in "${HOME:-/root}" /tmp /var/tmp; do
@@ -217,6 +238,14 @@ detect_print_resources() {
       "$(_detect_fmt_kb "$_tot")" \
       "$(_detect_fmt_kb "$_avl")" \
       "$_src" "$_fst" "$_note"
+
+    # kv key from path (/tmp → tmp, /var/tmp → vartmp, $HOME → home).
+    case "$_p" in
+      /tmp) _key=tmp ;;
+      /var/tmp) _key=vartmp ;;
+      *) _key=home ;;
+    esac
+    _kv="${_kv} ${_key}_type=${_fst} ${_key}_total_kb=${_tot} ${_key}_free_kb=${_avl}"
   done
 
   if [ "$ARCH" = amd64 ] && [ -r /proc/cpuinfo ]; then
@@ -227,7 +256,13 @@ detect_print_resources() {
     grep -m1 -q '^flags.*\bsse4_2\b' /proc/cpuinfo 2> /dev/null && _sse42=yes
     printf 'CPU:          %s cores  (avx2=%s sse4_2=%s)\n' \
       "$_cores" "$_avx2" "$_sse42"
+    _kv="${_kv} cpu_cores=${_cores} cpu_avx2=${_avx2} cpu_sse42=${_sse42}"
   fi
 
-  unset _ram_total_kb _ram_free_kb _p _line _src _tot _avl _fst _note _cores _avx2 _sse42
+  # Single-line machine-readable summary. Stable prefix so consumers can
+  # `rg '^==> resources-kv'` and parse with awk; field order is not
+  # guaranteed, so parse by key=value not by position.
+  printf '==> resources-kv %s\n' "$_kv"
+
+  unset _phase _ram_total_kb _ram_free_kb _p _line _src _tot _avl _fst _note _cores _avx2 _sse42 _key _kv
 }

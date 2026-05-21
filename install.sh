@@ -58,8 +58,8 @@ fi
 
 log "Detected platform:"
 detect_print_summary
-log "System resources:"
-detect_print_resources
+log "System resources (phase=start):"
+detect_print_resources start
 
 case "$SUPPORT_TIER" in
   tier1)
@@ -167,6 +167,8 @@ log "Installing universal packages"
 # shellcheck disable=SC2046  # word splitting is the goal
 pkg_install $("platform_${DISTRO}_universal_pkgs") ||
   warn "some $DISTRO packages may not be available; per-tool / registry installers will fill in"
+log "System resources (phase=post-apt):"
+detect_print_resources post-apt
 
 # ---------- per-tool installers ----------------------------------------------
 # Source every lib/tools/*.sh so registry post-install hooks and the remaining
@@ -191,6 +193,8 @@ _reg_workdir=$(mktemp -d -p /var/tmp shell-bling-registry-XXXXXX 2> /dev/null ||
   mktemp -d -t shell-bling-registry-XXXXXX)
 trap 'rm -rf "$_reg_workdir"; _stop_sudo_keepalive' EXIT INT TERM
 registry_fetch_all "$REGISTRY_TOOLS" "$_reg_workdir"
+log "System resources (phase=pre-install):"
+detect_print_resources pre-install
 registry_install_all "$REGISTRY_TOOLS" "$_reg_workdir"
 
 # All tools now flow through the registry — no legacy per-tool loop.
@@ -260,6 +264,9 @@ if command -v "$_known_fn" > /dev/null 2>&1; then
   fi
 fi
 unset _known_fn _known_out
+
+log "System resources (phase=end):"
+detect_print_resources end
 
 printf '%s==> Shell Bling installed.%s\n' "$_SB_BLD_GRN" "$_SB_RST"
 printf 'Restart your terminal to pick up everything. Welcome.\n'

@@ -277,20 +277,43 @@ _reg_install_one() {
   __sb_bin_in_archive=$(_reg_bin_in_archive "$__sb_t")
   __sb_install_as=$(_reg_field "$__sb_t" INSTALL_AS)
 
+  # Pre-flight headroom check (skip for "none" — no extract step happens).
+  # Require >=3x archive size free on the fs we're about to extract into.
+  # Rationale: archive itself stays on disk during extract, uncompressed
+  # binary tree is comparable to or larger than the archive, plus the
+  # install-target copy. 3x is a portable, conservative cliff that protects
+  # small VPSes / SBCs / disk-constrained containers (e.g. cloud-init VMs
+  # with a 5G rootfs) from half-completed extracts that fail mid-write —
+  # the original symptom that masked qsv-gnu's 399 MB archive on the
+  # Debian 13 / Ubuntu 24.04+ test VMs.
+  if [ "$__sb_ext" != none ]; then
+    __sb_extract_dir=${TMPDIR:-/tmp}
+    __sb_archive_kb=$(($(wc -c < "$__sb_archive") / 1024))
+    __sb_need_kb=$((__sb_archive_kb * 3))
+    __sb_free_kb=$(df -kP "$__sb_extract_dir" 2> /dev/null | awk 'NR==2 {print $4}')
+    if [ "${__sb_free_kb:-0}" -lt "$__sb_need_kb" ]; then
+      warn "  $__sb_t: skipping extract — need ${__sb_need_kb} KB free in $__sb_extract_dir, have ${__sb_free_kb:-0} KB"
+      return 1
+    fi
+  fi
+
   __sb_tmp=$(mktemp -d)
   __sb_bin_path=""
+  __sb_extract_log="$__sb_workdir/$__sb_t.extract.log"
   case "$__sb_ext" in
     tar.gz)
-      tar -xzf "$__sb_archive" -C "$__sb_tmp" 2> /dev/null || {
+      tar -xzf "$__sb_archive" -C "$__sb_tmp" 2> "$__sb_extract_log" || {
         warn "  $__sb_t: tar -xzf failed"
+        tail -n 3 "$__sb_extract_log" 2> /dev/null | sed 's/^/==> WARN:     /'
         rm -rf "$__sb_tmp"
         return 1
       }
       __sb_bin_path="$__sb_tmp/$__sb_bin_in_archive"
       ;;
     tar.xz)
-      tar -xJf "$__sb_archive" -C "$__sb_tmp" 2> /dev/null || {
+      tar -xJf "$__sb_archive" -C "$__sb_tmp" 2> "$__sb_extract_log" || {
         warn "  $__sb_t: tar -xJf failed"
+        tail -n 3 "$__sb_extract_log" 2> /dev/null | sed 's/^/==> WARN:     /'
         rm -rf "$__sb_tmp"
         return 1
       }
@@ -302,8 +325,9 @@ _reg_install_one() {
         rm -rf "$__sb_tmp"
         return 1
       fi
-      unzip -q -o "$__sb_archive" -d "$__sb_tmp" 2> /dev/null || {
+      unzip -q -o "$__sb_archive" -d "$__sb_tmp" 2> "$__sb_extract_log" || {
         warn "  $__sb_t: unzip failed"
+        tail -n 3 "$__sb_extract_log" 2> /dev/null | sed 's/^/==> WARN:     /'
         rm -rf "$__sb_tmp"
         return 1
       }
@@ -311,8 +335,9 @@ _reg_install_one() {
       ;;
     gz)
       # Single-file gzip: asset itself is the binary, gzipped.
-      gunzip -c "$__sb_archive" > "$__sb_tmp/$__sb_t" 2> /dev/null || {
+      gunzip -c "$__sb_archive" > "$__sb_tmp/$__sb_t" 2> "$__sb_extract_log" || {
         warn "  $__sb_t: gunzip failed"
+        tail -n 3 "$__sb_extract_log" 2> /dev/null | sed 's/^/==> WARN:     /'
         rm -rf "$__sb_tmp"
         return 1
       }

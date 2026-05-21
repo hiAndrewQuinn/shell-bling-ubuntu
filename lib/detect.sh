@@ -46,11 +46,23 @@ fi
 # its -gnu binary needs glibc >= 2.38).
 GLIBC_VERSION=""
 if [ "$OS_FAMILY" = linux ] && command -v ldd > /dev/null 2>&1; then
-  if ldd --version 2>&1 | head -2 | grep -qi musl; then
+  # Keep 2>&1: Alpine's musl ldd writes its banner to stderr, and we rely on
+  # seeing "musl libc" to set LIBC=musl. The trade-off is that distros where
+  # ldd is broken (Void's #!/bin/bash ldd without bash) put "sh: ldd: not
+  # found" into the same stream — and the old code would parse "found" as a
+  # version. We gate the parsed version on a dotted-numeric shape so any
+  # such garbage is rejected and GLIBC_VERSION stays empty (the engine
+  # handles that path correctly — no gnu→musl swap is attempted).
+  _ldd_out=$(ldd --version 2>&1 | head -2)
+  if printf '%s' "$_ldd_out" | grep -qi musl; then
     LIBC=musl
   else
-    GLIBC_VERSION=$(ldd --version 2>&1 | awk 'NR==1 {print $NF}')
+    _v=$(printf '%s' "$_ldd_out" | head -1 | awk '{print $NF}')
+    case "$_v" in
+      [0-9]*.[0-9]*) GLIBC_VERSION=$_v ;;
+    esac
   fi
+  unset _ldd_out _v
 fi
 export GLIBC_VERSION
 

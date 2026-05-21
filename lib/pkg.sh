@@ -6,16 +6,37 @@ has_cmd() {
   command -v "$1" > /dev/null 2>&1
 }
 
+# Color vars honor https://no-color.org/ — set NO_COLOR to any non-empty value
+# to suppress ANSI escapes everywhere shell-bling prints. Computed once at
+# source time so the cost is one fork; consumers just splat the var.
+if [ -n "${NO_COLOR-}" ]; then
+  _SB_CYAN=''
+  _SB_YEL=''
+  _SB_RED=''
+  _SB_GRN=''
+  _SB_BLD_YEL=''
+  _SB_BLD_GRN=''
+  _SB_RST=''
+else
+  _SB_CYAN=$(printf '\033[36m')
+  _SB_YEL=$(printf '\033[33m')
+  _SB_RED=$(printf '\033[31m')
+  _SB_GRN=$(printf '\033[32m')
+  _SB_BLD_YEL=$(printf '\033[1;33m')
+  _SB_BLD_GRN=$(printf '\033[1;32m')
+  _SB_RST=$(printf '\033[0m')
+fi
+
 log() {
-  printf '\033[36m==>\033[0m %s\n' "$*"
+  printf '%s==>%s %s\n' "$_SB_CYAN" "$_SB_RST" "$*"
 }
 
 warn() {
-  printf '\033[33m==> WARN:\033[0m %s\n' "$*" >&2
+  printf '%s==> WARN:%s %s\n' "$_SB_YEL" "$_SB_RST" "$*" >&2
 }
 
 err() {
-  printf '\033[31m==> ERROR:\033[0m %s\n' "$*" >&2
+  printf '%s==> ERROR:%s %s\n' "$_SB_RED" "$_SB_RST" "$*" >&2
 }
 
 # sudo_run CMD [ARG...] — run as root when needed; pass-through if already root.

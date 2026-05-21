@@ -20,12 +20,23 @@ if [ -z "$_lib_dir" ]; then
     _lib_dir="$(cd "$(dirname "$_self")" && pwd)/lib"
   else
     _tmp_clone=$(mktemp -d)
-    printf '\033[36m==>\033[0m Cloning shell-bling-ubuntu into %s\n' "$_tmp_clone"
+    # pkg.sh isn't sourced yet, so honor NO_COLOR inline for these two lines.
+    if [ -n "${NO_COLOR-}" ]; then
+      _bs_cyan=''
+      _bs_red=''
+      _bs_rst=''
+    else
+      _bs_cyan=$(printf '\033[36m')
+      _bs_red=$(printf '\033[31m')
+      _bs_rst=$(printf '\033[0m')
+    fi
+    printf '%s==>%s Cloning shell-bling-ubuntu into %s\n' "$_bs_cyan" "$_bs_rst" "$_tmp_clone"
     git clone --depth 1 https://github.com/hiAndrewQuinn/shell-bling-ubuntu \
       "$_tmp_clone" > /dev/null 2>&1 || {
-      printf '\033[31m==> ERROR:\033[0m git clone failed; do you have git installed?\n' >&2
+      printf '%s==> ERROR:%s git clone failed; do you have git installed?\n' "$_bs_red" "$_bs_rst" >&2
       exit 1
     }
+    unset _bs_cyan _bs_red _bs_rst
     _lib_dir="$_tmp_clone/lib"
     # Re-exec to pick up the bundled scripts.
     exec sh "$_tmp_clone/install.sh" "$@"
@@ -235,12 +246,12 @@ if command -v "$_known_fn" > /dev/null 2>&1; then
   _known_out=$("$_known_fn" 2> /dev/null || true)
   if [ -n "$_known_out" ]; then
     echo
-    printf '\033[33m==> Known limitations on %s %s:\033[0m\n' "$DISTRO" "$CODENAME"
+    printf '%s==> Known limitations on %s %s:%s\n' "$_SB_YEL" "$DISTRO" "$CODENAME" "$_SB_RST"
     printf '%s\n' "$_known_out" | sed 's/^/  /'
     echo
   fi
 fi
 unset _known_fn _known_out
 
-printf '\033[1;32m==> Shell Bling installed.\033[0m\n'
+printf '%s==> Shell Bling installed.%s\n' "$_SB_BLD_GRN" "$_SB_RST"
 printf 'Restart your terminal to pick up everything. Welcome.\n'

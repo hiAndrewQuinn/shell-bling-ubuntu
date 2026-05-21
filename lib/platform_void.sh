@@ -14,7 +14,7 @@ platform_void_universal_pkgs() {
   # `coreutils-doc` is split-out — we just want plain coreutils.
   echo "curl git vim tmux tree htop xclip wl-clipboard \
         sqlite rsync tar \
-        zstd lz4 xxhash \
+        zstd lz4 xxHash \
         gcc make nodejs unzip xz \
         kitty-terminfo \
        "

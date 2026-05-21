@@ -58,7 +58,8 @@ if [ -z "$DISTRO" ] || [ ! -f "docker/${DISTRO}.Dockerfile" ]; then
   echo "       run with --list to see available distros." >&2
   exit 1
 fi
-IMG=shell-bling-test-${DISTRO}
+DEV_ARCH=${DEV_ARCH:-amd64}
+IMG=shell-bling-test-${DISTRO}-${DEV_ARCH}
 NAME=sbu-dev-${DISTRO}
 
 # Collect ssh pubkeys to inject. Default: every *.pub in ~/.ssh/.
@@ -73,8 +74,10 @@ if [ -z "$PUBKEYS" ]; then
 fi
 
 # Build the image (reuses make's image name so `make test-<distro>` still
-# works against the same tag).
-docker build -f "docker/${DISTRO}.Dockerfile" -t "${IMG}" . > /dev/null
+# works against the same tag). --platform follows DEV_ARCH for arm64
+# cross-arch dev containers under qemu-user-static.
+docker buildx build --load --platform "linux/${DEV_ARCH}" \
+  -f "docker/${DISTRO}.Dockerfile" -t "${IMG}" . > /dev/null
 
 # Idempotent: tear down any previous container of the same name.
 docker rm -f "${NAME}" > /dev/null 2>&1 || true
@@ -88,6 +91,7 @@ docker rm -f "${NAME}" > /dev/null 2>&1 || true
 #   5. prints the ready marker
 #   6. tails /dev/null so the container doesn't exit
 docker run -d -it --name "${NAME}" -p "${PORT}:22" \
+  --platform "linux/${DEV_ARCH}" \
   --entrypoint sh "${IMG}" \
   -c "
     set -eu
@@ -123,7 +127,8 @@ KEYS
 
     SHELL_BLING_NONINTERACTIVE=1 sh install.sh
 
-    printf '\n\033[1;32m==> dev container ready.\033[0m\n'
+    if [ -n \"\${NO_COLOR-}\" ]; then _dg=\"\"; _dr=\"\"; else _dg=\$(printf '\033[1;32m'); _dr=\$(printf '\033[0m'); fi
+    printf '\n%s==> dev container ready.%s\n' \"\$_dg\" \"\$_dr\"
     tail -f /dev/null
   " > /dev/null
 

@@ -9,9 +9,24 @@ export SHELL_BLING_NONINTERACTIVE=1
 
 if [ "${SHELL_BLING_DEV:-0}" = 1 ]; then
   unset SHELL_BLING_NONINTERACTIVE
+  # Capture the original login shell BEFORE install.sh runs — it may chsh
+  # to fish. The user's intent is to land in whatever shell the image
+  # shipped with; fall back to /bin/sh if the entry is missing or the named
+  # shell isn't executable (e.g. Void's useradd line points at /bin/bash
+  # even when bash isn't installed).
+  _orig_shell=$(getent passwd "$(id -un)" 2> /dev/null | cut -d: -f7)
+  [ -n "$_orig_shell" ] && [ -x "$_orig_shell" ] || _orig_shell=/bin/sh
   sh install.sh || true
-  printf '\n\033[1;33m==> install.sh finished. Dropping to bash.\033[0m\n'
-  exec bash -l
+  if [ -n "${NO_COLOR-}" ]; then
+    _ep_yel=''
+    _ep_rst=''
+  else
+    _ep_yel=$(printf '\033[1;33m')
+    _ep_rst=$(printf '\033[0m')
+  fi
+  printf '\n%s==> install.sh finished. Dropping to %s.%s\n' \
+    "$_ep_yel" "$_orig_shell" "$_ep_rst"
+  exec "$_orig_shell" -l
 fi
 
 sh install.sh

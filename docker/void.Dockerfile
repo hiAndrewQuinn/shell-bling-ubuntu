@@ -4,7 +4,7 @@ ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 # and a non-root user. xbps-install -Sy refreshes the repo index first
 # because the published image's snapshot can be stale.
 RUN xbps-install -Suy xbps && \
-    xbps-install -y sudo curl ca-certificates git && \
+    xbps-install -y sudo curl ca-certificates git bash && \
     useradd -m -s /bin/bash dev && \
     echo 'dev ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/dev
 USER dev

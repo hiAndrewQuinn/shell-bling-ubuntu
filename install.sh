@@ -58,6 +58,8 @@ fi
 
 log "Detected platform:"
 detect_print_summary
+log "System resources:"
+detect_print_resources
 
 case "$SUPPORT_TIER" in
   tier1)

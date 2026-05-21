@@ -166,3 +166,68 @@ detect_print_summary() {
   printf 'WSL:          %s\n' "$IS_WSL"
   printf 'Support tier: %s\n' "$SUPPORT_TIER"
 }
+
+# _detect_fs_type PATH — emit the filesystem type of the mount backing PATH,
+# or "?" if findmnt is missing. Used by detect_print_resources below.
+_detect_fs_type() {
+  if command -v findmnt > /dev/null 2>&1; then
+    findmnt -no FSTYPE --target "$1" 2> /dev/null || printf '?'
+  else
+    printf '?'
+  fi
+}
+
+# _detect_fmt_kb KB — pretty-print a kilobyte count as "X.Y GB" or "Z MB".
+_detect_fmt_kb() {
+  awk -v k="$1" 'BEGIN {
+    if (k+0 >= 1024*1024) printf "%.1f GB", k/1024/1024;
+    else                  printf "%d MB",   k/1024;
+  }'
+}
+
+# detect_print_resources — system-resources block, printed once at install
+# start. Designed so a log alone is enough to diagnose space/RAM/extract
+# failures without spinning up the host. /tmp's mount type matters because
+# it's tmpfs on Debian 13 + modern Ubuntu, which caps extract scratch
+# at ~half-RAM regardless of disk size.
+detect_print_resources() {
+  _ram_total_kb=$(awk '/^MemTotal:/  {print $2; exit}' /proc/meminfo 2> /dev/null)
+  _ram_free_kb=$(awk '/^MemAvailable:/ {print $2; exit}' /proc/meminfo 2> /dev/null)
+  if [ -n "$_ram_total_kb" ]; then
+    printf 'RAM:          %s total, %s available\n' \
+      "$(_detect_fmt_kb "$_ram_total_kb")" \
+      "$(_detect_fmt_kb "${_ram_free_kb:-0}")"
+  fi
+
+  # df -P -k: portable, kilobytes; field 1=source, 2=total, 4=avail.
+  for _p in "${HOME:-/root}" /tmp /var/tmp; do
+    [ -d "$_p" ] || continue
+    _line=$(df -P -k "$_p" 2> /dev/null | awk 'NR==2 {print $1, $2, $4}')
+    [ -n "$_line" ] || continue
+    _src=$(printf '%s\n' "$_line" | awk '{print $1}')
+    _tot=$(printf '%s\n' "$_line" | awk '{print $2}')
+    _avl=$(printf '%s\n' "$_line" | awk '{print $3}')
+    _fst=$(_detect_fs_type "$_p")
+    case "$_fst" in
+      tmpfs) _note=' (tmpfs — capped near RAM/2; extracts that exceed it spill)' ;;
+      *) _note='' ;;
+    esac
+    printf '%-13s %s, %s free  [%s %s]%s\n' \
+      "$_p:" \
+      "$(_detect_fmt_kb "$_tot")" \
+      "$(_detect_fmt_kb "$_avl")" \
+      "$_src" "$_fst" "$_note"
+  done
+
+  if [ "$ARCH" = amd64 ] && [ -r /proc/cpuinfo ]; then
+    _cores=$(grep -c ^processor /proc/cpuinfo 2> /dev/null || printf '?')
+    _avx2=no
+    _sse42=no
+    grep -m1 -q '^flags.*\bavx2\b' /proc/cpuinfo 2> /dev/null && _avx2=yes
+    grep -m1 -q '^flags.*\bsse4_2\b' /proc/cpuinfo 2> /dev/null && _sse42=yes
+    printf 'CPU:          %s cores  (avx2=%s sse4_2=%s)\n' \
+      "$_cores" "$_avx2" "$_sse42"
+  fi
+
+  unset _ram_total_kb _ram_free_kb _p _line _src _tot _avl _fst _note _cores _avx2 _sse42
+}

@@ -295,7 +295,13 @@ _reg_install_one() {
     __sb_need_kb=$((__sb_archive_kb * 3))
     __sb_free_kb=$(df -kP "$__sb_workdir" 2> /dev/null | awk 'NR==2 {print $4}')
     if [ "${__sb_free_kb:-0}" -lt "$__sb_need_kb" ]; then
-      warn "  $__sb_t: skipping extract — need ${__sb_need_kb} KB free in $__sb_workdir, have ${__sb_free_kb:-0} KB"
+      # Include the fs type so an operator reading the log can tell
+      # disk-full from tmpfs-cap without spinning up the host.
+      __sb_fst='?'
+      if command -v findmnt > /dev/null 2>&1; then
+        __sb_fst=$(findmnt -no FSTYPE --target "$__sb_workdir" 2> /dev/null || printf '?')
+      fi
+      warn "  $__sb_t: skipping extract — need ${__sb_need_kb} KB free in $__sb_workdir ($__sb_fst), have ${__sb_free_kb:-0} KB"
       return 1
     fi
   fi

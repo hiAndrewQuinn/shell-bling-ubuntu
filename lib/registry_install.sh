@@ -277,27 +277,30 @@ _reg_install_one() {
   __sb_bin_in_archive=$(_reg_bin_in_archive "$__sb_t")
   __sb_install_as=$(_reg_field "$__sb_t" INSTALL_AS)
 
+  # Extract under the workdir, not the default /tmp. install.sh roots the
+  # workdir on /var/tmp (rootfs) because /tmp is tmpfs on Debian 13 / modern
+  # Ubuntu — half-of-RAM cap, not disk-cap. Anchoring extract to the same
+  # filesystem keeps the headroom check meaningful.
+  #
   # Pre-flight headroom check (skip for "none" — no extract step happens).
   # Require >=3x archive size free on the fs we're about to extract into.
   # Rationale: archive itself stays on disk during extract, uncompressed
   # binary tree is comparable to or larger than the archive, plus the
   # install-target copy. 3x is a portable, conservative cliff that protects
-  # small VPSes / SBCs / disk-constrained containers (e.g. cloud-init VMs
-  # with a 5G rootfs) from half-completed extracts that fail mid-write —
-  # the original symptom that masked qsv-gnu's 399 MB archive on the
-  # Debian 13 / Ubuntu 24.04+ test VMs.
+  # small VPSes / SBCs / disk-constrained containers from half-completed
+  # extracts that fail mid-write — the original symptom that masked
+  # qsv-gnu's 399 MB archive on the Debian 13 / Ubuntu 24.04+ test VMs.
   if [ "$__sb_ext" != none ]; then
-    __sb_extract_dir=${TMPDIR:-/tmp}
     __sb_archive_kb=$(($(wc -c < "$__sb_archive") / 1024))
     __sb_need_kb=$((__sb_archive_kb * 3))
-    __sb_free_kb=$(df -kP "$__sb_extract_dir" 2> /dev/null | awk 'NR==2 {print $4}')
+    __sb_free_kb=$(df -kP "$__sb_workdir" 2> /dev/null | awk 'NR==2 {print $4}')
     if [ "${__sb_free_kb:-0}" -lt "$__sb_need_kb" ]; then
-      warn "  $__sb_t: skipping extract — need ${__sb_need_kb} KB free in $__sb_extract_dir, have ${__sb_free_kb:-0} KB"
+      warn "  $__sb_t: skipping extract — need ${__sb_need_kb} KB free in $__sb_workdir, have ${__sb_free_kb:-0} KB"
       return 1
     fi
   fi
 
-  __sb_tmp=$(mktemp -d)
+  __sb_tmp=$(mktemp -d -p "$__sb_workdir")
   __sb_bin_path=""
   __sb_extract_log="$__sb_workdir/$__sb_t.extract.log"
   case "$__sb_ext" in

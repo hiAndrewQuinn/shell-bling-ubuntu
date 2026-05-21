@@ -180,7 +180,13 @@ done
 # whose vendor publishes one. Parallel fetch + sequential install + smoke
 # test. All version pinning lives in lib/registry.sh; per-(arch,libc) URL
 # gaps fall back to pkg_install automatically.
-_reg_workdir=$(mktemp -d -t shell-bling-registry-XXXXXX)
+# Prefer /var/tmp (rootfs-backed on every distro we target) over /tmp,
+# which is tmpfs on Debian 13 / modern Ubuntu and capped at ~half of RAM.
+# qsv-gnu's 399 MB archive + 1.2 GB extracted tree blew the 988 MB tmpfs
+# on the 2 GB test VMs in build #49; the rootfs at the same moment had
+# 7+ GB free. Fall back to mktemp's default if /var/tmp is unwritable.
+_reg_workdir=$(mktemp -d -p /var/tmp shell-bling-registry-XXXXXX 2> /dev/null ||
+  mktemp -d -t shell-bling-registry-XXXXXX)
 trap 'rm -rf "$_reg_workdir"; _stop_sudo_keepalive' EXIT INT TERM
 registry_fetch_all "$REGISTRY_TOOLS" "$_reg_workdir"
 registry_install_all "$REGISTRY_TOOLS" "$_reg_workdir"

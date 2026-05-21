@@ -51,7 +51,7 @@ $(addprefix build-,$(DISTROS)): build-%: FORCE
 # test-<distro>: runs the matching-arch image. --platform on run picks the
 # qemu binfmt handler when host arch != image arch.
 $(addprefix test-,$(DISTROS)): test-%: build-%
-	docker run --rm --platform linux/$(ARCH) $(DOCKER_RUN_USER) $(IMG_PREFIX)-$*-$(ARCH)
+	docker run --rm --platform linux/$(ARCH) $(DOCKER_RUN_USER) -e NO_COLOR $(IMG_PREFIX)-$*-$(ARCH)
 
 FORCE:
 
@@ -63,7 +63,7 @@ test-arm64: ARCH := arm64
 test-arm64: test
 
 dev: build-$(DISTRO)
-	docker run --rm -it --platform linux/$(ARCH) -e SHELL_BLING_DEV=1 $(IMG_PREFIX)-$(DISTRO)-$(ARCH)
+	docker run --rm -it --platform linux/$(ARCH) -e SHELL_BLING_DEV=1 -e NO_COLOR $(IMG_PREFIX)-$(DISTRO)-$(ARCH)
 
 # dev-bg launches a *persistent* container with sshd running so you can
 # `ssh dev@localhost -p $(DEV_PORT)` into it like a real machine. Useful

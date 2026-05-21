@@ -47,17 +47,24 @@ fi
 GLIBC_VERSION=""
 if [ "$OS_FAMILY" = linux ] && command -v ldd > /dev/null 2>&1; then
   # Keep 2>&1: Alpine's musl ldd writes its banner to stderr, and we rely on
-  # seeing "musl libc" to set LIBC=musl. The trade-off is that distros where
-  # ldd is broken (Void's #!/bin/bash ldd without bash) put "sh: ldd: not
-  # found" into the same stream — and the old code would parse "found" as a
-  # version. We gate the parsed version on a dotted-numeric shape so any
-  # such garbage is rejected and GLIBC_VERSION stays empty (the engine
-  # handles that path correctly — no gnu→musl swap is attempted).
-  _ldd_out=$(ldd --version 2>&1 | head -2)
+  # seeing "musl libc" to set LIBC=musl. The challenge is that some distros'
+  # /usr/bin/ldd is a #!/bin/bash script that prints warnings before the
+  # actual version — CentOS 7 with LC_ALL=C.UTF-8 emits "bash: warning:
+  # setlocale: cannot change locale (C.UTF-8)" because C.UTF-8 only landed
+  # in glibc 2.35. Old positional parsers (head -1 | awk '{print $NF}') would
+  # capture "(C.UTF-8)" as the version, fail the numeric gate, and leave
+  # GLIBC_VERSION empty — which silently disabled the gnu→musl swap and led
+  # to GLIBC_X.Y-not-found crashes downstream. Grep the whole output for the
+  # first dotted-numeric token instead; it's robust against arbitrary
+  # warning noise from any current or future distro.
+  # `|| true` matters: Alpine's ldd exits non-zero on `--version` (it prints
+  # usage and returns 1), and busybox ash exits the parent under `set -e`
+  # when a command substitution's command fails. Suppress it explicitly.
+  _ldd_out=$(ldd --version 2>&1 || true)
   if printf '%s' "$_ldd_out" | grep -qi musl; then
     LIBC=musl
   else
-    _v=$(printf '%s' "$_ldd_out" | head -1 | awk '{print $NF}')
+    _v=$(printf '%s' "$_ldd_out" | grep -Eo '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1)
     case "$_v" in
       [0-9]*.[0-9]*) GLIBC_VERSION=$_v ;;
     esac

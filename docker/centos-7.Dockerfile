@@ -1,5 +1,10 @@
 FROM centos:7
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+# C.UTF-8 doesn't exist before glibc 2.35; CentOS 7 ships 2.17. Setting it
+# makes every bash invocation (including /usr/bin/ldd, which is a #!/bin/bash
+# script) print "setlocale: cannot change locale (C.UTF-8)" — which used to
+# poison lib/detect.sh's GLIBC_VERSION parse and silently disable the
+# gnu→musl swap. Stay on plain C here.
+ENV LANG=C LC_ALL=C
 # CentOS 7 went EOL June 2024 and its default mirrorlist URLs no longer
 # resolve. Point yum at vault.centos.org which still serves the final
 # 7.9.2009 packages. This is the standard remediation for CentOS 7

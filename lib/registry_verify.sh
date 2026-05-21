@@ -56,7 +56,21 @@ registry_verify_all() {
     fi
 
     # Capture combined stdout+stderr — some tools (eg micro -version) emit on stderr.
-    __sb_out=$(sh -c "$__sb_smoke" 2>&1 || true)
+    # Track the exit code separately: a tool that crashed on --version did NOT
+    # install at the wrong version, it failed to install. Parsing the error
+    # text would mistake "GLIBC_2.18 not found" for "installed version 2.18"
+    # (every Rust binary on CentOS 7's glibc 2.17 used to be misreported that
+    # way). Classify nonzero rc as a smoke-failure row instead.
+    # `|| __sb_rc=$?` keeps the failure rc without tripping `set -e` in
+    # busybox ash (which exits the parent on `var=$(failing)`).
+    __sb_rc=0
+    __sb_out=$(sh -c "$__sb_smoke" 2>&1) || __sb_rc=$?
+    if [ "$__sb_rc" -ne 0 ]; then
+      __sb_rows="$__sb_rows$(printf '  %-12s expected %-10s smoke FAILED (rc=%d) ✗' \
+        "$__sb_t" "$__sb_expected" "$__sb_rc")\n"
+      __sb_fail=$((__sb_fail + 1))
+      continue
+    fi
     __sb_actual=$(printf '%s\n' "$__sb_out" | grep -o "$__sb_pattern" | head -n 1)
 
     if [ -z "$__sb_actual" ]; then

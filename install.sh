@@ -167,6 +167,9 @@ log "Installing universal packages"
 # shellcheck disable=SC2046  # word splitting is the goal
 pkg_install $("platform_${DISTRO}_universal_pkgs") ||
   warn "some $DISTRO packages may not be available; per-tool / registry installers will fill in"
+# Reclaim ~270 MB of apt cache (and equivalents) before snapshotting —
+# the resources block then reflects steady-state, not transient bloat.
+pkg_cleanup
 log "System resources (phase=post-apt):"
 detect_print_resources post-apt
 

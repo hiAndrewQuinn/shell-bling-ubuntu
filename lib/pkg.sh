@@ -154,6 +154,52 @@ pkg_install() {
   esac
 }
 
+# pkg_cleanup — reclaim package-manager scratch space after the install
+# phase. apt's /var/cache/apt/archives can hold ~270 MB of unpacked .deb
+# files we'll never re-use; dnf/yum similarly cache downloads. Best-effort
+# — failures are non-fatal, so we just log a debug-ish warning and
+# continue. Called once from install.sh after the apt phase, before the
+# fetch phase, so the cleared space is immediately usable for registry
+# extraction.
+pkg_cleanup() {
+  case "$DISTRO" in
+    ubuntu | debian)
+      sudo_run apt-get clean 2> /dev/null || true
+      ;;
+    fedora | rhel)
+      if has_cmd dnf; then
+        sudo_run dnf clean packages 2> /dev/null || true
+      else
+        sudo_run yum clean packages 2> /dev/null || true
+      fi
+      ;;
+    arch)
+      # paccache from pacman-contrib trims old versions; without it,
+      # `pacman -Sc --noconfirm` clears the entire cache. We use the
+      # safer paccache approach when available.
+      if has_cmd paccache; then
+        sudo_run paccache -rk0 2> /dev/null || true
+      else
+        sudo_run pacman -Sc --noconfirm 2> /dev/null || true
+      fi
+      ;;
+    alpine)
+      # apk's --no-cache flag in pkg_install means no cache to clean.
+      :
+      ;;
+    opensuse)
+      sudo_run zypper --non-interactive clean --all 2> /dev/null || true
+      ;;
+    void)
+      sudo_run xbps-remove -Oo 2> /dev/null || true
+      ;;
+    macos)
+      brew cleanup -s 2> /dev/null || true
+      ;;
+    *) : ;;
+  esac
+}
+
 # pkg_available NAME — is the package known to the package manager?
 pkg_available() {
   case "$DISTRO" in

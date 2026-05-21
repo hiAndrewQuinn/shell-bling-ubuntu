@@ -17,8 +17,12 @@ platform_ubuntu_universal_pkgs() {
 }
 
 platform_ubuntu_preflight() {
-  # vim-gtk3 only available where a GUI stack is present; fall back to vim.
-  pkg_install vim-gtk3 2> /dev/null || pkg_install vim
+  # vim-nox over vim-gtk3: keeps +clipboard / +python3 / +ruby / +perl /
+  # +lua but skips the GTK + Cairo + Pango + X11 stack that vim-gtk3
+  # hard-depends on (~500-700 MB on cloud images, observed in build #49
+  # root-cause work). Headless cloud VMs and containers never use the
+  # GUI bits. Fall back to plain vim if vim-nox isn't packaged.
+  pkg_install vim-nox 2> /dev/null || pkg_install vim
   # kitty is GUI; not always in minimal containers — graceful skip.
   pkg_install kitty 2> /dev/null || warn "kitty unavailable; skipping"
   # Ubuntu-only: PPA helper. Not required by shell-bling itself but a

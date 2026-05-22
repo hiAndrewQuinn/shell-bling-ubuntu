@@ -40,11 +40,15 @@ err() {
 }
 
 # sudo_run CMD [ARG...] — run as root when needed; pass-through if already root.
+# PRIV_ESC is set by detect_priv_esc (lib/detect.sh): empty when uid=0,
+# "sudo" or "doas" otherwise. install.sh's preflight refuses to continue
+# if no escalation strategy is available, so by the time anything in this
+# script calls sudo_run, $PRIV_ESC is the right answer.
 sudo_run() {
-  if [ "$(id -u 2> /dev/null || echo 0)" = 0 ]; then
+  if [ -z "${PRIV_ESC:-}" ]; then
     "$@"
   else
-    sudo "$@"
+    "$PRIV_ESC" "$@"
   fi
 }
 

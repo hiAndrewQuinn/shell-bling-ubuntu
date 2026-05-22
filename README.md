@@ -9,6 +9,14 @@ macOS install. One command, sudo password once, fzf pickers at the end.
 curl -fsSL https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh
 ```
 
+No `curl` yet? (Fresh Debian 13 doesn't ship it; many minimal images don't either.) Use `wget`:
+
+```sh
+wget -qO- https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh
+```
+
+Either one works — the script installs `curl` itself before it needs to fetch anything else.
+
 That's it. The script will:
 
 1. Detect your platform.

@@ -159,6 +159,37 @@ fi
 
 export OS_FAMILY DISTRO CODENAME VERSION_ID ARCH LIBC IS_WSL SUPPORT_TIER
 
+# PRIV_ESC — privilege-escalation command name, set by detect_priv_esc.
+# Values: ""    -> already root, no escalation needed
+#         sudo  -> use sudo (Debian/Ubuntu/Fedora/Arch default)
+#         doas  -> use doas (Alpine/Void without sudo, some minimal Arch)
+# Consumed by sudo_run in lib/pkg.sh. Set once at install.sh preflight.
+PRIV_ESC=""
+export PRIV_ESC
+
+# detect_priv_esc — populate PRIV_ESC based on uid + which escalation
+# binary is on PATH. Returns 0 if a usable strategy exists (root or
+# sudo or doas); returns 1 if user is non-root and neither sudo nor
+# doas is installed — that case is fatal upstream because every
+# package install in this script eventually hits sudo_run.
+# Uses `command -v` directly rather than has_cmd so this stays usable
+# before lib/pkg.sh has been sourced.
+detect_priv_esc() {
+  PRIV_ESC=""
+  if [ "$(id -u 2> /dev/null || echo 0)" = 0 ]; then
+    return 0
+  fi
+  if command -v sudo > /dev/null 2>&1; then
+    PRIV_ESC=sudo
+    return 0
+  fi
+  if command -v doas > /dev/null 2>&1; then
+    PRIV_ESC=doas
+    return 0
+  fi
+  return 1
+}
+
 detect_print_summary() {
   printf 'OS family:    %s\n' "$OS_FAMILY"
   printf 'Distro:       %s %s (%s)\n' "$DISTRO" "$VERSION_ID" "$CODENAME"

@@ -110,16 +110,100 @@ if [ "${SHELL_BLING_BYPASS_SIZE:-0}" != 1 ]; then
   fi
 fi
 
-# ---------- sudo preflight + keepalive ----------------------------------------
+# ---------- privilege-escalation preflight + sudo keepalive -------------------
+# Populates PRIV_ESC (lib/detect.sh) once at startup. If the user is non-root
+# and has no privilege-escalation tool, we bail here with an actionable,
+# distro-specific message — *before* any apt/dnf/etc. activity — instead of
+# letting the install crash with "sudo: command not found" 30 seconds later.
 _sudo_keepalive_pid=""
+
+# Print recovery guidance and exit 1. $DISTRO is set by lib/detect.sh.
+_priv_esc_help_and_exit() {
+  _u=$(id -un 2> /dev/null || echo user)
+  err "Need root to install packages, but no 'sudo' or 'doas' was found."
+  cat >&2 << EOF
+
+  shell-bling installs system packages, which requires root.
+  You're running as '${_u}' and neither 'sudo' nor 'doas' is on PATH.
+
+  Pick one of:
+
+  1) Re-run as root:
+       su -
+       <re-run the install one-liner>
+
+  2) Install sudo, then re-run as your user:
+EOF
+  case "$DISTRO" in
+    debian | ubuntu)
+      printf "       su -c 'apt update && apt install -y sudo && usermod -aG sudo %s'\n" "$_u" >&2
+      ;;
+    fedora | rhel)
+      printf "       su -c 'dnf install -y sudo && usermod -aG wheel %s'\n" "$_u" >&2
+      ;;
+    arch)
+      printf "       su -c 'pacman -S --noconfirm sudo && usermod -aG wheel %s'\n" "$_u" >&2
+      ;;
+    alpine)
+      printf "       su -c 'apk add sudo && addgroup %s wheel'\n" "$_u" >&2
+      ;;
+    void)
+      printf "       su -c 'xbps-install -y sudo && usermod -aG wheel %s'\n" "$_u" >&2
+      ;;
+    opensuse)
+      printf "       su -c 'zypper install -y sudo && usermod -aG wheel %s'\n" "$_u" >&2
+      ;;
+    *)
+      printf "       (see your distro's docs to install 'sudo')\n" >&2
+      ;;
+  esac
+  cat >&2 << EOF
+
+  3) Or install doas (lighter-weight; common on Alpine/Void):
+EOF
+  case "$DISTRO" in
+    alpine)
+      printf "       su -c 'apk add doas && echo \"permit persist %s\" >> /etc/doas.d/shell-bling.conf'\n" "$_u" >&2
+      ;;
+    void)
+      printf "       su -c 'xbps-install -y opendoas && echo \"permit persist %s\" >> /etc/doas.conf'\n" "$_u" >&2
+      ;;
+    arch)
+      printf "       su -c 'pacman -S --noconfirm opendoas && echo \"permit persist %s\" >> /etc/doas.conf'\n" "$_u" >&2
+      ;;
+    *)
+      printf "       (doas/opendoas package varies by distro; see its docs)\n" >&2
+      ;;
+  esac
+  cat >&2 << EOF
+
+  After option 2 or 3, log out and back in so group changes take effect.
+
+EOF
+  unset _u
+  exit 1
+}
+
 _start_sudo_keepalive() {
+  # Always populate PRIV_ESC; it's the input to sudo_run.
+  if ! detect_priv_esc; then
+    _priv_esc_help_and_exit
+  fi
+
+  # Already root → nothing more to do; PRIV_ESC stays empty.
+  [ -z "$PRIV_ESC" ] && return 0
+
+  # macOS: one sudo prompt is fine, no need for a background keepalive
+  # (brew handles most of the install on its own).
   [ "$OS_FAMILY" = darwin ] && return 0
-  [ "$(id -u)" = 0 ] && return 0
-  has_cmd sudo || {
-    warn "sudo not found; assuming root"
-    return 0
-  }
-  # Passwordless sudo (CI, NOPASSWD)? No keepalive needed.
+
+  # doas: persistence is configured per-system in /etc/doas.conf
+  # ('permit persist'). There's no portable analog to `sudo -n true`
+  # for keeping the timestamp warm, so just rely on doas's own behavior.
+  [ "$PRIV_ESC" = doas ] && return 0
+
+  # From here on, PRIV_ESC=sudo. Passwordless sudo (CI, NOPASSWD)?
+  # No keepalive needed.
   if sudo -n true 2> /dev/null; then
     log "Passwordless sudo detected; no password needed"
     return 0

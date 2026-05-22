@@ -111,7 +111,11 @@ registry_fetch_all() {
   __sb_workdir=$2
   mkdir -p "$__sb_workdir"
 
-  log "Registry: fetching upstream binaries in parallel"
+  # POSIX word-count via positional params (function-local; safe to clobber).
+  # shellcheck disable=SC2086  # word splitting on $__sb_tools is the goal
+  set -- $__sb_tools
+  __sb_total=$#
+  log "Registry: fetching upstream binaries in parallel ($__sb_total tools)"
   for __sb_t in $__sb_tools; do
     __sb_url=$(_reg_url "$__sb_t")
     if [ -z "$__sb_url" ]; then
@@ -136,6 +140,43 @@ registry_fetch_all() {
       fi
     ) &
   done
+
+  # Progress ticker: append-only history with cumulative bytes downloaded.
+  # Poll the per-tool .status files (already written by the backgrounds
+  # above) so the operator sees fetches landing rather than ~2 minutes of
+  # silence behind the bare wait. Each tick is a plain line so the operator
+  # can scroll back through the throughput trace; we suppress consecutive
+  # ticks where __sb_done hasn't moved so the log doesn't spam.
+  __sb_prev_done=-1
+  while :; do
+    __sb_done=$(find "$__sb_workdir" -maxdepth 1 -name '*.status' 2> /dev/null | wc -l | tr -d ' ')
+    __sb_kb=$(du -sk "$__sb_workdir" 2> /dev/null | awk '{print $1}')
+    __sb_mb=$(awk -v k="${__sb_kb:-0}" 'BEGIN { printf "%.1f", k/1024 }')
+    if [ "$__sb_done" -ge "$__sb_total" ]; then
+      printf '    fetched %2d/%d  %6s MB — done\n' \
+        "$__sb_done" "$__sb_total" "$__sb_mb"
+      break
+    fi
+    if [ "$__sb_done" != "$__sb_prev_done" ]; then
+      # In-flight list, capped at 8 names to keep the line scannable.
+      __sb_inflight=""
+      __sb_n=0
+      for __sb_t in $__sb_tools; do
+        [ -e "$__sb_workdir/$__sb_t.status" ] && continue
+        __sb_n=$((__sb_n + 1))
+        if [ "$__sb_n" -le 8 ]; then
+          __sb_inflight="$__sb_inflight $__sb_t"
+        elif [ "$__sb_n" = 9 ]; then
+          __sb_inflight="$__sb_inflight ..."
+        fi
+      done
+      printf '    fetched %2d/%d  %6s MB — in-flight:%s\n' \
+        "$__sb_done" "$__sb_total" "$__sb_mb" "$__sb_inflight"
+      __sb_prev_done=$__sb_done
+    fi
+    sleep 2
+  done
+
   wait
   # Summary line per tool so the operator can see what happened.
   for __sb_t in $__sb_tools; do
@@ -198,18 +239,46 @@ _reg_install_one() {
   __sb_t=$1
   __sb_workdir=$2
 
-  # Idempotency: if our INSTALL_AS file already exists AND the smoke test
-  # passes, skip extract+install. We deliberately check the target path,
-  # not just `command -v`, because a distro pkg may have provided the
-  # binary at /usr/bin/ — we still want OUR pinned version at
+  # Idempotency, version-aware. We deliberately check the target path
+  # (INSTALL_AS), not just `command -v`, because a distro pkg may have
+  # provided the binary at /usr/bin/ — we still want OUR pinned version at
   # /usr/local/bin/ to shadow it. Symlinks are re-applied either way.
+  #
+  # Only skip when the installed version actually matches the pinned
+  # version — otherwise fall through and reinstall, which the install
+  # step (`install -m 0755 ...` further down) handles atomically over the
+  # existing binary. Without this, bumping a *_VERSION in registry.sh has
+  # no effect on hosts where the binary already exists at the old pin.
+  # Version-less tools (VERSION_PATTERN=skip, e.g. gron) keep the
+  # presence-only short-circuit, since `--version` can't distinguish.
   __sb_smoke=$(_reg_field "$__sb_t" SMOKE)
   __sb_install_as=$(_reg_field "$__sb_t" INSTALL_AS)
-  if [ -e "$__sb_install_as" ] && [ -n "$__sb_smoke" ] &&
-    sh -c "$__sb_smoke" > /dev/null 2>&1; then
-    log "  $__sb_t: already installed; skipping (ensuring symlinks)"
-    _reg_apply_symlinks "$__sb_t"
-    return 0
+  __sb_pinned=$(_reg_field "$__sb_t" VERSION)
+  __sb_pattern=$(_reg_field "$__sb_t" VERSION_PATTERN)
+  [ -n "$__sb_pattern" ] || __sb_pattern='[0-9][0-9]*\.[0-9][0-9]*\(\.[0-9][0-9]*\)*'
+  if [ -e "$__sb_install_as" ] && [ -n "$__sb_smoke" ]; then
+    if [ "$__sb_pattern" = skip ]; then
+      if sh -c "$__sb_smoke" > /dev/null 2>&1; then
+        log "  $__sb_t: already installed; skipping (ensuring symlinks)"
+        _reg_apply_symlinks "$__sb_t"
+        return 0
+      fi
+    else
+      __sb_idem_rc=0
+      __sb_idem_out=$(sh -c "$__sb_smoke" 2>&1) || __sb_idem_rc=$?
+      if [ "$__sb_idem_rc" = 0 ]; then
+        __sb_idem_actual=$(printf '%s\n' "$__sb_idem_out" | grep -o "$__sb_pattern" | head -n 1)
+        if [ -n "$__sb_idem_actual" ] && [ "$__sb_idem_actual" = "$__sb_pinned" ]; then
+          log "  $__sb_t: already at pinned $__sb_pinned; skipping"
+          _reg_apply_symlinks "$__sb_t"
+          return 0
+        fi
+        if [ -n "$__sb_idem_actual" ]; then
+          log "  $__sb_t: installed=$__sb_idem_actual pinned=$__sb_pinned — upgrading"
+        fi
+      fi
+      # smoke rc != 0 OR version mismatch OR unparseable → fall through.
+    fi
   fi
 
   __sb_statusfile="$__sb_workdir/$__sb_t.status"

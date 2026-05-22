@@ -265,15 +265,23 @@ _reg_install_one() {
   __sb_pattern=$(_reg_field "$__sb_t" VERSION_PATTERN)
   [ -n "$__sb_pattern" ] || __sb_pattern='[0-9][0-9]*\.[0-9][0-9]*\(\.[0-9][0-9]*\)*'
   if [ -e "$__sb_install_as" ] && [ -n "$__sb_smoke" ]; then
+    # Smoke against INSTALL_AS's directory first in PATH — otherwise a
+    # user-local copy earlier in PATH (cargo, ~/.local/bin, ~/.fzf/bin)
+    # would report its own version and falsely cause "upgrade" loops.
+    __sb_idem_dir=""
+    case "$__sb_install_as" in
+      */*) __sb_idem_dir=$(dirname -- "$__sb_install_as") ;;
+    esac
+    __sb_idem_path="${__sb_idem_dir:+$__sb_idem_dir:}$PATH"
     if [ "$__sb_pattern" = skip ]; then
-      if sh -c "$__sb_smoke" > /dev/null 2>&1; then
+      if PATH="$__sb_idem_path" sh -c "$__sb_smoke" > /dev/null 2>&1; then
         log "  $__sb_t: already installed; skipping (ensuring symlinks)"
         _reg_apply_symlinks "$__sb_t"
         return 0
       fi
     else
       __sb_idem_rc=0
-      __sb_idem_out=$(sh -c "$__sb_smoke" 2>&1) || __sb_idem_rc=$?
+      __sb_idem_out=$(PATH="$__sb_idem_path" sh -c "$__sb_smoke" 2>&1) || __sb_idem_rc=$?
       if [ "$__sb_idem_rc" = 0 ]; then
         __sb_idem_actual=$(printf '%s\n' "$__sb_idem_out" | grep -o "$__sb_pattern" | head -n 1)
         if [ -n "$__sb_idem_actual" ] && [ "$__sb_idem_actual" = "$__sb_pinned" ]; then

@@ -116,6 +116,12 @@ registry_fetch_all() {
   set -- $__sb_tools
   __sb_total=$#
   log "Registry: fetching upstream binaries in parallel ($__sb_total tools)"
+  # Collect each curl-subshell PID so we can `wait` on the curls only.
+  # Bare `wait` blocks on ALL backgrounded children — including the sudo
+  # keepalive subshell that install.sh spawns when sudo needs a password
+  # (`( while true; do sudo -n true; sleep 50; done ) &`). Targeted wait
+  # ignores it; the EXIT trap (install.sh:_stop_sudo_keepalive) reaps it.
+  __sb_pids=""
   for __sb_t in $__sb_tools; do
     __sb_url=$(_reg_url "$__sb_t")
     if [ -z "$__sb_url" ]; then
@@ -139,6 +145,7 @@ registry_fetch_all() {
         printf 'fetch_failed\n%s\n' "$__sb_url" > "$__sb_workdir/$__sb_t.status"
       fi
     ) &
+    __sb_pids="$__sb_pids $!"
   done
 
   # Progress ticker: append-only history with cumulative bytes downloaded.
@@ -177,7 +184,8 @@ registry_fetch_all() {
     sleep 2
   done
 
-  wait
+  # shellcheck disable=SC2086  # intentional word splitting on the PID list
+  wait $__sb_pids
   # Summary line per tool so the operator can see what happened.
   for __sb_t in $__sb_tools; do
     __sb_status=$(head -n 1 "$__sb_workdir/$__sb_t.status" 2> /dev/null)

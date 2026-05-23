@@ -38,8 +38,14 @@ setup_kitty() {
   fi
 
   # Default terminal alternative — Linux desktop only.
+  # --install registers kitty as a candidate; --set actually makes it
+  # the active default. Without --set, the highest-priority *automatic*
+  # candidate wins, which on Debian GNOME is usually gnome-terminal.
   if [ "$OS_FAMILY" = linux ] && [ "$IS_WSL" = 0 ] && has_cmd update-alternatives && has_cmd kitty; then
+    _kitty_bin=$(command -v kitty)
     sudo_run update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator \
-      "$(command -v kitty)" 50 > /dev/null 2>&1 || true
+      "$_kitty_bin" 50 > /dev/null 2>&1 || true
+    sudo_run update-alternatives --set x-terminal-emulator "$_kitty_bin" > /dev/null 2>&1 || true
+    unset _kitty_bin
   fi
 }

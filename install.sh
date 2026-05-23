@@ -562,4 +562,6 @@ log "System resources (phase=end):"
 detect_print_resources end
 
 printf '%s==> Shell Bling installed.%s\n' "$_SB_BLD_GRN" "$_SB_RST"
-printf 'Restart your terminal to pick up everything. Welcome.\n'
+printf 'Log out of your desktop session and log back in (or reboot) to start\n'
+printf 'using fish + kitty. Just reopening a terminal is not enough on most\n'
+printf 'desktops — $SHELL is set at login time. Welcome.\n'

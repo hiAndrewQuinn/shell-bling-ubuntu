@@ -8,7 +8,8 @@ ENV SHELL_BLING_ALLOW_OLD_NVIM=1
 RUN zypper --non-interactive install --no-recommends \
       sudo curl ca-certificates git shadow tar gzip awk findutils glibc-locale \
     && zypper clean --all \
-    && useradd -m -s /bin/bash dev \
+    && groupadd -f wheel \
+    && useradd -m -s /bin/bash -G wheel dev \
     && echo 'dev ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/dev
 USER dev
 WORKDIR /home/dev

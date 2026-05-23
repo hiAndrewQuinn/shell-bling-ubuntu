@@ -5,7 +5,8 @@ ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 # because the published image's snapshot can be stale.
 RUN xbps-install -Suy xbps && \
     xbps-install -y sudo curl ca-certificates git bash && \
-    useradd -m -s /bin/bash dev && \
+    groupadd -f wheel && \
+    useradd -m -s /bin/bash -G wheel dev && \
     echo 'dev ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/dev
 USER dev
 WORKDIR /home/dev

@@ -3,7 +3,8 @@ ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 RUN zypper --non-interactive install --no-recommends \
       sudo curl ca-certificates git shadow tar gzip awk findutils \
     && zypper clean --all \
-    && useradd -m -s /bin/bash dev \
+    && groupadd -f wheel \
+    && useradd -m -s /bin/bash -G wheel dev \
     && echo 'dev ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/dev
 USER dev
 WORKDIR /home/dev

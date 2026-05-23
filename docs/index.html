@@ -9,7 +9,7 @@
 <meta property="og:description" content="23 CLI tools, one wget, every distro. Pinned, batteries-included, tested across 30 distros on every commit.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#f7f3e3" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1d1e20" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#1a1611" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
 <script>
   /* Inline bootstrap: set data-theme on <html> before first paint to avoid
@@ -27,11 +27,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fira+Code&family=Lexend+Deca:wght@300;400;600&display=swap">
 <style>
 /* ===== palette ===== */
-/* Light mode = cosmic-latte palette shared with andrew-quinn.me.
-   Dark mode = the EXACT background/text values from til.andrew-quinn.me's
-   PaperMod dark scheme (rgb 29,30,32 / 46,46,51 / 218,218,219 / etc.)
-   layered with the warm accent triplet (#ff9b85 coral / #d4a574 copper /
-   #7ed99f mint) from andrew-quinn.me's own dark-mode.css. */
+/* Both modes pulled verbatim from andrew-quinn.me/css/{base,dark-mode}.css,
+   the canonical brand source. NOT til's PaperMod (that one's cool grays,
+   which clash with the warm cosmic-latte light mode). */
 :root, [data-theme="light"] {
   --bg: #f7f3e3;          /* cosmic-latte */
   --bg-elev: #ecf0f1;     /* antiflash-white */
@@ -48,18 +46,18 @@
 }
 
 [data-theme="dark"] {
-  --bg: #1d1e20;          /* til --theme */
-  --bg-elev: #2e2e33;     /* til --entry */
-  --bg-code: #37383e;     /* til --code-bg */
-  --text: #dadadb;        /* til --primary */
-  --text-dim: #9b9c9d;    /* til --secondary */
-  --rule: #414244;        /* til --tertiary */
-  --rule-soft: #333333;   /* til --border */
-  --accent-1: #ff9b85;    /* andrew-quinn.me dark --text-heading */
-  --accent-2: #d4a574;    /* andrew-quinn.me dark --text-link */
-  --accent-3: #7ed99f;    /* andrew-quinn.me dark --text-code */
+  --bg: #1a1611;          /* andrew-quinn.me dark --bg-primary (warm dark) */
+  --bg-elev: #2b2118;     /* andrew-quinn.me dark --bg-secondary (bistre) */
+  --bg-code: #1e1a16;     /* andrew-quinn.me dark --bg-code (deepest warm) */
+  --text: #e8dcc8;        /* andrew-quinn.me dark --text-primary (warm cream) */
+  --text-dim: #a89c84;    /* desaturated cream, paired against #1a1611 */
+  --rule: #4a3f2f;        /* andrew-quinn.me dark --border-primary */
+  --rule-soft: #38302a;   /* softer inner divider, derived from --bg */
+  --accent-1: #ff9b85;    /* andrew-quinn.me dark --text-heading (coral) */
+  --accent-2: #d4a574;    /* andrew-quinn.me dark --text-link (lighter copper) */
+  --accent-3: #7ed99f;    /* andrew-quinn.me dark --text-code (mint) */
   --hover-bg: rgba(212, 165, 116, 0.2);   /* andrew-quinn.me dark --hover-bg */
-  --theme-color: #1d1e20;
+  --theme-color: #1a1611;
 }
 
 :root {

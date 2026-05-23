@@ -111,16 +111,25 @@ if [ -z "$_lib_dir" ]; then
       }
       case "$_bs_priv" in
         sudo)
-          _bs_probe=$(sudo -n -v 2>&1) || true
-          case "$_bs_probe" in
-            "" | *"password is required"*) ;; # in sudoers; will prompt or cached
-            *"not in the sudoers"* | *"not allowed"* | *"not permitted"*)
-              _bs_die_no_perms
-              ;;
+          # Group-membership probe. The sudo daemon gates on the
+          # `%sudo` (Debian/Ubuntu/Kali) or `%wheel` (everyone else)
+          # group. Parsing `sudo -n -v` stderr instead is unreliable:
+          # on Debian 13 it prints "a password is required" for
+          # non-sudoers (auth check runs before sudoers check), which
+          # an earlier version of this probe misread as "in sudoers".
+          # Membership in *any* of sudo/wheel/admin is sufficient
+          # signal that the user can probably sudo. (`admin` covers
+          # old Ubuntu and macOS.) Edge case: per-user entries in
+          # /etc/sudoers.d/ with no group membership get false-positive
+          # bailed; power users can `sudo sh -c '...'` directly.
+          case " $(id -nG 2> /dev/null) " in
+            *" sudo "* | *" wheel "* | *" admin "*) ;;
+            *) _bs_die_no_perms ;;
           esac
-          unset _bs_probe
           ;;
         doas)
+          # doas doesn't use group abstraction — permits are in
+          # /etc/doas.conf. Stderr parsing is the available signal.
           _bs_probe=$(doas -n true 2>&1) || true
           case "$_bs_probe" in
             "" | *"Authentication required"*) ;; # persist active or needs pw

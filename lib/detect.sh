@@ -190,32 +190,23 @@ detect_priv_esc() {
   fi
   if command -v sudo > /dev/null 2>&1; then
     PRIV_ESC=sudo
-    # `sudo -n -v` exits 0 if creds are cached or NOPASSWD applies,
-    # exits 1 with a diagnostic on stderr otherwise. We need to
-    # distinguish "you're in sudoers, just need a password" (fine —
-    # the prompt comes later) from "you're not in sudoers at all"
-    # (must bail with a friendly message — typing a password won't
-    # help). The error texts below cover sudo 1.8+ across the
-    # distros we support; if a future sudo invents new phrasing we
-    # default to "usable" rather than blocking the install.
-    _sb_priv_e=$(sudo -n -v 2>&1) || true
-    case "$_sb_priv_e" in
-      "")
-        unset _sb_priv_e
+    # Group-membership probe. The sudo daemon gates on `%sudo`
+    # (Debian/Ubuntu/Kali) or `%wheel` (everyone else); membership in
+    # either is sufficient signal that the user can sudo.
+    # We previously parsed `sudo -n -v` stderr but that's unreliable —
+    # on Debian 13 a non-sudoer gets "a password is required" because
+    # sudo's auth check runs before its sudoers check. Membership in
+    # any of sudo/wheel/admin (admin covers old Ubuntu + macOS) is
+    # the canonical signal.
+    # Edge case: per-user /etc/sudoers.d/ with no group membership
+    # gets false-positive return=2; power users have `sudo sh -c '...'`.
+    case " $(id -nG 2> /dev/null) " in
+      *" sudo "* | *" wheel "* | *" admin "*)
         return 0
-        ;;
-      *"password is required"*)
-        unset _sb_priv_e
-        return 0
-        ;;
-      *"not in the sudoers"* | *"not allowed to run sudo"* | *"not permitted"*)
-        PRIV_ESC_REASON=not-in-sudoers
-        unset _sb_priv_e
-        return 2
         ;;
       *)
-        unset _sb_priv_e
-        return 0
+        PRIV_ESC_REASON=not-in-sudoers
+        return 2
         ;;
     esac
   fi

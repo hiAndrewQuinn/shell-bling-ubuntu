@@ -161,9 +161,17 @@ registry_fetch_all() {
   # silence behind the bare wait. Each tick is a plain line so the operator
   # can scroll back through the throughput trace; we suppress consecutive
   # ticks where __sb_done hasn't moved so the log doesn't spam.
+  # Counting via a POSIX loop over the known tool list — `find` is not in
+  # the base image on minimal Rocky/Alma 8 / Void / a few others, and a
+  # silent "find: command not found" used to make __sb_done stick at 0
+  # forever (the ticker would never see the loop terminate, install.sh
+  # would block in the wait below until Jenkins' per-attempt timeout).
   __sb_prev_done=-1
   while :; do
-    __sb_done=$(find "$__sb_workdir" -maxdepth 1 -name '*.status' 2> /dev/null | wc -l | tr -d ' ')
+    __sb_done=0
+    for __sb_t in $__sb_tools; do
+      [ -e "$__sb_workdir/$__sb_t.status" ] && __sb_done=$((__sb_done + 1))
+    done
     __sb_kb=$(du -sk "$__sb_workdir" 2> /dev/null | awk '{print $1}')
     __sb_mb=$(awk -v k="${__sb_kb:-0}" 'BEGIN { printf "%.1f", k/1024 }')
     if [ "$__sb_done" -ge "$__sb_total" ]; then

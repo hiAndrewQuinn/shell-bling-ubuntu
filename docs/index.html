@@ -8,241 +8,227 @@
 <meta property="og:title" content="Shell Bling Ubuntu">
 <meta property="og:description" content="23 CLI tools, one wget, every distro. Pinned, batteries-included, tested across 30 distros on every commit.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#fafaf7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#f7f3e3">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fira+Code&family=Lexend+Deca:wght@300;400;600&display=swap">
 <style>
 :root {
-  --bg: #fafaf7;
-  --bg-elev: #ffffff;
-  --bg-code: #f1efe9;
-  --fg: #1c1c1c;
-  --fg-dim: #5b5b5b;
-  --fg-faint: #8a8a8a;
-  --accent: #1e6f3a;
-  --accent-soft: #e6f0e9;
-  --border: #d7d3c8;
-  --border-strong: #1c1c1c;
-  --tier1: #1e6f3a;
-  --tier2: #8a6d1e;
-  --tier3: #7a3a1e;
-  --warn: #7a3a1e;
-  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0d1117;
-    --bg-elev: #161b22;
-    --bg-code: #1c232d;
-    --fg: #e6e6e6;
-    --fg-dim: #9aa3ad;
-    --fg-faint: #6b7280;
-    --accent: #6fcf80;
-    --accent-soft: #1a3320;
-    --border: #2a313c;
-    --border-strong: #e6e6e6;
-    --tier1: #6fcf80;
-    --tier2: #d4b85a;
-    --tier3: #d49278;
-    --warn: #d49278;
-  }
+  --copper: #a8763e;
+  --cosmic-latte: #f7f3e3;
+  --antiflash-white: #ecf0f1;
+  --specsavers-green: #0a6640;
+  --barn-red: #6f1a07;
+  --bistre: #2b2118;
+  --bistre-dim: #5a4c3e;
+  --hover-bg: #fff2a8;
+
+  --sans: 'Lexend Deca', system-ui, sans-serif;
+  --display: 'Atkinson Hyperlegible', 'Lexend Deca', sans-serif;
+  --mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html {
+  background-color: var(--cosmic-latte);
+  color: var(--bistre);
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+@media (min-width: 992px) { html { font-size: 18px; } }
 body {
   margin: 0;
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--fg);
-  font-size: 16px;
-  line-height: 1.55;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
-a:hover { border-bottom-color: var(--accent); }
-code, pre, kbd { font-family: var(--mono); }
-code { background: var(--bg-code); padding: 1px 5px; border-radius: 3px; font-size: 0.92em; }
-pre {
-  background: var(--bg-code);
-  padding: 16px 18px;
-  border-radius: 4px;
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  margin: 0;
+
+/* ===== typography ===== */
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.2; margin: 0; }
+h1 { color: var(--barn-red); font-size: 2.4em; }
+h2 { color: var(--copper); font-size: 1.4em; margin: 0 0 22px; }
+h3 { color: var(--bistre); font-size: 1.1em; margin: 0 0 12px; }
+p { margin: 0 0 1em; }
+a {
+  color: var(--copper);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  font-weight: 600;
 }
-pre code { background: transparent; padding: 0; }
+a:hover { background: var(--hover-bg); }
+code, pre, kbd { font-family: var(--mono); }
+code {
+  background: var(--antiflash-white);
+  color: var(--specsavers-green);
+  padding: 0.05em 0.4em;
+  font-size: 0.92em;
+  border-radius: 2px;
+}
+pre {
+  background: var(--antiflash-white);
+  color: var(--bistre);
+  padding: 16px 18px;
+  overflow-x: auto;
+  border-left: 3px solid var(--copper);
+  margin: 0;
+  font-size: 0.92em;
+}
+pre code { background: transparent; padding: 0; color: inherit; }
+kbd {
+  background: var(--cosmic-latte);
+  border: 1px solid var(--bistre);
+  border-bottom-width: 2px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
 
 /* ===== top bar ===== */
 .topbar {
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  border-bottom: 1px solid var(--bistre);
+  background: var(--cosmic-latte);
   position: sticky; top: 0; z-index: 10;
-  backdrop-filter: blur(8px);
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
 }
-.topbar .wrap { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; }
-.brand { font-family: var(--mono); font-weight: 600; font-size: 0.95em; }
-.brand .dot { color: var(--accent); }
-.navlinks a { color: var(--fg-dim); margin-left: 18px; font-size: 0.92em; }
-.navlinks a:hover { color: var(--fg); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; }
+.brand { font-family: var(--display); font-weight: 700; font-size: 1.05em; color: var(--barn-red); }
+.navlinks a { color: var(--bistre); margin-left: 18px; font-size: 0.92em; text-decoration: none; border-bottom: 1px dotted transparent; }
+.navlinks a:hover { color: var(--barn-red); background: transparent; border-bottom-color: var(--barn-red); }
 
 /* ===== hero ===== */
-.hero { padding: 64px 0 56px; border-bottom: 1px solid var(--border); }
-.hero h1 {
-  font-family: var(--mono);
-  font-size: clamp(34px, 5vw, 48px);
-  margin: 0 0 12px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-}
-.hero h1 .accent { color: var(--accent); }
+.hero { padding: 56px 0 48px; }
+.hero h1 { font-size: clamp(2em, 5vw, 2.8em); margin: 0 0 12px; }
 .hero .tagline {
-  font-size: clamp(17px, 2vw, 20px);
-  color: var(--fg-dim);
+  font-size: clamp(1.05em, 2vw, 1.2em);
+  color: var(--bistre-dim);
   margin: 0 0 32px;
   max-width: 640px;
+  line-height: 1.55;
 }
-.install {
-  background: var(--bg-elev);
-  border: 1px solid var(--border-strong);
-  border-radius: 4px;
-  padding: 0;
-  margin: 0 0 14px;
-  overflow: hidden;
-  position: relative;
-}
+.install { margin: 0 0 14px; }
 .install-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 6px 12px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-code);
+  padding: 6px 0;
   font-family: var(--mono);
-  font-size: 0.78em;
-  color: var(--fg-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.82em;
+  color: var(--bistre-dim);
 }
 .install-head .label { display: flex; align-items: center; gap: 10px; }
 .install-head .tag {
-  background: var(--accent-soft); color: var(--accent);
-  border: 1px solid var(--accent);
-  padding: 1px 7px; border-radius: 3px;
-  font-size: 0.92em; letter-spacing: 0.04em;
-  text-transform: uppercase;
+  background: var(--specsavers-green); color: var(--cosmic-latte);
+  padding: 1px 8px; border-radius: 2px;
+  font-size: 0.88em; letter-spacing: 0.04em;
+  text-transform: uppercase; font-weight: 600;
 }
-.install-head .tag.alt { background: transparent; color: var(--fg-dim); border-color: var(--fg-faint); }
-.install pre { border: 0; border-radius: 0; padding: 18px 20px; font-size: 0.95em; background: var(--bg-elev); }
-.install pre code { white-space: pre-wrap; word-break: break-all; }
+.install-head .tag.alt { background: var(--bistre-dim); }
 .copy {
   background: transparent;
-  border: 1px solid var(--border);
-  color: var(--fg-dim);
+  border: 1px solid var(--bistre-dim);
+  color: var(--bistre-dim);
   font-family: var(--mono);
-  font-size: 0.78em;
-  padding: 3px 10px;
-  border-radius: 3px;
+  font-size: 0.82em;
+  padding: 2px 10px;
+  border-radius: 2px;
   cursor: pointer;
   transition: all 0.15s;
+  font-weight: 400;
 }
-.copy:hover { color: var(--fg); border-color: var(--fg); }
-.copy.copied { color: var(--accent); border-color: var(--accent); }
-.install-note { font-size: 0.9em; color: var(--fg-dim); margin: 18px 0 0; max-width: 640px; }
+.copy:hover { color: var(--barn-red); border-color: var(--barn-red); background: transparent; }
+.copy.copied { color: var(--specsavers-green); border-color: var(--specsavers-green); }
+.install pre code { white-space: pre-wrap; word-break: break-all; }
+.install-note { font-size: 0.95em; color: var(--bistre-dim); margin: 22px 0 0; max-width: 640px; }
 
 /* ===== sections ===== */
-section { padding: 56px 0; border-bottom: 1px solid var(--border); }
-section h2 {
-  font-family: var(--mono);
-  font-size: 0.92em;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--fg-dim);
-  margin: 0 0 28px;
-  font-weight: 500;
+section { padding: 48px 0; border-top: 1px solid var(--bistre); }
+section .lead { color: var(--bistre-dim); margin: 0 0 20px; max-width: 700px; }
+
+/* ===== philosophy callout ===== */
+.callout {
+  background: var(--antiflash-white);
+  border-left: 3px solid var(--specsavers-green);
+  padding: 18px 24px;
+  margin-top: 6px;
 }
-section h2::before { content: '## '; color: var(--accent); opacity: 0.6; }
-section .lead { color: var(--fg-dim); margin: 0 0 20px; max-width: 700px; }
+.callout p { margin: 0 0 10px; }
+.callout p:last-child { margin: 0; }
+.callout strong { color: var(--specsavers-green); font-family: var(--display); font-weight: 700; }
 
 /* ===== tools grid ===== */
 .tools-groups { display: grid; gap: 32px; }
-.tools-group h3 {
-  font-family: var(--mono);
-  font-size: 0.95em;
-  margin: 0 0 12px;
-  font-weight: 600;
-  color: var(--fg);
-}
-.tools-group h3 .sub { color: var(--fg-faint); font-weight: 400; margin-left: 8px; }
-.tools-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px 24px; }
-.tool { font-size: 0.95em; }
-.tool .name { font-family: var(--mono); color: var(--fg); }
-.tool .name a { color: var(--fg); border-bottom: 1px dotted var(--fg-faint); }
-.tool .name a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-.tool .what { color: var(--fg-dim); }
+.tools-group h3 .sub { color: var(--bistre-dim); font-weight: 400; margin-left: 8px; font-size: 0.95em; }
+.tools-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px 24px; }
+.tool { font-size: 0.95em; line-height: 1.45; }
+.tool .name { font-family: var(--mono); font-weight: 400; }
+.tool .name a { color: var(--barn-red); text-decoration-style: dotted; font-weight: 600; }
+.tool .name a:hover { background: var(--hover-bg); }
+.tool .what { color: var(--bistre-dim); }
 
 /* ===== distro matrix ===== */
 .tier { margin-bottom: 36px; }
 .tier:last-child { margin-bottom: 0; }
 .tier-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
 .tier-badge {
-  font-family: var(--mono); font-size: 0.78em; padding: 2px 10px;
-  border-radius: 3px; font-weight: 600; text-transform: uppercase;
+  font-family: var(--display); font-size: 0.82em; padding: 2px 10px;
+  font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.05em;
+  border: 1px solid;
 }
-.tier-1 .tier-badge { background: var(--accent-soft); color: var(--tier1); border: 1px solid var(--tier1); }
-.tier-2 .tier-badge { background: transparent; color: var(--tier2); border: 1px solid var(--tier2); }
-.tier-3 .tier-badge { background: transparent; color: var(--tier3); border: 1px solid var(--tier3); }
-.tier-tag { font-size: 0.92em; color: var(--fg-dim); }
+.tier-1 .tier-badge { background: var(--specsavers-green); color: var(--cosmic-latte); border-color: var(--specsavers-green); }
+.tier-2 .tier-badge { background: var(--copper); color: var(--cosmic-latte); border-color: var(--copper); }
+.tier-3 .tier-badge { background: transparent; color: var(--barn-red); border-color: var(--barn-red); }
+.tier-tag { font-size: 0.95em; color: var(--bistre-dim); }
 .tier-testing {
-  font-family: var(--mono); font-size: 0.82em; color: var(--fg-dim);
+  font-family: var(--mono); font-size: 0.85em; color: var(--bistre-dim);
   margin: 0 0 14px;
 }
-.tier-testing .check { color: var(--accent); }
-.tier-testing .miss { color: var(--fg-faint); }
+.tier-testing .check { color: var(--specsavers-green); font-weight: 700; }
+.tier-testing .miss { color: var(--bistre-dim); opacity: 0.6; }
+.tier-testing .partial { color: var(--copper); font-weight: 700; }
 .distros {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 10px;
 }
 .distro {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 12px 14px;
-  background: var(--bg-elev);
+  border: 1px solid var(--bistre-dim);
+  padding: 10px 14px;
+  background: var(--cosmic-latte);
   font-size: 0.92em;
 }
-.distro .name { font-family: var(--mono); font-weight: 600; color: var(--fg); display: block; margin-bottom: 4px; }
-.distro .note { color: var(--fg-dim); font-size: 0.88em; line-height: 1.4; }
-.distro.degraded { border-left: 3px solid var(--warn); }
+.distro .name { font-family: var(--mono); font-weight: 600; color: var(--bistre); display: block; margin-bottom: 4px; }
+.distro .note { color: var(--bistre-dim); font-size: 0.9em; line-height: 1.4; }
+.distro.degraded { border-left: 3px solid var(--barn-red); }
 
 /* ===== flow ===== */
 .flow {
-  display: grid; grid-template-columns: 1fr; gap: 0;
-  border: 1px solid var(--border); border-radius: 4px;
-  background: var(--bg-elev);
+  border: 1px solid var(--bistre);
+  background: var(--cosmic-latte);
   font-family: var(--mono); font-size: 0.93em;
 }
 .flow-step {
   padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--bistre-dim);
   display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: baseline;
 }
 .flow-step:last-child { border-bottom: 0; }
-.flow-step .n { color: var(--accent); font-weight: 600; }
-.flow-step .what { color: var(--fg); }
-.flow-step .why { display: block; color: var(--fg-dim); font-family: var(--sans); font-size: 0.95em; margin-top: 3px; }
+.flow-step .n { color: var(--barn-red); font-weight: 700; font-family: var(--display); }
+.flow-step .what { color: var(--bistre); font-weight: 400; }
+.flow-step .why { display: block; color: var(--bistre-dim); font-family: var(--sans); font-size: 0.95em; margin-top: 3px; }
 
 /* ===== footer ===== */
-footer { padding: 40px 0 60px; color: var(--fg-faint); font-size: 0.88em; }
-footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+footer { padding: 32px 0 48px; border-top: 1px solid var(--bistre); color: var(--bistre-dim); font-size: 0.9em; }
+footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; align-items: baseline; }
+footer .more { display: flex; gap: 20px; flex-wrap: wrap; }
+footer a { color: var(--bistre); }
+footer a:hover { color: var(--barn-red); }
 
 @media (max-width: 600px) {
-  .hero { padding: 40px 0; }
-  section { padding: 40px 0; }
-  .install pre { font-size: 0.85em; }
-  .navlinks a { margin-left: 12px; font-size: 0.85em; }
+  .hero { padding: 36px 0; }
+  section { padding: 36px 0; }
+  .navlinks a { margin-left: 10px; font-size: 0.85em; }
+  footer .wrap { flex-direction: column; }
 }
 </style>
 </head>
@@ -288,18 +274,28 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 <section id="try">
   <div class="wrap">
-    <h2>try before you install</h2>
+    <h2>Try before you install</h2>
     <p class="lead">Drop into a fresh container with the installer already done — kick the tires without touching your real system.</p>
 <pre><code>git clone https://github.com/hiAndrewQuinn/shell-bling-ubuntu
 cd shell-bling-ubuntu
-make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-13, fedora-44, arch, alpine, …</span></code></pre>
+make dev DISTRO=ubuntu-24.04   # or debian-13, fedora-44, arch, alpine, …</code></pre>
     <p class="install-note">Want it to stick around so you can <code>ssh</code> in from another terminal? <code>make dev-bg DISTRO=…</code> spins it up in the background with <code>sshd</code> on port 2222. Tear down with <code>make dev-down</code>.</p>
+  </div>
+</section>
+
+<section id="philosophy">
+  <div class="wrap">
+    <h2>Zero configuration files</h2>
+    <div class="callout">
+      <p><strong>Shell Bling never drops a dotfile in your home directory.</strong> No <code>.vimrc</code>, no <code>.tmux.conf</code>, no opinionated <code>config.fish</code>. The one exception is the optional LazyVim starter, which is its own scaffolded thing you can ignore or replace.</p>
+      <p>Where possible we ship zero-config tools that just work — <code>fzf</code>, <code>starship</code>, <code>zoxide</code>, <code>bat</code>, <code>eza</code>, <code>lsd</code>, <code>helix</code>, <code>micro</code>. Where there's a real choice to make, we ship multiple variants side-by-side and let you pick: <code>nvim</code> / <code>vim</code> / <code>hx</code> / <code>micro</code> for editors, <code>lsd</code> + <code>eza</code> for modern <code>ls</code>, <code>xclip</code> + <code>wl-clipboard</code> for the X11/Wayland split. You configure your shell on your own time, in your own way.</p>
+    </div>
   </div>
 </section>
 
 <section id="tools">
   <div class="wrap">
-    <h2>what you get</h2>
+    <h2>What you get</h2>
     <div class="tools-groups">
 
       <div class="tools-group">
@@ -354,10 +350,17 @@ make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-1
       </div>
 
       <div class="tools-group">
-        <h3>Data wrangling</h3>
+        <h3>JSON</h3>
         <div class="tools-list">
-          <div class="tool"><span class="name"><a href="https://jqlang.org/">jq</a> + <a href="https://github.com/tomnomnom/gron">gron</a></span> · <span class="what">JSON, both ways</span></div>
-          <div class="tool"><span class="name"><a href="https://github.com/dathere/qsv">qsv</a></span> · <span class="what">CSV scalpels (select, search, stats, join, …)</span></div>
+          <div class="tool"><span class="name"><a href="https://jqlang.org/">jq</a></span> · <span class="what">the de-facto JSON query language — filter, reshape, project. Powerful, opinionated, with its own little DSL to learn.</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/tomnomnom/gron">gron</a></span> · <span class="what">makes JSON greppable. Flattens any blob into one <code>foo.bar[3].baz = "…"</code> line per leaf so you can <code>rg</code> / <code>grep</code> / <code>fzf</code> through it with tools you already know. Round-trips back to JSON with <code>gron -u</code>.</span></div>
+        </div>
+      </div>
+
+      <div class="tools-group">
+        <h3>Other data wrangling</h3>
+        <div class="tools-list">
+          <div class="tool"><span class="name"><a href="https://github.com/dathere/qsv">qsv</a></span> · <span class="what">CSV scalpels (select, search, stats, join, frequency, …)</span></div>
           <div class="tool"><span class="name"><a href="https://sqlite.org/">sqlite3</a></span> · <span class="what">a real query, ten minutes from now</span></div>
         </div>
       </div>
@@ -384,7 +387,7 @@ make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-1
 
 <section id="distros">
   <div class="wrap">
-    <h2>where it runs</h2>
+    <h2>Where it runs</h2>
 
     <div class="tier tier-1">
       <div class="tier-head">
@@ -404,7 +407,7 @@ make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-1
         <span class="tier-badge">Tier 2</span>
         <span class="tier-tag">all 23 tools land cleanly · file issues if anything breaks</span>
       </div>
-      <p class="tier-testing"><span class="check">✓</span> Docker matrix · <span class="check">✓</span> automated VM matrix · <span class="miss">✗</span> manual VM (not yet)</p>
+      <p class="tier-testing"><span class="check">✓</span> Docker matrix · <span class="partial">~</span> automated VM matrix (in progress) · <span class="miss">✗</span> manual VM</p>
       <div class="distros">
         <div class="distro"><span class="name">Fedora</span><span class="note">40, 41, 42, 43, 44 · dnf</span></div>
         <div class="distro"><span class="name">Rocky Linux</span><span class="note">9, 10 · dnf + EPEL</span></div>
@@ -428,21 +431,21 @@ make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-1
       </div>
       <p class="tier-testing"><span class="check">✓</span> Docker matrix · <span class="miss">✗</span> automated VM · <span class="miss">✗</span> manual VM</p>
       <div class="distros">
-        <div class="distro"><span class="name">openSUSE Leap 15.6</span><span class="note">23/23 land — nothing degraded (glibc 2.38)</span></div>
+        <div class="distro"><span class="name">openSUSE Leap 15.6</span><span class="note">all tools land — nothing degraded (glibc 2.38)</span></div>
         <div class="distro degraded"><span class="name">Debian 11 bullseye</span><span class="note">21/23 · helix + neovim (glibc 2.31)</span></div>
         <div class="distro degraded"><span class="name">Ubuntu 20.04 focal</span><span class="note">21/23 · same shape as Debian 11</span></div>
         <div class="distro degraded"><span class="name">Rocky 8, AlmaLinux 8</span><span class="note">21/23 · EPEL 8 nvim 0.8.0 fallback</span></div>
         <div class="distro degraded"><span class="name">Amazon Linux 2</span><span class="note">21/23 · glibc 2.26 (yum-era)</span></div>
         <div class="distro degraded"><span class="name">CentOS 7</span><span class="note">21/23 · glibc 2.17 · vault.centos.org mirror</span></div>
       </div>
-      <p style="margin: 16px 0 0; color: var(--fg-dim); font-size: 0.9em;">For legacy-glibc distros, five Rust binaries (<code>bat</code>, <code>fd</code>, <code>eza</code>, <code>lsd</code>, <code>starship</code>) auto-route to their musl variants. You get the same version as on a modern distro, just statically linked.</p>
+      <p style="margin: 16px 0 0; color: var(--bistre-dim); font-size: 0.92em;">For legacy-glibc distros, five Rust binaries (<code>bat</code>, <code>fd</code>, <code>eza</code>, <code>lsd</code>, <code>starship</code>) auto-route to their musl variants. You get the same version as on a modern distro, just statically linked.</p>
     </div>
   </div>
 </section>
 
 <section id="flow">
   <div class="wrap">
-    <h2>what the script does</h2>
+    <h2>What the script does</h2>
     <div class="flow">
       <div class="flow-step">
         <span class="n">1.</span>
@@ -468,15 +471,15 @@ make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-1
       <div class="flow-step">
         <span class="n">4.</span>
         <div>
-          <span class="what">Two fzf pickers.</span>
-          <span class="why">One for your default editor (<code>nvim</code> / <code>vim</code> / <code>hx</code> / <code>micro</code>). One for whether to <code>chsh</code> to <code>fish</code>. Skip both with <code>SHELL_BLING_NONINTERACTIVE=1</code>.</span>
+          <span class="what">One fzf picker.</span>
+          <span class="why">Just for your default editor (<code>nvim</code> / <code>vim</code> / <code>hx</code> / <code>micro</code>). Fish becomes your login shell automatically. Skip the picker with <code>SHELL_BLING_NONINTERACTIVE=1</code>.</span>
         </div>
       </div>
       <div class="flow-step">
         <span class="n">5.</span>
         <div>
           <span class="what">Friendly recap, then exit.</span>
-          <span class="why">Log out of your desktop session and back in (or reboot) for <code>$SHELL</code> + the new <code>x-terminal-emulator</code> default to take effect. Just reopening a terminal isn't enough on most desktops.</span>
+          <span class="why">Log out of your desktop session and back in (or reboot) for <code>$SHELL</code> and the new <code>x-terminal-emulator</code> default to take effect. Just reopening a terminal isn't enough on most desktops.</span>
         </div>
       </div>
     </div>
@@ -485,8 +488,12 @@ make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-1
 
 <footer>
   <div class="wrap">
-    <span>Shell Bling Ubuntu · <a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu/blob/main/LICENSE">MIT</a></span>
-    <span><a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu">github.com/hiAndrewQuinn/shell-bling-ubuntu</a></span>
+    <span>Shell Bling Ubuntu · <a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu/blob/main/LICENSE">Unlicense</a> · public domain</span>
+    <span class="more">
+      <a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu">github</a>
+      <a href="https://andrew-quinn.me/">andrew-quinn.me</a>
+      <a href="https://siilikuin.com/">siilikuin.com</a>
+    </span>
   </div>
 </footer>
 

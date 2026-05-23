@@ -1,21 +1,26 @@
-# Shell Bling
+# Shell Bling Ubuntu
 
 A curated set of command-line niceties for a fresh Ubuntu, Debian, Fedora, or
-macOS install. One command, sudo password once, fzf pickers at the end.
+macOS install. One command, sudo password once, fzf picker at the end.
+
+📄 Landing page: **<https://hiandrewquinn.github.io/shell-bling-ubuntu/>**
 
 ## Quickstart
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh
-```
-
-No `curl` yet? (Fresh Debian 13 doesn't ship it; many minimal images don't either.) Use `wget`:
 
 ```sh
 wget -qO- https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh
 ```
 
-Either one works — the script installs `curl` itself before it needs to fetch anything else.
+`wget` is preferred because it ships in more base images than `curl` does —
+fresh Debian 13, for example, has `wget` but not `curl`. If you already have
+`curl`, you can use that instead:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh
+```
+
+Either way the script installs `curl` itself before it needs to fetch anything
+else, so they're equivalent once it's running.
 
 That's it. The script will:
 
@@ -23,11 +28,26 @@ That's it. The script will:
 2. Ask for your sudo password once (and keep the timestamp alive in the
    background).
 3. Install everything silently.
-4. Open two `fzf` pickers — one for your default editor, one for whether
-   to switch your login shell to `fish`.
+4. Open one `fzf` picker for your default editor (`nvim` / `vim` / `hx` /
+   `micro`). `fish` becomes your login shell automatically.
 5. Print a friendly recap.
 
-Close and reopen your terminal when it finishes.
+Log out of your desktop session and back in (or reboot) when it finishes —
+that's how `$SHELL` and the new `x-terminal-emulator` default actually take
+effect. Just reopening a terminal usually isn't enough.
+
+## Philosophy: zero configuration files
+
+**Shell Bling never drops a dotfile in your home directory.** No `.vimrc`, no
+`.tmux.conf`, no opinionated `config.fish`. The one exception is the optional
+LazyVim starter, which is its own scaffolded thing you can ignore or replace.
+
+Where possible we ship zero-config tools that just work — `fzf`, `starship`,
+`zoxide`, `bat`, `eza`, `lsd`, `helix`, `micro`. Where there's a real choice
+to make, we ship multiple variants side-by-side and let you pick: `nvim` /
+`vim` / `hx` / `micro` for editors, `lsd` + `eza` for modern `ls`, `xclip` +
+`wl-clipboard` for the X11/Wayland split. You configure your shell on your
+own time, in your own way.
 
 ## Supported platforms
 
@@ -39,16 +59,20 @@ is in flight. macOS is supported (via Homebrew) but not Docker-tested.
 
 All 23 tools install at pinned version. Smoke test PASS without softening.
 
+**Testing:** ✓ Docker matrix · ✓ automated VM matrix · ✓ manual VM end-to-end
+
 | Distro                                 | Notes                       |
 | -------------------------------------- | --------------------------- |
 | Ubuntu 22.04, 24.04, 26.04             | jammy, noble, resolute      |
 | Debian 12, 13                          | bookworm, trixie            |
 | Kali Linux rolling                     | tracks Debian sid           |
 
-### Experimental — full install, file issues if anything breaks
+### Tier 2 — file issues if anything breaks
 
 All 23 tools land cleanly; either modern enough not to need any softening,
 or quirks we haven't fully characterized:
+
+**Testing:** ✓ Docker matrix · ~ automated VM matrix (in progress) · ✗ manual VM
 
 | Distro                                 | Pkg manager      |
 | -------------------------------------- | ---------------- |
@@ -65,13 +89,18 @@ or quirks we haven't fully characterized:
 | macOS (Intel + Apple Silicon)          | Homebrew         |
 | WSL2 (Ubuntu/Debian under Windows)     | inherits parent  |
 
-### Experimental — degraded with explicit Known Limitations
+### Tier 3 — degraded with explicit Known Limitations
 
 Install succeeds; the engine prints a "Known limitations on this platform"
 notice explaining which specific tools couldn't land and why. Almost always
 it's `helix` and `neovim` — their upstream binaries require glibc 2.34+ and
 ship no musl variant, so older distros either fall through to an older
 distro-packaged `nvim` (which works fine) or end up genuinely missing `hx`.
+
+If you hit a new wrinkle on one of these distros, expect that fixing it
+may require softening the install scripts — that's the contract of Tier 3.
+
+**Testing:** ✓ Docker matrix · ✗ automated VM · ✗ manual VM
 
 | Distro                                 | Tools landed | What's degraded |
 | -------------------------------------- | :----------: | --------------- |
@@ -106,9 +135,9 @@ scope, mostly because they're architectural mismatches with shell-bling's
   transitively by their parent distros (Debian / Ubuntu / Arch). Should
   Just Work, but we don't run them through CI.
 
-Tier-1 platforms are tested in CI on every commit. Experimental platforms
-are best-effort — please file issues if you hit something the Known
-Limitations notice doesn't cover.
+Tier 1 platforms are tested in CI on every commit, plus through automated
+and manual VM cycles. Tier 2 and Tier 3 are best-effort — please file
+issues if you hit something the Known Limitations notice doesn't cover.
 
 ## Try before you install
 
@@ -223,9 +252,16 @@ Differences from `make dev`:
 </details>
 
 <details>
-<summary><strong>Data wrangling</strong></summary>
+<summary><strong>JSON</strong></summary>
 
-- **[jq](https://stedolan.github.io/jq/)** + **[gron](https://github.com/tomnomnom/gron)** — JSON.
+- **[jq](https://jqlang.org/)** — the de-facto JSON query language. Filter, reshape, project. Powerful, opinionated, with its own little DSL to learn.
+- **[gron](https://github.com/tomnomnom/gron)** — makes JSON greppable. Flattens any blob into one `foo.bar[3].baz = "..."` line per leaf so you can `rg` / `grep` / `fzf` through it with tools you already know. Round-trips back to JSON with `gron -u`. A very different beast from `jq`.
+
+</details>
+
+<details>
+<summary><strong>Other data wrangling</strong></summary>
+
 - **[qsv](https://github.com/dathere/qsv)** — fast CSV scalpels (sub-commands for select, search, stats, join, frequency, etc.).
 - **[sqlite3](https://sqlite.org/)** — the world's most-used database, on tap for any "I need a real query for ten minutes" moment.
 
@@ -250,7 +286,7 @@ Differences from `make dev`:
 
 | Var                              | Effect                                                                                                              |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `SHELL_BLING_NONINTERACTIVE=1`   | Skip fzf pickers; default editor=`nvim`; `chsh` to fish without asking.                                             |
+| `SHELL_BLING_NONINTERACTIVE=1`   | Skip the editor fzf picker; default editor=`nvim`.                                                                  |
 | `SHELL_BLING_SKIP_LAZYVIM=1`     | Don't clone LazyVim starter.                                                                                        |
 | `SHELL_BLING_BYPASS_SIZE=1`      | Override the disk-space preflight (which needs ~1 GB free on `$HOME`).                                              |
 | `SHELL_BLING_LIB_DIR=PATH`       | Override where `lib/` is loaded from.                                                                               |
@@ -271,4 +307,5 @@ make dev            # interactive container after install
 
 ## License
 
-[MIT](LICENSE).
+[The Unlicense](LICENSE) — released into the public domain. Do what you
+want with it.

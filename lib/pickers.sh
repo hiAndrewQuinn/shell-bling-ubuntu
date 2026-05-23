@@ -14,7 +14,7 @@ run_pickers() {
     return 0
   fi
   _pick_editor
-  _pick_shell
+  _chsh_to_fish
 }
 
 # Idempotent chsh to fish. Used by both the non-interactive path and the
@@ -66,22 +66,4 @@ micro   # 🕊️ Easy to use.           📉 Low learning curve.'
   fi
   fish_set_editor "$_editor"
   log "Default editor set to $_editor"
-}
-
-_pick_shell() {
-  has_cmd fish || return 0
-  has_cmd chsh || return 0
-  # Already fish? Done.
-  case "${SHELL:-}" in
-    */fish) return 0 ;;
-  esac
-
-  _choice=$(printf 'yes — make fish my login shell\nno — keep current shell\n' |
-    fzf --height=20% --reverse \
-      --header="Switch login shell to fish?" ||
-    true)
-  case "$_choice" in
-    yes*) _chsh_to_fish ;;
-    *) log "Leaving login shell unchanged" ;;
-  esac
 }

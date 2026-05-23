@@ -75,44 +75,38 @@ if [ -z "$_lib_dir" ]; then
           "$_bs_red" "$_bs_rst" "$_bs_priv" "$_bs_u" >&2
         printf '       Typing a password will not help — your user is missing from\n' >&2
         printf "       the sudoers/wheel group (or doas.conf has no 'permit' rule).\n\n" >&2
-        printf '       EASIEST FIX — run the install as root, no group changes needed:\n\n' >&2
-        printf '         su -\n' >&2
-        printf '         wget -qO- https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh\n' >&2
-        printf '         exit\n\n' >&2
-        printf '       (Skip the rest unless you want sudo working for *future* sessions.)\n\n' >&2
-        printf '       ----------------------------------------------------------------\n\n' >&2
-        printf '       PERMANENT FIX — add %s to the right group (one-time setup):\n\n' "$_bs_u" >&2
+        printf '       FIX — add %s to the right group, then reboot, then re-run\n' "$_bs_u" >&2
+        printf '       this install one-liner. Copy-paste:\n\n' >&2
         if [ "$_bs_priv" = sudo ]; then
           case "$_bs_id" in
             debian | ubuntu | kali)
-              printf "         su - -c 'usermod -aG sudo %s'\n" "$_bs_u" >&2
+              printf "         su - -c 'usermod -aG sudo %s && reboot'\n" "$_bs_u" >&2
               ;;
             fedora | rocky | almalinux | centos | amzn | rhel | arch | manjaro | manjaro-arm | void | opensuse* | sles | sled)
-              printf "         su - -c 'usermod -aG wheel %s'\n" "$_bs_u" >&2
+              printf "         su - -c 'usermod -aG wheel %s && reboot'\n" "$_bs_u" >&2
               ;;
             alpine)
-              printf "         su - -c 'addgroup %s wheel'\n" "$_bs_u" >&2
+              printf "         su - -c 'addgroup %s wheel && reboot'\n" "$_bs_u" >&2
               ;;
             *)
-              printf "         su - -c 'usermod -aG sudo %s'   # Debian/Ubuntu/Kali\n" "$_bs_u" >&2
-              printf "         su - -c 'usermod -aG wheel %s'  # Fedora/RHEL/Arch/Void/openSUSE\n" "$_bs_u" >&2
-              printf "         su - -c 'addgroup %s wheel'     # Alpine\n" "$_bs_u" >&2
+              printf "         su - -c 'usermod -aG sudo %s && reboot'   # Debian/Ubuntu/Kali\n" "$_bs_u" >&2
+              printf "         su - -c 'usermod -aG wheel %s && reboot'  # Fedora/RHEL/Arch/Void/openSUSE\n" "$_bs_u" >&2
+              printf "         su - -c 'addgroup %s wheel && reboot'     # Alpine\n" "$_bs_u" >&2
               ;;
           esac
         else
           case "$_bs_id" in
             alpine)
-              printf "         su - -c 'echo \"permit persist %s\" >> /etc/doas.d/shell-bling.conf'\n" "$_bs_u" >&2
+              printf "         su - -c 'echo \"permit persist %s\" >> /etc/doas.d/shell-bling.conf && reboot'\n" "$_bs_u" >&2
               ;;
             *)
-              printf "         su - -c 'echo \"permit persist %s\" >> /etc/doas.conf'\n" "$_bs_u" >&2
+              printf "         su - -c 'echo \"permit persist %s\" >> /etc/doas.conf && reboot'\n" "$_bs_u" >&2
               ;;
           esac
         fi
-        printf '\n       IMPORTANT: log out of your desktop session and log back in\n' >&2
-        printf '       (or reboot). Group membership is only loaded at login —\n' >&2
-        printf '       your current shell will keep failing until you do this.\n\n' >&2
-        printf '       Verify with:  id -nG     (should list sudo or wheel)\n\n' >&2
+        printf '\n       (The reboot is so your shell picks up the new group. Logging\n' >&2
+        printf '       out via the desktop GUI is not always enough.)\n\n' >&2
+        printf '       After reboot, verify with:  id -nG     (should list sudo or wheel)\n\n' >&2
         unset _bs_u
         exit 1
       }
@@ -290,32 +284,28 @@ _priv_esc_help_and_exit() {
   shell-bling installs system packages, which requires root.
   You're running as '${_u}' and neither 'sudo' nor 'doas' is on PATH.
 
-  Pick one of:
+  FIX — install sudo, add '${_u}' to the right group, then reboot,
+  then re-run this install one-liner. Copy-paste:
 
-  1) Re-run as root:
-       su -
-       <re-run the install one-liner>
-
-  2) Install sudo, then re-run as your user:
 EOF
   case "$DISTRO" in
     debian | ubuntu)
-      printf "       su - -c 'apt update && apt install -y sudo && usermod -aG sudo %s'\n" "$_u" >&2
+      printf "       su - -c 'apt update && apt install -y sudo && usermod -aG sudo %s && reboot'\n" "$_u" >&2
       ;;
     fedora | rhel)
-      printf "       su - -c 'dnf install -y sudo && usermod -aG wheel %s'\n" "$_u" >&2
+      printf "       su - -c 'dnf install -y sudo && usermod -aG wheel %s && reboot'\n" "$_u" >&2
       ;;
     arch)
-      printf "       su - -c 'pacman -S --noconfirm sudo && usermod -aG wheel %s'\n" "$_u" >&2
+      printf "       su - -c 'pacman -S --noconfirm sudo && usermod -aG wheel %s && reboot'\n" "$_u" >&2
       ;;
     alpine)
-      printf "       su - -c 'apk add sudo && addgroup %s wheel'\n" "$_u" >&2
+      printf "       su - -c 'apk add sudo && addgroup %s wheel && reboot'\n" "$_u" >&2
       ;;
     void)
-      printf "       su - -c 'xbps-install -y sudo && usermod -aG wheel %s'\n" "$_u" >&2
+      printf "       su - -c 'xbps-install -y sudo && usermod -aG wheel %s && reboot'\n" "$_u" >&2
       ;;
     opensuse)
-      printf "       su - -c 'zypper install -y sudo && usermod -aG wheel %s'\n" "$_u" >&2
+      printf "       su - -c 'zypper install -y sudo && usermod -aG wheel %s && reboot'\n" "$_u" >&2
       ;;
     *)
       printf "       (see your distro's docs to install 'sudo')\n" >&2
@@ -323,29 +313,10 @@ EOF
   esac
   cat >&2 << EOF
 
-  3) Or install doas (lighter-weight; common on Alpine/Void):
-EOF
-  case "$DISTRO" in
-    alpine)
-      printf "       su - -c 'apk add doas && echo \"permit persist %s\" >> /etc/doas.d/shell-bling.conf'\n" "$_u" >&2
-      ;;
-    void)
-      printf "       su - -c 'xbps-install -y opendoas && echo \"permit persist %s\" >> /etc/doas.conf'\n" "$_u" >&2
-      ;;
-    arch)
-      printf "       su - -c 'pacman -S --noconfirm opendoas && echo \"permit persist %s\" >> /etc/doas.conf'\n" "$_u" >&2
-      ;;
-    *)
-      printf "       (doas/opendoas package varies by distro; see its docs)\n" >&2
-      ;;
-  esac
-  cat >&2 << EOF
+  (The reboot is so your shell picks up the new group. Logging out
+  via the desktop GUI is not always enough.)
 
-  After option 2 or 3, **log out of your desktop session and log back in**
-  (or reboot). Group membership is only loaded at login — your current
-  shell will keep failing until you do this.
-
-  Verify with:  id -nG     (should list sudo or wheel)
+  After reboot, verify with:  id -nG     (should list sudo or wheel)
 
 EOF
   unset _u
@@ -365,53 +336,43 @@ _priv_esc_no_perms_help_and_exit() {
   '$PRIV_ESC' is on PATH but '$_u' is missing from the sudoers/wheel
   group (or doas.conf has no 'permit' rule). Typing a password won't help.
 
-  EASIEST FIX — run the install as root, no group changes needed:
-
-       su -
-       wget -qO- https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh
-       exit
-
-  (Skip the rest unless you want sudo working for *future* sessions.)
-
-  ----------------------------------------------------------------
-
-  PERMANENT FIX — add '$_u' to the right group (one-time setup):
+  FIX — add '$_u' to the right group, then reboot, then re-run this
+  install one-liner. Copy-paste:
 
 EOF
   if [ "$PRIV_ESC" = sudo ]; then
     case "$DISTRO" in
       debian | ubuntu)
-        printf "       su - -c 'usermod -aG sudo %s'\n" "$_u" >&2
+        printf "       su - -c 'usermod -aG sudo %s && reboot'\n" "$_u" >&2
         ;;
       fedora | rhel | arch | opensuse | void)
-        printf "       su - -c 'usermod -aG wheel %s'\n" "$_u" >&2
+        printf "       su - -c 'usermod -aG wheel %s && reboot'\n" "$_u" >&2
         ;;
       alpine)
-        printf "       su - -c 'addgroup %s wheel'\n" "$_u" >&2
+        printf "       su - -c 'addgroup %s wheel && reboot'\n" "$_u" >&2
         ;;
       *)
-        printf "       su - -c 'usermod -aG sudo %s'   # Debian/Ubuntu/Kali\n" "$_u" >&2
-        printf "       su - -c 'usermod -aG wheel %s'  # Fedora/RHEL/Arch/Void/openSUSE\n" "$_u" >&2
-        printf "       su - -c 'addgroup %s wheel'     # Alpine\n" "$_u" >&2
+        printf "       su - -c 'usermod -aG sudo %s && reboot'   # Debian/Ubuntu/Kali\n" "$_u" >&2
+        printf "       su - -c 'usermod -aG wheel %s && reboot'  # Fedora/RHEL/Arch/Void/openSUSE\n" "$_u" >&2
+        printf "       su - -c 'addgroup %s wheel && reboot'     # Alpine\n" "$_u" >&2
         ;;
     esac
   else
     case "$DISTRO" in
       alpine)
-        printf "       su - -c 'echo \"permit persist %s\" >> /etc/doas.d/shell-bling.conf'\n" "$_u" >&2
+        printf "       su - -c 'echo \"permit persist %s\" >> /etc/doas.d/shell-bling.conf && reboot'\n" "$_u" >&2
         ;;
       *)
-        printf "       su - -c 'echo \"permit persist %s\" >> /etc/doas.conf'\n" "$_u" >&2
+        printf "       su - -c 'echo \"permit persist %s\" >> /etc/doas.conf && reboot'\n" "$_u" >&2
         ;;
     esac
   fi
   cat >&2 << EOF
 
-  IMPORTANT: log out of your desktop session and log back in (or reboot).
-  Group membership is only loaded at login — your current shell will
-  keep failing until you do this.
+  (The reboot is so your shell picks up the new group. Logging out
+  via the desktop GUI is not always enough.)
 
-  Verify with:  id -nG     (should list sudo or wheel)
+  After reboot, verify with:  id -nG     (should list sudo or wheel)
 
 EOF
   unset _u

@@ -165,27 +165,83 @@ export OS_FAMILY DISTRO CODENAME VERSION_ID ARCH LIBC IS_WSL SUPPORT_TIER
 #         doas  -> use doas (Alpine/Void without sudo, some minimal Arch)
 # Consumed by sudo_run in lib/pkg.sh. Set once at install.sh preflight.
 PRIV_ESC=""
-export PRIV_ESC
+# PRIV_ESC_REASON — populated when detect_priv_esc returns 2 (binary on
+# PATH but the user has no permissions to use it). Values:
+#   not-in-sudoers   -> sudo exists; user is not in /etc/sudoers
+#   not-in-doasconf  -> doas exists; no matching permit rule
+PRIV_ESC_REASON=""
+export PRIV_ESC PRIV_ESC_REASON
 
 # detect_priv_esc — populate PRIV_ESC based on uid + which escalation
-# binary is on PATH. Returns 0 if a usable strategy exists (root or
-# sudo or doas); returns 1 if user is non-root and neither sudo nor
-# doas is installed — that case is fatal upstream because every
-# package install in this script eventually hits sudo_run.
+# binary is on PATH AND whether the user can actually use it.
+# Return values:
+#   0 = usable strategy exists (root, or cached sudo, or sudo with
+#       password prompt pending, or doas with persist active)
+#   1 = non-root and neither sudo nor doas binary is installed
+#   2 = binary is on PATH but the user has no permissions
+#       (PRIV_ESC and PRIV_ESC_REASON are populated for the caller)
 # Uses `command -v` directly rather than has_cmd so this stays usable
 # before lib/pkg.sh has been sourced.
 detect_priv_esc() {
   PRIV_ESC=""
+  PRIV_ESC_REASON=""
   if [ "$(id -u 2> /dev/null || echo 0)" = 0 ]; then
     return 0
   fi
   if command -v sudo > /dev/null 2>&1; then
     PRIV_ESC=sudo
-    return 0
+    # `sudo -n -v` exits 0 if creds are cached or NOPASSWD applies,
+    # exits 1 with a diagnostic on stderr otherwise. We need to
+    # distinguish "you're in sudoers, just need a password" (fine —
+    # the prompt comes later) from "you're not in sudoers at all"
+    # (must bail with a friendly message — typing a password won't
+    # help). The error texts below cover sudo 1.8+ across the
+    # distros we support; if a future sudo invents new phrasing we
+    # default to "usable" rather than blocking the install.
+    _sb_priv_e=$(sudo -n -v 2>&1) || true
+    case "$_sb_priv_e" in
+      "")
+        unset _sb_priv_e
+        return 0
+        ;;
+      *"password is required"*)
+        unset _sb_priv_e
+        return 0
+        ;;
+      *"not in the sudoers"* | *"not allowed to run sudo"* | *"not permitted"*)
+        PRIV_ESC_REASON=not-in-sudoers
+        unset _sb_priv_e
+        return 2
+        ;;
+      *)
+        unset _sb_priv_e
+        return 0
+        ;;
+    esac
   fi
   if command -v doas > /dev/null 2>&1; then
     PRIV_ESC=doas
-    return 0
+    # `doas -n true` — non-interactive probe. OpenBSD doas and
+    # OpenDoas both error with some flavor of "not permitted" when
+    # the calling user has no matching `permit` rule. A bare-failed
+    # exit (no recognizable error text) usually means "needs a
+    # password" — let the actual call prompt then.
+    _sb_priv_e=$(doas -n true 2>&1) || true
+    case "$_sb_priv_e" in
+      "")
+        unset _sb_priv_e
+        return 0
+        ;;
+      *"not permitted"* | *"not allowed"*)
+        PRIV_ESC_REASON=not-in-doasconf
+        unset _sb_priv_e
+        return 2
+        ;;
+      *)
+        unset _sb_priv_e
+        return 0
+        ;;
+    esac
   fi
   return 1
 }

@@ -30,10 +30,90 @@ if [ -z "$_lib_dir" ]; then
       _bs_red=$(printf '\033[31m')
       _bs_rst=$(printf '\033[0m')
     fi
+    # _bs_ensure_git — runs before the clone. If git isn't installed,
+    # parse /etc/os-release inline, pick the right package manager,
+    # detect privilege escalation (root | sudo | doas) using only POSIX
+    # builtins (lib/* isn't sourced yet), install git, return. This
+    # turns the previously fatal "git not installed" wget|sh failure
+    # into a one-password-prompt detour on minimal systems like fresh
+    # Debian 13 (no curl, no git, just wget).
+    _bs_ensure_git() {
+      command -v git > /dev/null 2>&1 && return 0
+
+      _bs_id=""
+      if [ -r /etc/os-release ]; then
+        # Subshell so . doesn't leak ID/VERSION_ID/etc. into install.sh's
+        # scope before lib/detect.sh has a chance to do its richer parse.
+        _bs_id=$(. /etc/os-release 2> /dev/null && printf '%s' "${ID:-}")
+      fi
+
+      _bs_priv=""
+      if [ "$(id -u 2> /dev/null || echo 0)" != 0 ]; then
+        if command -v sudo > /dev/null 2>&1; then
+          _bs_priv=sudo
+        elif command -v doas > /dev/null 2>&1; then
+          _bs_priv=doas
+        else
+          printf '%s==> ERROR:%s git is not installed, and neither sudo nor doas is\n' "$_bs_red" "$_bs_rst" >&2
+          printf '       available to install it for you. As root, run:\n' >&2
+          printf '         apt update && apt install -y git    # Debian/Ubuntu\n' >&2
+          printf '         dnf install -y git                  # Fedora/RHEL\n' >&2
+          printf '         apk add git                         # Alpine\n' >&2
+          printf '       Then re-run this install one-liner.\n' >&2
+          exit 1
+        fi
+      fi
+
+      printf '%s==>%s git not found; installing via the system package manager\n' \
+        "$_bs_cyan" "$_bs_rst"
+      case "$_bs_id" in
+        debian | ubuntu | kali)
+          $_bs_priv env DEBIAN_FRONTEND=noninteractive apt-get update -y > /dev/null &&
+            $_bs_priv env DEBIAN_FRONTEND=noninteractive apt-get install -y git
+          ;;
+        fedora | rocky | almalinux | centos | amzn | rhel)
+          $_bs_priv dnf install -y git 2> /dev/null ||
+            $_bs_priv yum install -y git
+          ;;
+        arch | manjaro | manjaro-arm)
+          $_bs_priv pacman -Sy --noconfirm git
+          ;;
+        alpine)
+          $_bs_priv apk add --no-cache git
+          ;;
+        void)
+          $_bs_priv xbps-install -Sy git
+          ;;
+        opensuse* | sles | sled)
+          $_bs_priv zypper install -y git
+          ;;
+        "")
+          printf '%s==> ERROR:%s git missing and /etc/os-release could not be read.\n' \
+            "$_bs_red" "$_bs_rst" >&2
+          printf '       Install git via your distro and re-run.\n' >&2
+          exit 1
+          ;;
+        *)
+          printf '%s==> ERROR:%s git missing and unrecognized distro (ID=%s).\n' \
+            "$_bs_red" "$_bs_rst" "$_bs_id" >&2
+          printf '       Install git via your distro and re-run.\n' >&2
+          exit 1
+          ;;
+      esac
+
+      command -v git > /dev/null 2>&1 || {
+        printf '%s==> ERROR:%s package install completed but git is still not on PATH.\n' \
+          "$_bs_red" "$_bs_rst" >&2
+        exit 1
+      }
+      unset _bs_id _bs_priv
+    }
+    _bs_ensure_git
+
     printf '%s==>%s Cloning shell-bling-ubuntu into %s\n' "$_bs_cyan" "$_bs_rst" "$_tmp_clone"
     git clone --depth 1 https://github.com/hiAndrewQuinn/shell-bling-ubuntu \
       "$_tmp_clone" > /dev/null 2>&1 || {
-      printf '%s==> ERROR:%s git clone failed; do you have git installed?\n' "$_bs_red" "$_bs_rst" >&2
+      printf '%s==> ERROR:%s git clone failed (network? repo URL?).\n' "$_bs_red" "$_bs_rst" >&2
       exit 1
     }
     unset _bs_cyan _bs_red _bs_rst
@@ -184,11 +264,82 @@ EOF
   exit 1
 }
 
+# Print recovery guidance when the user *has* sudo or doas but isn't
+# permitted to use it (not in the sudo/wheel group, or no `permit` rule
+# in /etc/doas.conf). Distinct from _priv_esc_help_and_exit which fires
+# when the binary itself is missing.
+_priv_esc_no_perms_help_and_exit() {
+  _u=$(id -un 2> /dev/null || echo user)
+  err "'$PRIV_ESC' is installed, but '$_u' is not permitted to use it."
+  cat >&2 << EOF
+
+  shell-bling installs system packages, which requires root.
+  '$PRIV_ESC' is on PATH but a non-prompting probe ('$PRIV_ESC -n -v' /
+  '$PRIV_ESC -n true') failed with a permissions error — typing a password
+  won't change that.
+
+EOF
+  if [ "$PRIV_ESC" = sudo ]; then
+    cat >&2 << EOF
+  As root (su -), add '$_u' to the right group:
+
+EOF
+    case "$DISTRO" in
+      debian | ubuntu)
+        printf "       su -c 'usermod -aG sudo %s'\n" "$_u" >&2
+        ;;
+      fedora | rhel | arch | opensuse | void)
+        printf "       su -c 'usermod -aG wheel %s'\n" "$_u" >&2
+        ;;
+      alpine)
+        printf "       su -c 'addgroup %s wheel'\n" "$_u" >&2
+        ;;
+      *)
+        printf "       su -c 'usermod -aG sudo %s'   # Debian/Ubuntu/Kali\n" "$_u" >&2
+        printf "       su -c 'usermod -aG wheel %s'  # Fedora/RHEL/Arch/Void/openSUSE\n" "$_u" >&2
+        printf "       su -c 'addgroup %s wheel'     # Alpine\n" "$_u" >&2
+        ;;
+    esac
+  else
+    cat >&2 << EOF
+  As root (su -), add a permit rule for '$_u':
+
+EOF
+    case "$DISTRO" in
+      alpine)
+        printf "       su -c 'echo \"permit persist %s\" >> /etc/doas.d/shell-bling.conf'\n" "$_u" >&2
+        ;;
+      *)
+        printf "       su -c 'echo \"permit persist %s\" >> /etc/doas.conf'\n" "$_u" >&2
+        ;;
+    esac
+  fi
+  cat >&2 << EOF
+
+  Then **log out and back in** so the new group membership takes effect,
+  and re-run the install one-liner.
+
+EOF
+  unset _u
+  exit 1
+}
+
 _start_sudo_keepalive() {
   # Always populate PRIV_ESC; it's the input to sudo_run.
-  if ! detect_priv_esc; then
-    _priv_esc_help_and_exit
-  fi
+  # detect_priv_esc returns:
+  #   0 = usable (root, cached/NOPASSWD, or sudo will prompt)
+  #   1 = no escalation binary at all
+  #   2 = binary present but user has no permissions
+  # `||` keeps set -e happy on non-zero; `_rc=$?` captures the code
+  # *inside the failure branch*, where it's still meaningful.
+  detect_priv_esc || _rc=$?
+  case "${_rc:-0}" in
+    0) ;;
+    1) _priv_esc_help_and_exit ;;
+    2) _priv_esc_no_perms_help_and_exit ;;
+    *) _priv_esc_help_and_exit ;;
+  esac
+  unset _rc 2> /dev/null || true
 
   # Already root → nothing more to do; PRIV_ESC stays empty.
   [ -z "$PRIV_ESC" ] && return 0

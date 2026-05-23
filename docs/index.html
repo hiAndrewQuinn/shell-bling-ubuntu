@@ -8,20 +8,25 @@
 <meta property="og:title" content="Shell Bling Ubuntu">
 <meta property="og:description" content="23 CLI tools, one wget, every distro. Pinned, batteries-included, tested across 30 distros on every commit.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#f7f3e3">
+<meta name="theme-color" content="#f7f3e3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1d1e20" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fira+Code&family=Lexend+Deca:wght@300;400;600&display=swap">
 <style>
 :root {
-  --copper: #a8763e;
-  --cosmic-latte: #f7f3e3;
-  --antiflash-white: #ecf0f1;
-  --specsavers-green: #0a6640;
-  --barn-red: #6f1a07;
-  --bistre: #2b2118;
-  --bistre-dim: #5a4c3e;
+  /* Light mode (default) — cosmic-latte palette shared with andrew-quinn.me */
+  --bg: #f7f3e3;          /* cosmic-latte */
+  --bg-elev: #ecf0f1;     /* antiflash-white */
+  --bg-code: #ecf0f1;
+  --text: #2b2118;        /* bistre */
+  --text-dim: #5a4c3e;
+  --rule: #2b2118;        /* hard rules between sections (matches headers/footers on andrew-quinn.me) */
+  --rule-soft: #5a4c3e;
+  --accent-1: #6f1a07;    /* barn-red — h1 + CTAs */
+  --accent-2: #a8763e;    /* copper — h2, links */
+  --accent-3: #0a6640;    /* specsavers-green — go state, code, success */
   --hover-bg: #fff2a8;
 
   --sans: 'Lexend Deca', system-ui, sans-serif;
@@ -29,10 +34,30 @@
   --mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
+@media (prefers-color-scheme: dark) {
+  /* Dark mode — patterned after til.andrew-quinn.me (PaperMod), with the
+     three accent colors lightened/desaturated for legibility on dark bg.
+     Warm cosmic-latte → cool neutral grays; accents keep their roles but
+     shift to softer, slightly brighter siblings. */
+  :root {
+    --bg: #1d1e20;
+    --bg-elev: #2e2e33;
+    --bg-code: #37383e;
+    --text: #dadadb;
+    --text-dim: #9b9c9d;
+    --rule: #4a4b4f;
+    --rule-soft: #333436;
+    --accent-1: #ff9b85;   /* warm coral — was barn-red */
+    --accent-2: #d4a574;   /* lighter copper */
+    --accent-3: #7ed99f;   /* mint — was specsavers-green */
+    --hover-bg: rgba(212, 165, 116, 0.18);
+  }
+}
+
 * { box-sizing: border-box; }
 html {
-  background-color: var(--cosmic-latte);
-  color: var(--bistre);
+  background-color: var(--bg);
+  color: var(--text);
   font-family: var(--sans);
   font-weight: 300;
   font-size: 16px;
@@ -48,12 +73,12 @@ body {
 
 /* ===== typography ===== */
 h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.2; margin: 0; }
-h1 { color: var(--barn-red); font-size: 2.4em; }
-h2 { color: var(--copper); font-size: 1.4em; margin: 0 0 22px; }
-h3 { color: var(--bistre); font-size: 1.1em; margin: 0 0 12px; }
+h1 { color: var(--accent-1); font-size: 2.4em; }
+h2 { color: var(--accent-2); font-size: 1.4em; margin: 0 0 22px; }
+h3 { color: var(--text); font-size: 1.1em; margin: 0 0 12px; }
 p { margin: 0 0 1em; }
 a {
-  color: var(--copper);
+  color: var(--accent-2);
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 3px;
@@ -62,25 +87,25 @@ a {
 a:hover { background: var(--hover-bg); }
 code, pre, kbd { font-family: var(--mono); }
 code {
-  background: var(--antiflash-white);
-  color: var(--specsavers-green);
+  background: var(--bg-code);
+  color: var(--accent-3);
   padding: 0.05em 0.4em;
   font-size: 0.92em;
   border-radius: 2px;
 }
 pre {
-  background: var(--antiflash-white);
-  color: var(--bistre);
+  background: var(--bg-code);
+  color: var(--text);
   padding: 16px 18px;
   overflow-x: auto;
-  border-left: 3px solid var(--copper);
+  border-left: 3px solid var(--accent-2);
   margin: 0;
   font-size: 0.92em;
 }
 pre code { background: transparent; padding: 0; color: inherit; }
 kbd {
-  background: var(--cosmic-latte);
-  border: 1px solid var(--bistre);
+  background: var(--bg);
+  border: 1px solid var(--text);
   border-bottom-width: 2px;
   padding: 1px 5px;
   border-radius: 3px;
@@ -89,21 +114,21 @@ kbd {
 
 /* ===== top bar ===== */
 .topbar {
-  border-bottom: 1px solid var(--bistre);
-  background: var(--cosmic-latte);
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg);
   position: sticky; top: 0; z-index: 10;
 }
 .topbar .wrap { display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; }
-.brand { font-family: var(--display); font-weight: 700; font-size: 1.05em; color: var(--barn-red); }
-.navlinks a { color: var(--bistre); margin-left: 18px; font-size: 0.92em; text-decoration: none; border-bottom: 1px dotted transparent; }
-.navlinks a:hover { color: var(--barn-red); background: transparent; border-bottom-color: var(--barn-red); }
+.brand { font-family: var(--display); font-weight: 700; font-size: 1.05em; color: var(--accent-1); }
+.navlinks a { color: var(--text); margin-left: 18px; font-size: 0.92em; text-decoration: none; border-bottom: 1px dotted transparent; }
+.navlinks a:hover { color: var(--accent-1); background: transparent; border-bottom-color: var(--accent-1); }
 
 /* ===== hero ===== */
 .hero { padding: 56px 0 48px; }
 .hero h1 { font-size: clamp(2em, 5vw, 2.8em); margin: 0 0 12px; }
 .hero .tagline {
   font-size: clamp(1.05em, 2vw, 1.2em);
-  color: var(--bistre-dim);
+  color: var(--text-dim);
   margin: 0 0 32px;
   max-width: 640px;
   line-height: 1.55;
@@ -114,20 +139,20 @@ kbd {
   padding: 6px 0;
   font-family: var(--mono);
   font-size: 0.82em;
-  color: var(--bistre-dim);
+  color: var(--text-dim);
 }
 .install-head .label { display: flex; align-items: center; gap: 10px; }
 .install-head .tag {
-  background: var(--specsavers-green); color: var(--cosmic-latte);
+  background: var(--accent-3); color: var(--bg);
   padding: 1px 8px; border-radius: 2px;
   font-size: 0.88em; letter-spacing: 0.04em;
   text-transform: uppercase; font-weight: 600;
 }
-.install-head .tag.alt { background: var(--bistre-dim); }
+.install-head .tag.alt { background: var(--text-dim); }
 .copy {
   background: transparent;
-  border: 1px solid var(--bistre-dim);
-  color: var(--bistre-dim);
+  border: 1px solid var(--text-dim);
+  color: var(--text-dim);
   font-family: var(--mono);
   font-size: 0.82em;
   padding: 2px 10px;
@@ -136,35 +161,35 @@ kbd {
   transition: all 0.15s;
   font-weight: 400;
 }
-.copy:hover { color: var(--barn-red); border-color: var(--barn-red); background: transparent; }
-.copy.copied { color: var(--specsavers-green); border-color: var(--specsavers-green); }
+.copy:hover { color: var(--accent-1); border-color: var(--accent-1); background: transparent; }
+.copy.copied { color: var(--accent-3); border-color: var(--accent-3); }
 .install pre code { white-space: pre-wrap; word-break: break-all; }
-.install-note { font-size: 0.95em; color: var(--bistre-dim); margin: 22px 0 0; max-width: 640px; }
+.install-note { font-size: 0.95em; color: var(--text-dim); margin: 22px 0 0; max-width: 640px; }
 
 /* ===== sections ===== */
-section { padding: 48px 0; border-top: 1px solid var(--bistre); }
-section .lead { color: var(--bistre-dim); margin: 0 0 20px; max-width: 700px; }
+section { padding: 48px 0; border-top: 1px solid var(--rule); }
+section .lead { color: var(--text-dim); margin: 0 0 20px; max-width: 700px; }
 
 /* ===== philosophy callout ===== */
 .callout {
-  background: var(--antiflash-white);
-  border-left: 3px solid var(--specsavers-green);
+  background: var(--bg-code);
+  border-left: 3px solid var(--accent-3);
   padding: 18px 24px;
   margin-top: 6px;
 }
 .callout p { margin: 0 0 10px; }
 .callout p:last-child { margin: 0; }
-.callout strong { color: var(--specsavers-green); font-family: var(--display); font-weight: 700; }
+.callout strong { color: var(--accent-3); font-family: var(--display); font-weight: 700; }
 
 /* ===== tools grid ===== */
 .tools-groups { display: grid; gap: 32px; }
-.tools-group h3 .sub { color: var(--bistre-dim); font-weight: 400; margin-left: 8px; font-size: 0.95em; }
+.tools-group h3 .sub { color: var(--text-dim); font-weight: 400; margin-left: 8px; font-size: 0.95em; }
 .tools-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px 24px; }
 .tool { font-size: 0.95em; line-height: 1.45; }
 .tool .name { font-family: var(--mono); font-weight: 400; }
-.tool .name a { color: var(--barn-red); text-decoration-style: dotted; font-weight: 600; }
+.tool .name a { color: var(--accent-1); text-decoration-style: dotted; font-weight: 600; }
 .tool .name a:hover { background: var(--hover-bg); }
-.tool .what { color: var(--bistre-dim); }
+.tool .what { color: var(--text-dim); }
 
 /* ===== distro matrix ===== */
 .tier { margin-bottom: 36px; }
@@ -176,53 +201,53 @@ section .lead { color: var(--bistre-dim); margin: 0 0 20px; max-width: 700px; }
   letter-spacing: 0.05em;
   border: 1px solid;
 }
-.tier-1 .tier-badge { background: var(--specsavers-green); color: var(--cosmic-latte); border-color: var(--specsavers-green); }
-.tier-2 .tier-badge { background: var(--copper); color: var(--cosmic-latte); border-color: var(--copper); }
-.tier-3 .tier-badge { background: transparent; color: var(--barn-red); border-color: var(--barn-red); }
-.tier-tag { font-size: 0.95em; color: var(--bistre-dim); }
+.tier-1 .tier-badge { background: var(--accent-3); color: var(--bg); border-color: var(--accent-3); }
+.tier-2 .tier-badge { background: var(--accent-2); color: var(--bg); border-color: var(--accent-2); }
+.tier-3 .tier-badge { background: transparent; color: var(--accent-1); border-color: var(--accent-1); }
+.tier-tag { font-size: 0.95em; color: var(--text-dim); }
 .tier-testing {
-  font-family: var(--mono); font-size: 0.85em; color: var(--bistre-dim);
+  font-family: var(--mono); font-size: 0.85em; color: var(--text-dim);
   margin: 0 0 14px;
 }
-.tier-testing .check { color: var(--specsavers-green); font-weight: 700; }
-.tier-testing .miss { color: var(--bistre-dim); opacity: 0.6; }
-.tier-testing .partial { color: var(--copper); font-weight: 700; }
+.tier-testing .check { color: var(--accent-3); font-weight: 700; }
+.tier-testing .miss { color: var(--text-dim); opacity: 0.6; }
+.tier-testing .partial { color: var(--accent-2); font-weight: 700; }
 .distros {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 10px;
 }
 .distro {
-  border: 1px solid var(--bistre-dim);
+  border: 1px solid var(--rule-soft);
   padding: 10px 14px;
-  background: var(--cosmic-latte);
+  background: var(--bg);
   font-size: 0.92em;
 }
-.distro .name { font-family: var(--mono); font-weight: 600; color: var(--bistre); display: block; margin-bottom: 4px; }
-.distro .note { color: var(--bistre-dim); font-size: 0.9em; line-height: 1.4; }
-.distro.degraded { border-left: 3px solid var(--barn-red); }
+.distro .name { font-family: var(--mono); font-weight: 600; color: var(--text); display: block; margin-bottom: 4px; }
+.distro .note { color: var(--text-dim); font-size: 0.9em; line-height: 1.4; }
+.distro.degraded { border-left: 3px solid var(--accent-1); }
 
 /* ===== flow ===== */
 .flow {
-  border: 1px solid var(--bistre);
-  background: var(--cosmic-latte);
+  border: 1px solid var(--rule);
+  background: var(--bg);
   font-family: var(--mono); font-size: 0.93em;
 }
 .flow-step {
   padding: 14px 18px;
-  border-bottom: 1px solid var(--bistre-dim);
+  border-bottom: 1px solid var(--rule-soft);
   display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: baseline;
 }
 .flow-step:last-child { border-bottom: 0; }
-.flow-step .n { color: var(--barn-red); font-weight: 700; font-family: var(--display); }
-.flow-step .what { color: var(--bistre); font-weight: 400; }
-.flow-step .why { display: block; color: var(--bistre-dim); font-family: var(--sans); font-size: 0.95em; margin-top: 3px; }
+.flow-step .n { color: var(--accent-1); font-weight: 700; font-family: var(--display); }
+.flow-step .what { color: var(--text); font-weight: 400; }
+.flow-step .why { display: block; color: var(--text-dim); font-family: var(--sans); font-size: 0.95em; margin-top: 3px; }
 
 /* ===== footer ===== */
-footer { padding: 32px 0 48px; border-top: 1px solid var(--bistre); color: var(--bistre-dim); font-size: 0.9em; }
+footer { padding: 32px 0 48px; border-top: 1px solid var(--rule); color: var(--text-dim); font-size: 0.9em; }
 footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; align-items: baseline; }
 footer .more { display: flex; gap: 20px; flex-wrap: wrap; }
-footer a { color: var(--bistre); }
-footer a:hover { color: var(--barn-red); }
+footer a { color: var(--text); }
+footer a:hover { color: var(--accent-1); }
 
 @media (max-width: 600px) {
   .hero { padding: 36px 0; }
@@ -438,7 +463,7 @@ make dev DISTRO=ubuntu-24.04   # or debian-13, fedora-44, arch, alpine, …</cod
         <div class="distro degraded"><span class="name">Amazon Linux 2</span><span class="note">21/23 · glibc 2.26 (yum-era)</span></div>
         <div class="distro degraded"><span class="name">CentOS 7</span><span class="note">21/23 · glibc 2.17 · vault.centos.org mirror</span></div>
       </div>
-      <p style="margin: 16px 0 0; color: var(--bistre-dim); font-size: 0.92em;">For legacy-glibc distros, five Rust binaries (<code>bat</code>, <code>fd</code>, <code>eza</code>, <code>lsd</code>, <code>starship</code>) auto-route to their musl variants. You get the same version as on a modern distro, just statically linked.</p>
+      <p style="margin: 16px 0 0; color: var(--text-dim); font-size: 0.92em;">For legacy-glibc distros, five Rust binaries (<code>bat</code>, <code>fd</code>, <code>eza</code>, <code>lsd</code>, <code>starship</code>) auto-route to their musl variants. You get the same version as on a modern distro, just statically linked.</p>
     </div>
   </div>
 </section>

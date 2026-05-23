@@ -11,7 +11,8 @@ ENV SHELL_BLING_SMOKE_OPTIONAL="hx"
 ENV SHELL_BLING_ALLOW_OLD_NVIM=1
 RUN yum -y install sudo curl ca-certificates git glibc-langpack-en 2>/dev/null || \
     yum -y install sudo curl ca-certificates git
-RUN useradd -m -s /bin/bash dev && \
+RUN groupadd -f wheel && \
+    useradd -m -s /bin/bash -G wheel dev && \
     echo 'dev ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/dev
 USER dev
 WORKDIR /home/dev

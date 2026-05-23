@@ -12,7 +12,8 @@ ENV LANG=C LC_ALL=C
 RUN sed -i 's|mirrorlist=|#mirrorlist=|g; s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*.repo && \
     yum -y install sudo curl ca-certificates git glibc-langpack-en 2>/dev/null || \
     yum -y install sudo curl ca-certificates git
-RUN useradd -m -s /bin/bash dev && \
+RUN groupadd -f wheel && \
+    useradd -m -s /bin/bash -G wheel dev && \
     echo 'dev ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/dev
 # Known unavailable on CentOS 7 — see lib/platform_rhel.sh.
 # helix + neovim definitely; expect more after smoke surfaces them.

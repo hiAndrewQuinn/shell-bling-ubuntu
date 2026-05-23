@@ -11,47 +11,61 @@
 <meta name="theme-color" content="#f7f3e3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1d1e20" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
+<script>
+  /* Inline bootstrap: set data-theme on <html> before first paint to avoid
+     a flash of wrong theme. Pattern mirrors andrew-quinn.me's aqdm-theme. */
+  (function () {
+    var stored = null;
+    try { stored = localStorage.getItem('sbu-theme'); } catch (e) {}
+    var theme = stored || (window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fira+Code&family=Lexend+Deca:wght@300;400;600&display=swap">
 <style>
-:root {
-  /* Light mode (default) — cosmic-latte palette shared with andrew-quinn.me */
+/* ===== palette ===== */
+/* Light mode = cosmic-latte palette shared with andrew-quinn.me.
+   Dark mode = the EXACT background/text values from til.andrew-quinn.me's
+   PaperMod dark scheme (rgb 29,30,32 / 46,46,51 / 218,218,219 / etc.)
+   layered with the warm accent triplet (#ff9b85 coral / #d4a574 copper /
+   #7ed99f mint) from andrew-quinn.me's own dark-mode.css. */
+:root, [data-theme="light"] {
   --bg: #f7f3e3;          /* cosmic-latte */
   --bg-elev: #ecf0f1;     /* antiflash-white */
   --bg-code: #ecf0f1;
   --text: #2b2118;        /* bistre */
   --text-dim: #5a4c3e;
-  --rule: #2b2118;        /* hard rules between sections (matches headers/footers on andrew-quinn.me) */
+  --rule: #2b2118;
   --rule-soft: #5a4c3e;
-  --accent-1: #6f1a07;    /* barn-red — h1 + CTAs */
-  --accent-2: #a8763e;    /* copper — h2, links */
-  --accent-3: #0a6640;    /* specsavers-green — go state, code, success */
+  --accent-1: #6f1a07;    /* barn-red */
+  --accent-2: #a8763e;    /* copper */
+  --accent-3: #0a6640;    /* specsavers-green */
   --hover-bg: #fff2a8;
+  --theme-color: #f7f3e3;
+}
 
+[data-theme="dark"] {
+  --bg: #1d1e20;          /* til --theme */
+  --bg-elev: #2e2e33;     /* til --entry */
+  --bg-code: #37383e;     /* til --code-bg */
+  --text: #dadadb;        /* til --primary */
+  --text-dim: #9b9c9d;    /* til --secondary */
+  --rule: #414244;        /* til --tertiary */
+  --rule-soft: #333333;   /* til --border */
+  --accent-1: #ff9b85;    /* andrew-quinn.me dark --text-heading */
+  --accent-2: #d4a574;    /* andrew-quinn.me dark --text-link */
+  --accent-3: #7ed99f;    /* andrew-quinn.me dark --text-code */
+  --hover-bg: rgba(212, 165, 116, 0.2);   /* andrew-quinn.me dark --hover-bg */
+  --theme-color: #1d1e20;
+}
+
+:root {
   --sans: 'Lexend Deca', system-ui, sans-serif;
   --display: 'Atkinson Hyperlegible', 'Lexend Deca', sans-serif;
   --mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-
-@media (prefers-color-scheme: dark) {
-  /* Dark mode — patterned after til.andrew-quinn.me (PaperMod), with the
-     three accent colors lightened/desaturated for legibility on dark bg.
-     Warm cosmic-latte → cool neutral grays; accents keep their roles but
-     shift to softer, slightly brighter siblings. */
-  :root {
-    --bg: #1d1e20;
-    --bg-elev: #2e2e33;
-    --bg-code: #37383e;
-    --text: #dadadb;
-    --text-dim: #9b9c9d;
-    --rule: #4a4b4f;
-    --rule-soft: #333436;
-    --accent-1: #ff9b85;   /* warm coral — was barn-red */
-    --accent-2: #d4a574;   /* lighter copper */
-    --accent-3: #7ed99f;   /* mint — was specsavers-green */
-    --hover-bg: rgba(212, 165, 116, 0.18);
-  }
 }
 
 * { box-sizing: border-box; }
@@ -120,8 +134,27 @@ kbd {
 }
 .topbar .wrap { display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; }
 .brand { font-family: var(--display); font-weight: 700; font-size: 1.05em; color: var(--accent-1); }
-.navlinks a { color: var(--text); margin-left: 18px; font-size: 0.92em; text-decoration: none; border-bottom: 1px dotted transparent; }
+.navlinks { display: flex; align-items: center; gap: 18px; }
+.navlinks a { color: var(--text); font-size: 0.92em; text-decoration: none; border-bottom: 1px dotted transparent; }
 .navlinks a:hover { color: var(--accent-1); background: transparent; border-bottom-color: var(--accent-1); }
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--rule-soft);
+  color: var(--text);
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0;
+  transition: border-color 0.15s, color 0.15s, transform 0.2s;
+}
+.theme-toggle:hover { color: var(--accent-1); border-color: var(--accent-1); transform: rotate(15deg); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent-3); outline-offset: 2px; }
+.theme-toggle svg { width: 16px; height: 16px; }
+.theme-toggle .icon-sun { display: none; }
+.theme-toggle .icon-moon { display: block; }
+[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 
 /* ===== hero ===== */
 .hero { padding: 56px 0 48px; }
@@ -268,6 +301,10 @@ footer a:hover { color: var(--accent-1); }
       <a href="#distros">distros</a>
       <a href="#flow">how</a>
       <a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu">github</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
     </nav>
   </div>
 </header>
@@ -523,6 +560,30 @@ make dev DISTRO=ubuntu-24.04   # or debian-13, fedora-44, arch, alpine, …</cod
 </footer>
 
 <script>
+/* Theme toggle — flips data-theme + persists to localStorage. Also updates
+   the browser chrome color via the meta theme-color tag. */
+(function () {
+  var btn = document.getElementById('theme-toggle');
+  var meta = document.querySelector('meta[name="theme-color"]:not([media])') ||
+             (function () {
+               var m = document.createElement('meta');
+               m.name = 'theme-color';
+               document.head.appendChild(m);
+               return m;
+             })();
+  function syncMeta() {
+    meta.setAttribute('content',
+      getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim());
+  }
+  syncMeta();
+  btn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('sbu-theme', next); } catch (e) {}
+    syncMeta();
+  });
+})();
+
 document.querySelectorAll('.copy').forEach(btn => {
   btn.addEventListener('click', async () => {
     const id = btn.dataset.target;

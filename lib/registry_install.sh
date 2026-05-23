@@ -137,8 +137,15 @@ registry_fetch_all() {
     # Background subshell. stdout/stderr piped to per-tool log so parallel
     # output doesn't interleave.
     (
+      # --max-time bounds the entire transfer (not just connect). Without
+      # it, a curl that stalls mid-stream — e.g. a GitHub Releases CDN node
+      # rate-limiting one of our 24 parallel pulls — hangs forever and
+      # wedges the whole lane until Jenkins' per-attempt timeout fires.
+      # 90s is generous over the largest tool (~60 MB nvim tarball on a
+      # 1 MB/s link = 60s) and snug under the 5-min docker-lane timeout
+      # even if all 3 retries time out.
       if curl --fail --silent --show-error --location \
-        --retry 3 --retry-delay 2 --connect-timeout 15 \
+        --retry 3 --retry-delay 2 --connect-timeout 15 --max-time 90 \
         -o "$__sb_dest" "$__sb_url" 2> "$__sb_workdir/$__sb_t.fetch.log"; then
         printf 'ok\n%s\n' "$__sb_dest" > "$__sb_workdir/$__sb_t.status"
       else

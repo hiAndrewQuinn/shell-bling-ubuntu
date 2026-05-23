@@ -64,6 +64,74 @@ if [ -z "$_lib_dir" ]; then
         fi
       fi
 
+      # Probe escalation usability *before* attempting the install.
+      # Without this, a non-sudoer hits sudo's password prompt, types it,
+      # and then sudo says "user is not in the sudoers file." — having
+      # wasted an auth attempt to learn what we could detect now.
+      # Skip the probe when running as root (_bs_priv is empty).
+      _bs_die_no_perms() {
+        _bs_u=$(id -un 2> /dev/null || echo user)
+        printf '%s==> ERROR:%s %s is installed but %s is not permitted to use it.\n' \
+          "$_bs_red" "$_bs_rst" "$_bs_priv" "$_bs_u" >&2
+        printf '       Typing a password will not help — your user is missing from\n' >&2
+        printf "       the sudoers/wheel group (or doas.conf has no 'permit' rule).\n\n" >&2
+        printf '       Fix as root (su -), log out + back in, then re-run:\n\n' >&2
+        if [ "$_bs_priv" = sudo ]; then
+          case "$_bs_id" in
+            debian | ubuntu | kali)
+              printf "         su -c 'usermod -aG sudo %s'\n" "$_bs_u" >&2
+              ;;
+            fedora | rocky | almalinux | centos | amzn | rhel | arch | manjaro | manjaro-arm | void | opensuse* | sles | sled)
+              printf "         su -c 'usermod -aG wheel %s'\n" "$_bs_u" >&2
+              ;;
+            alpine)
+              printf "         su -c 'addgroup %s wheel'\n" "$_bs_u" >&2
+              ;;
+            *)
+              printf "         su -c 'usermod -aG sudo %s'   # Debian/Ubuntu/Kali\n" "$_bs_u" >&2
+              printf "         su -c 'usermod -aG wheel %s'  # Fedora/RHEL/Arch/Void/openSUSE\n" "$_bs_u" >&2
+              printf "         su -c 'addgroup %s wheel'     # Alpine\n" "$_bs_u" >&2
+              ;;
+          esac
+        else
+          case "$_bs_id" in
+            alpine)
+              printf "         su -c 'echo \"permit persist %s\" >> /etc/doas.d/shell-bling.conf'\n" "$_bs_u" >&2
+              ;;
+            *)
+              printf "         su -c 'echo \"permit persist %s\" >> /etc/doas.conf'\n" "$_bs_u" >&2
+              ;;
+          esac
+        fi
+        printf '\n       Or, faster, skip group setup entirely by running as root:\n\n' >&2
+        printf '         su -\n' >&2
+        printf '         <re-run the install one-liner>\n\n' >&2
+        unset _bs_u
+        exit 1
+      }
+      case "$_bs_priv" in
+        sudo)
+          _bs_probe=$(sudo -n -v 2>&1) || true
+          case "$_bs_probe" in
+            "" | *"password is required"*) ;; # in sudoers; will prompt or cached
+            *"not in the sudoers"* | *"not allowed"* | *"not permitted"*)
+              _bs_die_no_perms
+              ;;
+          esac
+          unset _bs_probe
+          ;;
+        doas)
+          _bs_probe=$(doas -n true 2>&1) || true
+          case "$_bs_probe" in
+            "" | *"Authentication required"*) ;; # persist active or needs pw
+            *"not permitted"* | *"not allowed"*)
+              _bs_die_no_perms
+              ;;
+          esac
+          unset _bs_probe
+          ;;
+      esac
+
       printf '%s==>%s git not found; installing via the system package manager\n' \
         "$_bs_cyan" "$_bs_rst"
       case "$_bs_id" in

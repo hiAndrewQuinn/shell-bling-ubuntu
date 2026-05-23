@@ -297,6 +297,7 @@ footer a:hover { color: var(--accent-1); }
       <a href="#try">try</a>
       <a href="#tools">tools</a>
       <a href="#distros">distros</a>
+      <a href="#testing">testing</a>
       <a href="#flow">how</a>
       <a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu">github</a>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
@@ -310,7 +311,7 @@ footer a:hover { color: var(--accent-1); }
 <section class="hero">
   <div class="wrap">
     <h1>Shell Bling Ubuntu</h1>
-    <p class="tagline">23 command-line tools, pinned. Tested on 30 distros every commit. <code>fzf</code>, <code>fish</code>, <code>nvim+LazyVim</code>, the whole modern-CLI starter pack — installed silently while you go get a coffee.</p>
+    <p class="tagline">23 command-line tools, pinned. <a href="#testing">Tested on 30 distros every commit.</a> <code>fzf</code>, <code>fish</code>, <code>nvim+LazyVim</code>, the whole modern-CLI starter pack — installed silently while you go get a coffee.</p>
 
     <div class="install">
       <div class="install-head">
@@ -454,7 +455,7 @@ make dev DISTRO=ubuntu-24.04   # or debian-13, fedora-44, arch, alpine, …</cod
         <span class="tier-badge">Tier 1</span>
         <span class="tier-tag">all 23 tools install at pinned version · smoke test PASS without softening</span>
       </div>
-      <p class="tier-testing"><span class="check">✓</span> Docker matrix · <span class="check">✓</span> automated VM matrix · <span class="check">✓</span> manual VM end-to-end</p>
+      <p class="tier-testing"><span class="check">✓</span> <a href="#testing-docker">Docker matrix</a> · <span class="check">✓</span> <a href="#testing-vm">automated VM matrix</a> · <span class="check">✓</span> <a href="#testing-manual">manual VM end-to-end</a></p>
       <div class="distros">
         <div class="distro"><span class="name">Ubuntu</span><span class="note">22.04, 24.04, 26.04 (jammy, noble, resolute)</span></div>
         <div class="distro"><span class="name">Debian</span><span class="note">12, 13 (bookworm, trixie)</span></div>
@@ -467,7 +468,7 @@ make dev DISTRO=ubuntu-24.04   # or debian-13, fedora-44, arch, alpine, …</cod
         <span class="tier-badge">Tier 2</span>
         <span class="tier-tag">all 23 tools land cleanly · file issues if anything breaks</span>
       </div>
-      <p class="tier-testing"><span class="check">✓</span> Docker matrix · <span class="partial">~</span> automated VM matrix (in progress) · <span class="miss">✗</span> manual VM</p>
+      <p class="tier-testing"><span class="check">✓</span> <a href="#testing-docker">Docker matrix</a> · <span class="partial">~</span> <a href="#testing-vm">automated VM matrix</a> (in progress) · <span class="miss">✗</span> manual VM</p>
       <div class="distros">
         <div class="distro"><span class="name">Fedora</span><span class="note">40, 41, 42, 43, 44 · dnf</span></div>
         <div class="distro"><span class="name">Rocky Linux</span><span class="note">9, 10 · dnf + EPEL</span></div>
@@ -489,7 +490,7 @@ make dev DISTRO=ubuntu-24.04   # or debian-13, fedora-44, arch, alpine, …</cod
         <span class="tier-badge">Tier 3</span>
         <span class="tier-tag">installs with an explicit "known limitations" notice · expect some friction · may need install-script softening if you hit a new wrinkle</span>
       </div>
-      <p class="tier-testing"><span class="check">✓</span> Docker matrix · <span class="miss">✗</span> automated VM · <span class="miss">✗</span> manual VM</p>
+      <p class="tier-testing"><span class="check">✓</span> <a href="#testing-docker">Docker matrix</a> · <span class="miss">✗</span> automated VM · <span class="miss">✗</span> manual VM</p>
       <div class="distros">
         <div class="distro"><span class="name">openSUSE Leap 15.6</span><span class="note">all tools land — nothing degraded (glibc 2.38)</span></div>
         <div class="distro degraded"><span class="name">Debian 11 bullseye</span><span class="note">21/23 · helix + neovim (glibc 2.31)</span></div>
@@ -500,6 +501,30 @@ make dev DISTRO=ubuntu-24.04   # or debian-13, fedora-44, arch, alpine, …</cod
       </div>
       <p style="margin: 16px 0 0; color: var(--text-dim); font-size: 0.92em;">For legacy-glibc distros, five Rust binaries (<code>bat</code>, <code>fd</code>, <code>eza</code>, <code>lsd</code>, <code>starship</code>) auto-route to their musl variants. You get the same version as on a modern distro, just statically linked.</p>
     </div>
+  </div>
+</section>
+
+<section id="testing">
+  <div class="wrap">
+    <h2>How we test, in detail</h2>
+    <p class="lead">"Tested on 30 distros every commit" is a real claim. Every push to <code>main</code> kicks off a three-layer test pipeline before anything lands. Here's what each layer catches.</p>
+
+    <h3 id="testing-docker" style="margin-top: 28px;">Layer 1 — Container matrix (short-cycle gate)</h3>
+    <p>Every commit rebuilds <strong>30 minimal container images</strong> — one per supported distro release — and runs the installer end-to-end inside each. Each image starts from the distro's official base, adds only an unprivileged <code>tester</code> user with sudo/wheel/doas, and installs just enough of <code>wget</code> + <code>ca-certificates</code> for the installer to bootstrap itself. Nothing more — we want each container to look like a fresh box, not a curated one.</p>
+    <p>The container then runs the same <code>wget -qO- … | sh</code> one-liner a real user would, in <code>SHELL_BLING_NONINTERACTIVE=1</code> mode. A smoke script execs every binary the registry installed (<code>fzf --version</code>, <code>rg --version</code>, <code>nvim --version</code>, <code>fish --version</code>, …) and asserts it returns 0 and prints a sane version. Any non-zero kills the lane.</p>
+    <p>The Tier 1 / Tier 2 / Tier 3 split above is exactly this matrix's grading rubric — a Tier 1 distro is one where everything passes without softening; a Tier 3 distro is one where the installer detects an ancient glibc and auto-routes a handful of Rust binaries to their musl variants.</p>
+
+    <h3 id="testing-vm" style="margin-top: 28px;">Layer 2 — Automated VM matrix (high-fidelity confirmation)</h3>
+    <p>Containers are great for catching "does this command exist?" regressions but they don't have <code>systemd</code>, a real init, a desktop session, or the <code>chsh</code> / <code>usermod</code> / cloud-init interactions a fresh install actually hits. So if the container matrix is green, the pipeline fans out to a second matrix against <strong>real cloud-init-provisioned VMs</strong>.</p>
+    <p>Each VM lane boots an upstream cloud image (Debian generic-cloud, Ubuntu cloud-img) seeded with a minimal cloud-init drive that adds the <code>tester</code> user and an SSH key, waits for cloud-init to converge, then runs the same wget one-liner + smoke pass over SSH. Result JSON and the full run log get collected back to the build agent — guests stay credential-free, with no in-guest secrets and no in-guest upload step.</p>
+    <p>Today the VM matrix covers <strong>Debian 12/13 and Ubuntu 22.04/24.04/26.04 on amd64 and arm64</strong>. Expanding it to the Tier 2 distros is an in-progress work item.</p>
+
+    <h3 id="testing-manual" style="margin-top: 28px;">Layer 3 — Manual VM walkthrough (the human-eyeball pass)</h3>
+    <p>For Tier 1 specifically, every <em>functional</em> change to <code>install.sh</code> also gets a manual run-through on a local libvirt VM with a real desktop session (GNOME on Debian/Ubuntu, the Kali default on Kali). The flow: boot a golden-clean snapshot, paste the wget one-liner, sit through the install, log out, log back in, open a terminal, confirm the new <code>$SHELL</code>, the prompt, the editor picker, and the keybinds all behave. Snapshot back to golden-clean and move on.</p>
+    <p>This layer is what catches the things automation will never catch — a confusing prompt phrasing, a final message that says the wrong thing, an <code>x-terminal-emulator</code> alternative that didn't take, a desktop session that didn't re-source <code>$SHELL</code> the way the docs claimed it would.</p>
+
+    <h3 style="margin-top: 28px;">What's <em>not</em> tested</h3>
+    <p>Tier 2 and Tier 3 distros get only the container layer right now. Tier 2 expansion into the VM matrix is a tracked work item. Tier 3 (legacy-glibc) will likely stay container-only — the value there is "the installer doesn't explode on a 2015-era box," not "the modern editor works perfectly under <code>systemd</code> 219."</p>
   </div>
 </section>
 

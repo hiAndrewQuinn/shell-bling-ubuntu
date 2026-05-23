@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>shell-bling-ubuntu — 23 CLI tools, one wget, every distro</title>
+<title>Shell Bling Ubuntu — 23 CLI tools, one wget, every distro</title>
 <meta name="description" content="A pinned, batteries-included set of command-line niceties for a fresh Ubuntu, Debian, Fedora, Arch, Alpine, or macOS install. One command, sudo password once, fzf pickers at the end.">
-<meta property="og:title" content="shell-bling-ubuntu">
+<meta property="og:title" content="Shell Bling Ubuntu">
 <meta property="og:description" content="23 CLI tools, one wget, every distro. Pinned, batteries-included, tested across 30 distros on every commit.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
@@ -126,6 +126,15 @@ pre code { background: transparent; padding: 0; }
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+.install-head .label { display: flex; align-items: center; gap: 10px; }
+.install-head .tag {
+  background: var(--accent-soft); color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 1px 7px; border-radius: 3px;
+  font-size: 0.92em; letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.install-head .tag.alt { background: transparent; color: var(--fg-dim); border-color: var(--fg-faint); }
 .install pre { border: 0; border-radius: 0; padding: 18px 20px; font-size: 0.95em; background: var(--bg-elev); }
 .install pre code { white-space: pre-wrap; word-break: break-all; }
 .copy {
@@ -141,10 +150,7 @@ pre code { background: transparent; padding: 0; }
 }
 .copy:hover { color: var(--fg); border-color: var(--fg); }
 .copy.copied { color: var(--accent); border-color: var(--accent); }
-.install-alt { font-size: 0.9em; color: var(--fg-dim); }
-.install-alt code { background: var(--bg-code); }
-.hero-meta { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 24px; font-size: 0.9em; color: var(--fg-dim); }
-.hero-meta strong { color: var(--fg); font-family: var(--mono); }
+.install-note { font-size: 0.9em; color: var(--fg-dim); margin: 18px 0 0; max-width: 640px; }
 
 /* ===== sections ===== */
 section { padding: 56px 0; border-bottom: 1px solid var(--border); }
@@ -158,6 +164,7 @@ section h2 {
   font-weight: 500;
 }
 section h2::before { content: '## '; color: var(--accent); opacity: 0.6; }
+section .lead { color: var(--fg-dim); margin: 0 0 20px; max-width: 700px; }
 
 /* ===== tools grid ===== */
 .tools-groups { display: grid; gap: 32px; }
@@ -172,12 +179,14 @@ section h2::before { content: '## '; color: var(--accent); opacity: 0.6; }
 .tools-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px 24px; }
 .tool { font-size: 0.95em; }
 .tool .name { font-family: var(--mono); color: var(--fg); }
+.tool .name a { color: var(--fg); border-bottom: 1px dotted var(--fg-faint); }
+.tool .name a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 .tool .what { color: var(--fg-dim); }
 
 /* ===== distro matrix ===== */
 .tier { margin-bottom: 36px; }
 .tier:last-child { margin-bottom: 0; }
-.tier-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.tier-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; flex-wrap: wrap; }
 .tier-badge {
   font-family: var(--mono); font-size: 0.78em; padding: 2px 10px;
   border-radius: 3px; font-weight: 600; text-transform: uppercase;
@@ -186,8 +195,13 @@ section h2::before { content: '## '; color: var(--accent); opacity: 0.6; }
 .tier-1 .tier-badge { background: var(--accent-soft); color: var(--tier1); border: 1px solid var(--tier1); }
 .tier-2 .tier-badge { background: transparent; color: var(--tier2); border: 1px solid var(--tier2); }
 .tier-3 .tier-badge { background: transparent; color: var(--tier3); border: 1px solid var(--tier3); }
-.tier-x .tier-badge { background: transparent; color: var(--fg-faint); border: 1px solid var(--fg-faint); }
 .tier-tag { font-size: 0.92em; color: var(--fg-dim); }
+.tier-testing {
+  font-family: var(--mono); font-size: 0.82em; color: var(--fg-dim);
+  margin: 0 0 14px;
+}
+.tier-testing .check { color: var(--accent); }
+.tier-testing .miss { color: var(--fg-faint); }
 .distros {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 10px;
@@ -220,18 +234,6 @@ section h2::before { content: '## '; color: var(--accent); opacity: 0.6; }
 .flow-step .what { color: var(--fg); }
 .flow-step .why { display: block; color: var(--fg-dim); font-family: var(--sans); font-size: 0.95em; margin-top: 3px; }
 
-/* ===== honest ===== */
-.honest {
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--warn);
-  padding: 20px 24px;
-  border-radius: 4px;
-  margin-top: 8px;
-}
-.honest p { margin: 0 0 12px; }
-.honest p:last-child { margin-bottom: 0; }
-
 /* ===== footer ===== */
 footer { padding: 40px 0 60px; color: var(--fg-faint); font-size: 0.88em; }
 footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
@@ -248,8 +250,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 <header class="topbar">
   <div class="wrap">
-    <span class="brand">shell-bling<span class="dot">-</span>ubuntu</span>
+    <span class="brand">Shell Bling Ubuntu</span>
     <nav class="navlinks">
+      <a href="#try">try</a>
       <a href="#tools">tools</a>
       <a href="#distros">distros</a>
       <a href="#flow">how</a>
@@ -260,25 +263,37 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
 <section class="hero">
   <div class="wrap">
-    <h1>shell-bling<span class="accent">-</span>ubuntu</h1>
-    <p class="tagline">23 command-line tools, pinned. One <code>wget</code>. Tested on 30 distros every commit. <code>fzf</code>, <code>fish</code>, <code>nvim+LazyVim</code>, the whole modern-CLI starter pack — installed silently while you go get a coffee.</p>
+    <h1>Shell Bling Ubuntu</h1>
+    <p class="tagline">23 command-line tools, pinned. Tested on 30 distros every commit. <code>fzf</code>, <code>fish</code>, <code>nvim+LazyVim</code>, the whole modern-CLI starter pack — installed silently while you go get a coffee.</p>
 
-    <div class="install" id="install">
+    <div class="install">
       <div class="install-head">
-        <span>install</span>
-        <button class="copy" data-target="cmd-curl" aria-label="Copy install command">copy</button>
+        <span class="label"><span class="tag">recommended</span> install with wget</span>
+        <button class="copy" data-target="cmd-wget" aria-label="Copy wget install command">copy</button>
+      </div>
+<pre><code id="cmd-wget">wget -qO- https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh</code></pre>
+    </div>
+
+    <div class="install">
+      <div class="install-head">
+        <span class="label"><span class="tag alt">backup</span> install with curl</span>
+        <button class="copy" data-target="cmd-curl" aria-label="Copy curl install command">copy</button>
       </div>
 <pre><code id="cmd-curl">curl -fsSL https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh</code></pre>
     </div>
-    <p class="install-alt">No <code>curl</code> yet? (Fresh Debian 13 doesn't ship it.) <code id="cmd-wget">wget -qO- https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh</code> works too — the script installs <code>curl</code> before it needs to fetch anything else.</p>
 
-    <div class="hero-meta">
-      <span><strong>~5 min</strong> end-to-end</span>
-      <span><strong>~600 MB</strong> resident</span>
-      <span><strong>1×</strong> sudo password</span>
-      <span><strong>2×</strong> fzf pickers at the end</span>
-      <span><strong>MIT</strong> licensed</span>
-    </div>
+    <p class="install-note"><code>wget</code> is preferred because it ships in more base images than <code>curl</code> does — fresh Debian 13, for example, has <code>wget</code> but not <code>curl</code>. Either way the script installs <code>curl</code> itself before it needs to fetch anything else, so they're equivalent once it's running.</p>
+  </div>
+</section>
+
+<section id="try">
+  <div class="wrap">
+    <h2>try before you install</h2>
+    <p class="lead">Drop into a fresh container with the installer already done — kick the tires without touching your real system.</p>
+<pre><code>git clone https://github.com/hiAndrewQuinn/shell-bling-ubuntu
+cd shell-bling-ubuntu
+make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-13, fedora-44, arch, alpine, …</span></code></pre>
+    <p class="install-note">Want it to stick around so you can <code>ssh</code> in from another terminal? <code>make dev-bg DISTRO=…</code> spins it up in the background with <code>sshd</code> on port 2222. Tear down with <code>make dev-down</code>.</p>
   </div>
 </section>
 
@@ -290,76 +305,76 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
       <div class="tools-group">
         <h3>The holy trinity <span class="sub">— search, search, search</span></h3>
         <div class="tools-list">
-          <div class="tool"><span class="name">fzf</span> · <span class="what">fuzzy-search anything; <kbd>Ctrl+R</kbd>, <kbd>Alt+C</kbd></span></div>
-          <div class="tool"><span class="name">fd</span> · <span class="what">fast, friendly <code>find</code></span></div>
-          <div class="tool"><span class="name">ripgrep</span> · <span class="what">the fastest grep, as <code>rg</code></span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/junegunn/fzf">fzf</a></span> · <span class="what">fuzzy-search anything; <kbd>Ctrl+R</kbd>, <kbd>Alt+C</kbd></span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/sharkdp/fd">fd</a></span> · <span class="what">fast, friendly <code>find</code></span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/BurntSushi/ripgrep">ripgrep</a></span> · <span class="what">the fastest grep, as <code>rg</code></span></div>
         </div>
       </div>
 
       <div class="tools-group">
-        <h3>Shells & terminals</h3>
+        <h3>Shells &amp; terminals</h3>
         <div class="tools-list">
-          <div class="tool"><span class="name">fish</span> · <span class="what">autocomplete + syntax highlight, out of the box</span></div>
-          <div class="tool"><span class="name">starship</span> · <span class="what">fast, minimal, customizable prompt</span></div>
-          <div class="tool"><span class="name">tmux</span> · <span class="what">terminal multiplexer</span></div>
-          <div class="tool"><span class="name">kitty</span> · <span class="what">GPU terminal w/ FiraCode Nerd Font</span></div>
-          <div class="tool"><span class="name">xclip + wl-clipboard</span> · <span class="what">clipboard for X11 <em>and</em> Wayland</span></div>
+          <div class="tool"><span class="name"><a href="https://fishshell.com/">fish</a></span> · <span class="what">autocomplete + syntax highlight, out of the box</span></div>
+          <div class="tool"><span class="name"><a href="https://starship.rs/">starship</a></span> · <span class="what">fast, minimal, customizable prompt</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/tmux/tmux">tmux</a></span> · <span class="what">terminal multiplexer</span></div>
+          <div class="tool"><span class="name"><a href="https://sw.kovidgoyal.net/kitty/">kitty</a></span> · <span class="what">GPU terminal w/ FiraCode Nerd Font</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/astrand/xclip">xclip</a> + <a href="https://github.com/bugaevc/wl-clipboard">wl-clipboard</a></span> · <span class="what">clipboard for X11 <em>and</em> Wayland</span></div>
         </div>
       </div>
 
       <div class="tools-group">
         <h3>Editors</h3>
         <div class="tools-list">
-          <div class="tool"><span class="name">neovim + LazyVim</span> · <span class="what">modern Vim with a curated starter config</span></div>
-          <div class="tool"><span class="name">vim</span> · <span class="what">the classic, for muscle memory</span></div>
-          <div class="tool"><span class="name">helix</span> · <span class="what">postmodern, zero-config</span></div>
-          <div class="tool"><span class="name">micro</span> · <span class="what">friendly terminal editor</span></div>
-          <div class="tool"><span class="name">bat</span> · <span class="what"><code>cat</code> with syntax highlighting</span></div>
+          <div class="tool"><span class="name"><a href="https://neovim.io/">neovim</a> + <a href="https://www.lazyvim.org/">LazyVim</a></span> · <span class="what">modern Vim with a curated starter config</span></div>
+          <div class="tool"><span class="name"><a href="https://www.vim.org/">vim</a></span> · <span class="what">the classic, for muscle memory</span></div>
+          <div class="tool"><span class="name"><a href="https://helix-editor.com/">helix</a></span> · <span class="what">postmodern, zero-config</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/zyedidia/micro">micro</a></span> · <span class="what">friendly terminal editor</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/sharkdp/bat">bat</a></span> · <span class="what"><code>cat</code> with syntax highlighting</span></div>
         </div>
       </div>
 
       <div class="tools-group">
-        <h3>Files & navigation</h3>
+        <h3>Files &amp; navigation</h3>
         <div class="tools-list">
-          <div class="tool"><span class="name">zoxide</span> · <span class="what">smarter <code>cd</code> that learns</span></div>
-          <div class="tool"><span class="name">lsd + eza</span> · <span class="what">modern <code>ls</code> with icons</span></div>
-          <div class="tool"><span class="name">tree</span> · <span class="what">directories as a tree</span></div>
-          <div class="tool"><span class="name">rsync</span> · <span class="what">smart copy/sync, locally or over ssh</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/ajeetdsouza/zoxide">zoxide</a></span> · <span class="what">smarter <code>cd</code> that learns</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/lsd-rs/lsd">lsd</a> + <a href="https://eza.rocks/">eza</a></span> · <span class="what">modern <code>ls</code> with icons</span></div>
+          <div class="tool"><span class="name"><a href="http://mama.indstate.edu/users/ice/tree/">tree</a></span> · <span class="what">directories as a tree</span></div>
+          <div class="tool"><span class="name"><a href="https://rsync.samba.org/">rsync</a></span> · <span class="what">smart copy/sync, locally or over ssh</span></div>
         </div>
       </div>
 
       <div class="tools-group">
-        <h3>Dev & git</h3>
+        <h3>Dev &amp; git</h3>
         <div class="tools-list">
-          <div class="tool"><span class="name">git + delta</span> · <span class="what">version control + pretty diffs</span></div>
-          <div class="tool"><span class="name">lazygit</span> · <span class="what">git TUI</span></div>
-          <div class="tool"><span class="name">gh</span> · <span class="what">GitHub CLI</span></div>
-          <div class="tool"><span class="name">gopass</span> · <span class="what">modern, <code>pass</code>-compatible password manager</span></div>
+          <div class="tool"><span class="name"><a href="https://git-scm.com/">git</a> + <a href="https://github.com/dandavison/delta">delta</a></span> · <span class="what">version control + pretty diffs</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/jesseduffield/lazygit">lazygit</a></span> · <span class="what">git TUI</span></div>
+          <div class="tool"><span class="name"><a href="https://cli.github.com/">gh</a></span> · <span class="what">GitHub CLI</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/gopasspw/gopass">gopass</a></span> · <span class="what">modern, <code>pass</code>-compatible password manager</span></div>
         </div>
       </div>
 
       <div class="tools-group">
         <h3>Data wrangling</h3>
         <div class="tools-list">
-          <div class="tool"><span class="name">jq + gron</span> · <span class="what">JSON, both ways</span></div>
-          <div class="tool"><span class="name">qsv</span> · <span class="what">CSV scalpels (select, search, stats, join, …)</span></div>
-          <div class="tool"><span class="name">sqlite3</span> · <span class="what">a real query, ten minutes from now</span></div>
+          <div class="tool"><span class="name"><a href="https://jqlang.org/">jq</a> + <a href="https://github.com/tomnomnom/gron">gron</a></span> · <span class="what">JSON, both ways</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/dathere/qsv">qsv</a></span> · <span class="what">CSV scalpels (select, search, stats, join, …)</span></div>
+          <div class="tool"><span class="name"><a href="https://sqlite.org/">sqlite3</a></span> · <span class="what">a real query, ten minutes from now</span></div>
         </div>
       </div>
 
       <div class="tools-group">
-        <h3>Cheatsheets & help</h3>
+        <h3>Cheatsheets &amp; help</h3>
         <div class="tools-list">
-          <div class="tool"><span class="name">tldr</span> · <span class="what">simplified man pages (<code>tealdeer</code> client)</span></div>
-          <div class="tool"><span class="name">cheat</span> · <span class="what">interactive cheatsheets</span></div>
+          <div class="tool"><span class="name"><a href="https://tldr.sh/">tldr</a></span> · <span class="what">simplified man pages (<a href="https://github.com/tealdeer-rs/tealdeer">tealdeer</a> client)</span></div>
+          <div class="tool"><span class="name"><a href="https://github.com/cheat/cheat">cheat</a></span> · <span class="what">interactive cheatsheets</span></div>
         </div>
       </div>
 
       <div class="tools-group">
         <h3>System</h3>
         <div class="tools-list">
-          <div class="tool"><span class="name">htop</span> · <span class="what">process viewer</span></div>
-          <div class="tool"><span class="name">lnav</span> · <span class="what">interactive log viewer</span></div>
+          <div class="tool"><span class="name"><a href="https://htop.dev/">htop</a></span> · <span class="what">process viewer</span></div>
+          <div class="tool"><span class="name"><a href="https://lnav.org/">lnav</a></span> · <span class="what">interactive log viewer</span></div>
         </div>
       </div>
 
@@ -374,8 +389,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
     <div class="tier tier-1">
       <div class="tier-head">
         <span class="tier-badge">Tier 1</span>
-        <span class="tier-tag">fully supported · all 23 tools install at pinned version · smoke test PASS without softening</span>
+        <span class="tier-tag">all 23 tools install at pinned version · smoke test PASS without softening</span>
       </div>
+      <p class="tier-testing"><span class="check">✓</span> Docker matrix · <span class="check">✓</span> automated VM matrix · <span class="check">✓</span> manual VM end-to-end</p>
       <div class="distros">
         <div class="distro"><span class="name">Ubuntu</span><span class="note">22.04, 24.04, 26.04 (jammy, noble, resolute)</span></div>
         <div class="distro"><span class="name">Debian</span><span class="note">12, 13 (bookworm, trixie)</span></div>
@@ -385,9 +401,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
     <div class="tier tier-2">
       <div class="tier-head">
-        <span class="tier-badge">Experimental</span>
+        <span class="tier-badge">Tier 2</span>
         <span class="tier-tag">all 23 tools land cleanly · file issues if anything breaks</span>
       </div>
+      <p class="tier-testing"><span class="check">✓</span> Docker matrix · <span class="check">✓</span> automated VM matrix · <span class="miss">✗</span> manual VM (not yet)</p>
       <div class="distros">
         <div class="distro"><span class="name">Fedora</span><span class="note">40, 41, 42, 43, 44 · dnf</span></div>
         <div class="distro"><span class="name">Rocky Linux</span><span class="note">9, 10 · dnf + EPEL</span></div>
@@ -406,9 +423,10 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
 
     <div class="tier tier-3">
       <div class="tier-head">
-        <span class="tier-badge">Degraded</span>
-        <span class="tier-tag">installs with an explicit "known limitations" notice · usually <code>helix</code>/<code>neovim</code> on old glibc</span>
+        <span class="tier-badge">Tier 3</span>
+        <span class="tier-tag">installs with an explicit "known limitations" notice · expect some friction · may need install-script softening if you hit a new wrinkle</span>
       </div>
+      <p class="tier-testing"><span class="check">✓</span> Docker matrix · <span class="miss">✗</span> automated VM · <span class="miss">✗</span> manual VM</p>
       <div class="distros">
         <div class="distro"><span class="name">openSUSE Leap 15.6</span><span class="note">23/23 land — nothing degraded (glibc 2.38)</span></div>
         <div class="distro degraded"><span class="name">Debian 11 bullseye</span><span class="note">21/23 · helix + neovim (glibc 2.31)</span></div>
@@ -418,19 +436,6 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
         <div class="distro degraded"><span class="name">CentOS 7</span><span class="note">21/23 · glibc 2.17 · vault.centos.org mirror</span></div>
       </div>
       <p style="margin: 16px 0 0; color: var(--fg-dim); font-size: 0.9em;">For legacy-glibc distros, five Rust binaries (<code>bat</code>, <code>fd</code>, <code>eza</code>, <code>lsd</code>, <code>starship</code>) auto-route to their musl variants. You get the same version as on a modern distro, just statically linked.</p>
-    </div>
-
-    <div class="tier tier-x">
-      <div class="tier-head">
-        <span class="tier-badge">Out of scope</span>
-        <span class="tier-tag">deliberately, not laziness — architectural mismatches with the "drop pinned binaries into <code>/usr/local/bin</code>" model</span>
-      </div>
-      <div class="distros">
-        <div class="distro"><span class="name">NixOS, GuixSD</span><span class="note">functional pkg mgmt — needs proper Nix expressions</span></div>
-        <div class="distro"><span class="name">CoreOS, Flatcar, Bottlerocket, ChromeOS</span><span class="note">immutable; <code>/usr</code> is read-only</span></div>
-        <div class="distro"><span class="name">FreeBSD, OpenBSD, NetBSD</span><span class="note">different OS family; most upstream binaries don't ship BSD variants</span></div>
-        <div class="distro"><span class="name">SLES 15</span><span class="note">official Docker requires SUSE subscription; use openSUSE Leap 15.6 instead</span></div>
-      </div>
     </div>
   </div>
 </section>
@@ -478,31 +483,9 @@ footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; g
   </div>
 </section>
 
-<section id="try">
-  <div class="wrap">
-    <h2>try before you install</h2>
-    <p style="color: var(--fg-dim); margin: 0 0 16px;">Drop into a fresh container with the installer already done — kick the tires without touching your real system.</p>
-<pre><code>git clone https://github.com/hiAndrewQuinn/shell-bling-ubuntu
-cd shell-bling-ubuntu
-make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-13, ubuntu-22.04, etc.</span></code></pre>
-  </div>
-</section>
-
-<section id="honest">
-  <div class="wrap">
-    <h2>honest disclaimers</h2>
-    <div class="honest">
-      <p><strong>Pre-1.0.</strong> Backwards-compatibility breaks are expected. Pin a commit if you care.</p>
-      <p><strong>It's a productive-shell installer, not a language-toolchain manager.</strong> No Rust, no Go, no Python interpreter setup. Install those yourself from upstream after shell-bling runs.</p>
-      <p><strong>The matrix is real.</strong> 30 distros in Docker on every commit, plus a periodic VM matrix on Tier 1. But "passes CI" ≠ "perfect on your specific minimal-image" — file an issue if you find a paper cut.</p>
-      <p><strong>Built by one person.</strong> If you find this useful, a GitHub star is a nice signal. If you find a bug, an issue with the install log is a better one.</p>
-    </div>
-  </div>
-</section>
-
 <footer>
   <div class="wrap">
-    <span>shell-bling-ubuntu · <a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu/blob/main/LICENSE">MIT</a></span>
+    <span>Shell Bling Ubuntu · <a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu/blob/main/LICENSE">MIT</a></span>
     <span><a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu">github.com/hiAndrewQuinn/shell-bling-ubuntu</a></span>
   </div>
 </footer>
@@ -519,7 +502,6 @@ document.querySelectorAll('.copy').forEach(btn => {
       btn.classList.add('copied');
       setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1400);
     } catch (e) {
-      // older browsers / insecure contexts — fall back to selecting the text
       const range = document.createRange();
       range.selectNode(document.getElementById(id));
       window.getSelection().removeAllRanges();

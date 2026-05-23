@@ -1,0 +1,38 @@
+name: Deploy landing page
+
+# The ONLY GitHub Actions workflow in this repo. All CI (lint, docker matrix,
+# VM matrix) lives on a private Jenkins. This workflow exists solely to deploy
+# the static landing site at docs/index.html to GitHub Pages, since Pages
+# itself now requires Actions even for static sites.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - docs/**
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>shell-bling-ubuntu — 23 CLI tools, one wget, every distro</title>
+<meta name="description" content="A pinned, batteries-included set of command-line niceties for a fresh Ubuntu, Debian, Fedora, Arch, Alpine, or macOS install. One command, sudo password once, fzf pickers at the end.">
+<meta property="og:title" content="shell-bling-ubuntu">
+<meta property="og:description" content="23 CLI tools, one wget, every distro. Pinned, batteries-included, tested across 30 distros on every commit.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fafaf7" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='14' font-size='14'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #fafaf7;
+  --bg-elev: #ffffff;
+  --bg-code: #f1efe9;
+  --fg: #1c1c1c;
+  --fg-dim: #5b5b5b;
+  --fg-faint: #8a8a8a;
+  --accent: #1e6f3a;
+  --accent-soft: #e6f0e9;
+  --border: #d7d3c8;
+  --border-strong: #1c1c1c;
+  --tier1: #1e6f3a;
+  --tier2: #8a6d1e;
+  --tier3: #7a3a1e;
+  --warn: #7a3a1e;
+  --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --bg-elev: #161b22;
+    --bg-code: #1c232d;
+    --fg: #e6e6e6;
+    --fg-dim: #9aa3ad;
+    --fg-faint: #6b7280;
+    --accent: #6fcf80;
+    --accent-soft: #1a3320;
+    --border: #2a313c;
+    --border-strong: #e6e6e6;
+    --tier1: #6fcf80;
+    --tier2: #d4b85a;
+    --tier3: #d49278;
+    --warn: #d49278;
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+a:hover { border-bottom-color: var(--accent); }
+code, pre, kbd { font-family: var(--mono); }
+code { background: var(--bg-code); padding: 1px 5px; border-radius: 3px; font-size: 0.92em; }
+pre {
+  background: var(--bg-code);
+  padding: 16px 18px;
+  border-radius: 4px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  margin: 0;
+}
+pre code { background: transparent; padding: 0; }
+
+/* ===== top bar ===== */
+.topbar {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+}
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; }
+.brand { font-family: var(--mono); font-weight: 600; font-size: 0.95em; }
+.brand .dot { color: var(--accent); }
+.navlinks a { color: var(--fg-dim); margin-left: 18px; font-size: 0.92em; }
+.navlinks a:hover { color: var(--fg); }
+
+/* ===== hero ===== */
+.hero { padding: 64px 0 56px; border-bottom: 1px solid var(--border); }
+.hero h1 {
+  font-family: var(--mono);
+  font-size: clamp(34px, 5vw, 48px);
+  margin: 0 0 12px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.hero h1 .accent { color: var(--accent); }
+.hero .tagline {
+  font-size: clamp(17px, 2vw, 20px);
+  color: var(--fg-dim);
+  margin: 0 0 32px;
+  max-width: 640px;
+}
+.install {
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  padding: 0;
+  margin: 0 0 14px;
+  overflow: hidden;
+  position: relative;
+}
+.install-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-code);
+  font-family: var(--mono);
+  font-size: 0.78em;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.install pre { border: 0; border-radius: 0; padding: 18px 20px; font-size: 0.95em; background: var(--bg-elev); }
+.install pre code { white-space: pre-wrap; word-break: break-all; }
+.copy {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg-dim);
+  font-family: var(--mono);
+  font-size: 0.78em;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.copy:hover { color: var(--fg); border-color: var(--fg); }
+.copy.copied { color: var(--accent); border-color: var(--accent); }
+.install-alt { font-size: 0.9em; color: var(--fg-dim); }
+.install-alt code { background: var(--bg-code); }
+.hero-meta { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 24px; font-size: 0.9em; color: var(--fg-dim); }
+.hero-meta strong { color: var(--fg); font-family: var(--mono); }
+
+/* ===== sections ===== */
+section { padding: 56px 0; border-bottom: 1px solid var(--border); }
+section h2 {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fg-dim);
+  margin: 0 0 28px;
+  font-weight: 500;
+}
+section h2::before { content: '## '; color: var(--accent); opacity: 0.6; }
+
+/* ===== tools grid ===== */
+.tools-groups { display: grid; gap: 32px; }
+.tools-group h3 {
+  font-family: var(--mono);
+  font-size: 0.95em;
+  margin: 0 0 12px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.tools-group h3 .sub { color: var(--fg-faint); font-weight: 400; margin-left: 8px; }
+.tools-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px 24px; }
+.tool { font-size: 0.95em; }
+.tool .name { font-family: var(--mono); color: var(--fg); }
+.tool .what { color: var(--fg-dim); }
+
+/* ===== distro matrix ===== */
+.tier { margin-bottom: 36px; }
+.tier:last-child { margin-bottom: 0; }
+.tier-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+.tier-badge {
+  font-family: var(--mono); font-size: 0.78em; padding: 2px 10px;
+  border-radius: 3px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.tier-1 .tier-badge { background: var(--accent-soft); color: var(--tier1); border: 1px solid var(--tier1); }
+.tier-2 .tier-badge { background: transparent; color: var(--tier2); border: 1px solid var(--tier2); }
+.tier-3 .tier-badge { background: transparent; color: var(--tier3); border: 1px solid var(--tier3); }
+.tier-x .tier-badge { background: transparent; color: var(--fg-faint); border: 1px solid var(--fg-faint); }
+.tier-tag { font-size: 0.92em; color: var(--fg-dim); }
+.distros {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+.distro {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 12px 14px;
+  background: var(--bg-elev);
+  font-size: 0.92em;
+}
+.distro .name { font-family: var(--mono); font-weight: 600; color: var(--fg); display: block; margin-bottom: 4px; }
+.distro .note { color: var(--fg-dim); font-size: 0.88em; line-height: 1.4; }
+.distro.degraded { border-left: 3px solid var(--warn); }
+
+/* ===== flow ===== */
+.flow {
+  display: grid; grid-template-columns: 1fr; gap: 0;
+  border: 1px solid var(--border); border-radius: 4px;
+  background: var(--bg-elev);
+  font-family: var(--mono); font-size: 0.93em;
+}
+.flow-step {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: baseline;
+}
+.flow-step:last-child { border-bottom: 0; }
+.flow-step .n { color: var(--accent); font-weight: 600; }
+.flow-step .what { color: var(--fg); }
+.flow-step .why { display: block; color: var(--fg-dim); font-family: var(--sans); font-size: 0.95em; margin-top: 3px; }
+
+/* ===== honest ===== */
+.honest {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--warn);
+  padding: 20px 24px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+.honest p { margin: 0 0 12px; }
+.honest p:last-child { margin-bottom: 0; }
+
+/* ===== footer ===== */
+footer { padding: 40px 0 60px; color: var(--fg-faint); font-size: 0.88em; }
+footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+
+@media (max-width: 600px) {
+  .hero { padding: 40px 0; }
+  section { padding: 40px 0; }
+  .install pre { font-size: 0.85em; }
+  .navlinks a { margin-left: 12px; font-size: 0.85em; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <span class="brand">shell-bling<span class="dot">-</span>ubuntu</span>
+    <nav class="navlinks">
+      <a href="#tools">tools</a>
+      <a href="#distros">distros</a>
+      <a href="#flow">how</a>
+      <a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu">github</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>shell-bling<span class="accent">-</span>ubuntu</h1>
+    <p class="tagline">23 command-line tools, pinned. One <code>wget</code>. Tested on 30 distros every commit. <code>fzf</code>, <code>fish</code>, <code>nvim+LazyVim</code>, the whole modern-CLI starter pack — installed silently while you go get a coffee.</p>
+
+    <div class="install" id="install">
+      <div class="install-head">
+        <span>install</span>
+        <button class="copy" data-target="cmd-curl" aria-label="Copy install command">copy</button>
+      </div>
+<pre><code id="cmd-curl">curl -fsSL https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh</code></pre>
+    </div>
+    <p class="install-alt">No <code>curl</code> yet? (Fresh Debian 13 doesn't ship it.) <code id="cmd-wget">wget -qO- https://raw.githubusercontent.com/hiAndrewQuinn/shell-bling-ubuntu/main/install.sh | sh</code> works too — the script installs <code>curl</code> before it needs to fetch anything else.</p>
+
+    <div class="hero-meta">
+      <span><strong>~5 min</strong> end-to-end</span>
+      <span><strong>~600 MB</strong> resident</span>
+      <span><strong>1×</strong> sudo password</span>
+      <span><strong>2×</strong> fzf pickers at the end</span>
+      <span><strong>MIT</strong> licensed</span>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap">
+    <h2>what you get</h2>
+    <div class="tools-groups">
+
+      <div class="tools-group">
+        <h3>The holy trinity <span class="sub">— search, search, search</span></h3>
+        <div class="tools-list">
+          <div class="tool"><span class="name">fzf</span> · <span class="what">fuzzy-search anything; <kbd>Ctrl+R</kbd>, <kbd>Alt+C</kbd></span></div>
+          <div class="tool"><span class="name">fd</span> · <span class="what">fast, friendly <code>find</code></span></div>
+          <div class="tool"><span class="name">ripgrep</span> · <span class="what">the fastest grep, as <code>rg</code></span></div>
+        </div>
+      </div>
+
+      <div class="tools-group">
+        <h3>Shells & terminals</h3>
+        <div class="tools-list">
+          <div class="tool"><span class="name">fish</span> · <span class="what">autocomplete + syntax highlight, out of the box</span></div>
+          <div class="tool"><span class="name">starship</span> · <span class="what">fast, minimal, customizable prompt</span></div>
+          <div class="tool"><span class="name">tmux</span> · <span class="what">terminal multiplexer</span></div>
+          <div class="tool"><span class="name">kitty</span> · <span class="what">GPU terminal w/ FiraCode Nerd Font</span></div>
+          <div class="tool"><span class="name">xclip + wl-clipboard</span> · <span class="what">clipboard for X11 <em>and</em> Wayland</span></div>
+        </div>
+      </div>
+
+      <div class="tools-group">
+        <h3>Editors</h3>
+        <div class="tools-list">
+          <div class="tool"><span class="name">neovim + LazyVim</span> · <span class="what">modern Vim with a curated starter config</span></div>
+          <div class="tool"><span class="name">vim</span> · <span class="what">the classic, for muscle memory</span></div>
+          <div class="tool"><span class="name">helix</span> · <span class="what">postmodern, zero-config</span></div>
+          <div class="tool"><span class="name">micro</span> · <span class="what">friendly terminal editor</span></div>
+          <div class="tool"><span class="name">bat</span> · <span class="what"><code>cat</code> with syntax highlighting</span></div>
+        </div>
+      </div>
+
+      <div class="tools-group">
+        <h3>Files & navigation</h3>
+        <div class="tools-list">
+          <div class="tool"><span class="name">zoxide</span> · <span class="what">smarter <code>cd</code> that learns</span></div>
+          <div class="tool"><span class="name">lsd + eza</span> · <span class="what">modern <code>ls</code> with icons</span></div>
+          <div class="tool"><span class="name">tree</span> · <span class="what">directories as a tree</span></div>
+          <div class="tool"><span class="name">rsync</span> · <span class="what">smart copy/sync, locally or over ssh</span></div>
+        </div>
+      </div>
+
+      <div class="tools-group">
+        <h3>Dev & git</h3>
+        <div class="tools-list">
+          <div class="tool"><span class="name">git + delta</span> · <span class="what">version control + pretty diffs</span></div>
+          <div class="tool"><span class="name">lazygit</span> · <span class="what">git TUI</span></div>
+          <div class="tool"><span class="name">gh</span> · <span class="what">GitHub CLI</span></div>
+          <div class="tool"><span class="name">gopass</span> · <span class="what">modern, <code>pass</code>-compatible password manager</span></div>
+        </div>
+      </div>
+
+      <div class="tools-group">
+        <h3>Data wrangling</h3>
+        <div class="tools-list">
+          <div class="tool"><span class="name">jq + gron</span> · <span class="what">JSON, both ways</span></div>
+          <div class="tool"><span class="name">qsv</span> · <span class="what">CSV scalpels (select, search, stats, join, …)</span></div>
+          <div class="tool"><span class="name">sqlite3</span> · <span class="what">a real query, ten minutes from now</span></div>
+        </div>
+      </div>
+
+      <div class="tools-group">
+        <h3>Cheatsheets & help</h3>
+        <div class="tools-list">
+          <div class="tool"><span class="name">tldr</span> · <span class="what">simplified man pages (<code>tealdeer</code> client)</span></div>
+          <div class="tool"><span class="name">cheat</span> · <span class="what">interactive cheatsheets</span></div>
+        </div>
+      </div>
+
+      <div class="tools-group">
+        <h3>System</h3>
+        <div class="tools-list">
+          <div class="tool"><span class="name">htop</span> · <span class="what">process viewer</span></div>
+          <div class="tool"><span class="name">lnav</span> · <span class="what">interactive log viewer</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="distros">
+  <div class="wrap">
+    <h2>where it runs</h2>
+
+    <div class="tier tier-1">
+      <div class="tier-head">
+        <span class="tier-badge">Tier 1</span>
+        <span class="tier-tag">fully supported · all 23 tools install at pinned version · smoke test PASS without softening</span>
+      </div>
+      <div class="distros">
+        <div class="distro"><span class="name">Ubuntu</span><span class="note">22.04, 24.04, 26.04 (jammy, noble, resolute)</span></div>
+        <div class="distro"><span class="name">Debian</span><span class="note">12, 13 (bookworm, trixie)</span></div>
+        <div class="distro"><span class="name">Kali Linux</span><span class="note">rolling — tracks Debian sid</span></div>
+      </div>
+    </div>
+
+    <div class="tier tier-2">
+      <div class="tier-head">
+        <span class="tier-badge">Experimental</span>
+        <span class="tier-tag">all 23 tools land cleanly · file issues if anything breaks</span>
+      </div>
+      <div class="distros">
+        <div class="distro"><span class="name">Fedora</span><span class="note">40, 41, 42, 43, 44 · dnf</span></div>
+        <div class="distro"><span class="name">Rocky Linux</span><span class="note">9, 10 · dnf + EPEL</span></div>
+        <div class="distro"><span class="name">AlmaLinux</span><span class="note">9, 10 · dnf + EPEL</span></div>
+        <div class="distro"><span class="name">CentOS Stream</span><span class="note">9, 10 · dnf + EPEL</span></div>
+        <div class="distro"><span class="name">Amazon Linux 2023</span><span class="note">dnf (no EPEL)</span></div>
+        <div class="distro"><span class="name">Arch Linux</span><span class="note">pacman</span></div>
+        <div class="distro"><span class="name">Manjaro</span><span class="note">pacman</span></div>
+        <div class="distro"><span class="name">Alpine Linux</span><span class="note">apk (musl) · TTY-only</span></div>
+        <div class="distro"><span class="name">openSUSE Tumbleweed</span><span class="note">zypper</span></div>
+        <div class="distro"><span class="name">Void Linux</span><span class="note">xbps</span></div>
+        <div class="distro"><span class="name">macOS</span><span class="note">Intel + Apple Silicon · Homebrew</span></div>
+        <div class="distro"><span class="name">WSL2</span><span class="note">Ubuntu/Debian under Windows · inherits parent</span></div>
+      </div>
+    </div>
+
+    <div class="tier tier-3">
+      <div class="tier-head">
+        <span class="tier-badge">Degraded</span>
+        <span class="tier-tag">installs with an explicit "known limitations" notice · usually <code>helix</code>/<code>neovim</code> on old glibc</span>
+      </div>
+      <div class="distros">
+        <div class="distro"><span class="name">openSUSE Leap 15.6</span><span class="note">23/23 land — nothing degraded (glibc 2.38)</span></div>
+        <div class="distro degraded"><span class="name">Debian 11 bullseye</span><span class="note">21/23 · helix + neovim (glibc 2.31)</span></div>
+        <div class="distro degraded"><span class="name">Ubuntu 20.04 focal</span><span class="note">21/23 · same shape as Debian 11</span></div>
+        <div class="distro degraded"><span class="name">Rocky 8, AlmaLinux 8</span><span class="note">21/23 · EPEL 8 nvim 0.8.0 fallback</span></div>
+        <div class="distro degraded"><span class="name">Amazon Linux 2</span><span class="note">21/23 · glibc 2.26 (yum-era)</span></div>
+        <div class="distro degraded"><span class="name">CentOS 7</span><span class="note">21/23 · glibc 2.17 · vault.centos.org mirror</span></div>
+      </div>
+      <p style="margin: 16px 0 0; color: var(--fg-dim); font-size: 0.9em;">For legacy-glibc distros, five Rust binaries (<code>bat</code>, <code>fd</code>, <code>eza</code>, <code>lsd</code>, <code>starship</code>) auto-route to their musl variants. You get the same version as on a modern distro, just statically linked.</p>
+    </div>
+
+    <div class="tier tier-x">
+      <div class="tier-head">
+        <span class="tier-badge">Out of scope</span>
+        <span class="tier-tag">deliberately, not laziness — architectural mismatches with the "drop pinned binaries into <code>/usr/local/bin</code>" model</span>
+      </div>
+      <div class="distros">
+        <div class="distro"><span class="name">NixOS, GuixSD</span><span class="note">functional pkg mgmt — needs proper Nix expressions</span></div>
+        <div class="distro"><span class="name">CoreOS, Flatcar, Bottlerocket, ChromeOS</span><span class="note">immutable; <code>/usr</code> is read-only</span></div>
+        <div class="distro"><span class="name">FreeBSD, OpenBSD, NetBSD</span><span class="note">different OS family; most upstream binaries don't ship BSD variants</span></div>
+        <div class="distro"><span class="name">SLES 15</span><span class="note">official Docker requires SUSE subscription; use openSUSE Leap 15.6 instead</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="wrap">
+    <h2>what the script does</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <span class="n">1.</span>
+        <div>
+          <span class="what">Detect platform.</span>
+          <span class="why">/etc/os-release, glibc version, architecture, virt status, init system. Probes <code>sudo</code> / <code>doas</code> / root with a usability test, not a "is it on PATH" test — so non-sudoers get a real error message instead of a wasted password prompt.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="n">2.</span>
+        <div>
+          <span class="what">Sudo password once.</span>
+          <span class="why">A background keepalive refreshes the timestamp every 50s so you're never prompted again mid-install.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="n">3.</span>
+        <div>
+          <span class="what">Install everything silently.</span>
+          <span class="why">Native packages where they exist; upstream-pinned tarballs (verified by sha256) for the rest. Parallel fetch with a progress ticker. Per-platform softening for ancient glibcs.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="n">4.</span>
+        <div>
+          <span class="what">Two fzf pickers.</span>
+          <span class="why">One for your default editor (<code>nvim</code> / <code>vim</code> / <code>hx</code> / <code>micro</code>). One for whether to <code>chsh</code> to <code>fish</code>. Skip both with <code>SHELL_BLING_NONINTERACTIVE=1</code>.</span>
+        </div>
+      </div>
+      <div class="flow-step">
+        <span class="n">5.</span>
+        <div>
+          <span class="what">Friendly recap, then exit.</span>
+          <span class="why">Log out of your desktop session and back in (or reboot) for <code>$SHELL</code> + the new <code>x-terminal-emulator</code> default to take effect. Just reopening a terminal isn't enough on most desktops.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="try">
+  <div class="wrap">
+    <h2>try before you install</h2>
+    <p style="color: var(--fg-dim); margin: 0 0 16px;">Drop into a fresh container with the installer already done — kick the tires without touching your real system.</p>
+<pre><code>git clone https://github.com/hiAndrewQuinn/shell-bling-ubuntu
+cd shell-bling-ubuntu
+make dev DISTRO=ubuntu-24.04   <span style="color: var(--fg-dim);"># or debian-13, ubuntu-22.04, etc.</span></code></pre>
+  </div>
+</section>
+
+<section id="honest">
+  <div class="wrap">
+    <h2>honest disclaimers</h2>
+    <div class="honest">
+      <p><strong>Pre-1.0.</strong> Backwards-compatibility breaks are expected. Pin a commit if you care.</p>
+      <p><strong>It's a productive-shell installer, not a language-toolchain manager.</strong> No Rust, no Go, no Python interpreter setup. Install those yourself from upstream after shell-bling runs.</p>
+      <p><strong>The matrix is real.</strong> 30 distros in Docker on every commit, plus a periodic VM matrix on Tier 1. But "passes CI" ≠ "perfect on your specific minimal-image" — file an issue if you find a paper cut.</p>
+      <p><strong>Built by one person.</strong> If you find this useful, a GitHub star is a nice signal. If you find a bug, an issue with the install log is a better one.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>shell-bling-ubuntu · <a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu/blob/main/LICENSE">MIT</a></span>
+    <span><a href="https://github.com/hiAndrewQuinn/shell-bling-ubuntu">github.com/hiAndrewQuinn/shell-bling-ubuntu</a></span>
+  </div>
+</footer>
+
+<script>
+document.querySelectorAll('.copy').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const id = btn.dataset.target;
+    const text = document.getElementById(id).textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      const orig = btn.textContent;
+      btn.textContent = 'copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1400);
+    } catch (e) {
+      // older browsers / insecure contexts — fall back to selecting the text
+      const range = document.createRange();
+      range.selectNode(document.getElementById(id));
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+    }
+  });
+});
+</script>
+
+</body>
+</html>

@@ -71,12 +71,41 @@ if [ -z "$_lib_dir" ]; then
       # Skip the probe when running as root (_bs_priv is empty).
       _bs_die_no_perms() {
         _bs_u=$(id -un 2> /dev/null || echo user)
+
+        if [ "${_bs_priv_reason:-}" = sudo-auth-failed ]; then
+          # We actually tried `sudo -v` and the auth handshake itself
+          # failed — wrong password, cancelled/timed-out prompt (e.g. a
+          # hardware-key tap). Says nothing about sudoers permissions.
+          printf '%s==> ERROR:%s sudo authentication did not succeed for %s.\n' \
+            "$_bs_red" "$_bs_rst" "$_bs_u" >&2
+          printf "       We ran 'sudo -v' to check your access and the authentication\n" >&2
+          printf '       attempt itself failed (wrong password, cancelled prompt, or an\n' >&2
+          printf '       auth timeout). This does NOT necessarily mean you lack sudo\n' >&2
+          printf '       permissions, only that this attempt failed.\n\n' >&2
+          printf "       Run 'sudo true' yourself to see the real error, then re-run\n" >&2
+          printf '       this install one-liner.\n\n' >&2
+          unset _bs_u
+          exit 1
+        fi
+
         printf '%s==> ERROR:%s %s is installed but %s is not permitted to use it.\n' \
           "$_bs_red" "$_bs_rst" "$_bs_priv" "$_bs_u" >&2
-        printf '       Typing a password will not help — your user is missing from\n' >&2
-        printf "       the sudoers/wheel group (or doas.conf has no 'permit' rule).\n\n" >&2
-        printf '       FIX — add %s to the right group, then reboot, then re-run\n' "$_bs_u" >&2
-        printf '       this install one-liner. Copy-paste:\n\n' >&2
+        if [ "${_bs_priv_reason:-}" = not-in-sudoers-group ]; then
+          printf '       %s is not in the sudo/wheel/admin group, which usually means no\n' "$_bs_u" >&2
+          printf '       sudo access — but this check only looks at group membership,\n' >&2
+          printf '       and that'"'"'s blind to per-user rules in /etc/sudoers.d/ (e.g.\n' >&2
+          printf '       hardware-key-gated sudo). If you already have working sudo\n' >&2
+          printf '       through such a rule, this is a false alarm — verify with:\n\n' >&2
+          printf '         sudo -l          # lists what you'"'"'re permitted to run\n' >&2
+          printf '         sudo true        # will prompt; success means you'"'"'re fine\n\n' >&2
+          printf '       If you truly don'"'"'t have sudo access, add %s to the right\n' "$_bs_u" >&2
+          printf '       group, then reboot, then re-run. Copy-paste:\n\n' >&2
+        else
+          printf '       Typing a password will not help — your user is missing from\n' >&2
+          printf "       the sudoers/wheel group (or doas.conf has no 'permit' rule).\n\n" >&2
+          printf '       FIX — add %s to the right group, then reboot, then re-run\n' "$_bs_u" >&2
+          printf '       this install one-liner. Copy-paste:\n\n' >&2
+        fi
         if [ "$_bs_priv" = sudo ]; then
           case "$_bs_id" in
             debian | ubuntu | kali)
@@ -106,7 +135,8 @@ if [ -z "$_lib_dir" ]; then
         fi
         printf '\n       (The reboot is so your shell picks up the new group. Logging\n' >&2
         printf '       out via the desktop GUI is not always enough.)\n\n' >&2
-        printf '       After reboot, verify with:  id -nG     (should list sudo or wheel)\n\n' >&2
+        printf '       After reboot, verify with:  id -nG     (should list sudo or wheel)\n' >&2
+        printf '       Or verify sudo access directly, any time:  sudo -l\n\n' >&2
         unset _bs_u
         exit 1
       }
@@ -120,13 +150,43 @@ if [ -z "$_lib_dir" ]; then
           # an earlier version of this probe misread as "in sudoers".
           # Membership in *any* of sudo/wheel/admin is sufficient
           # signal that the user can probably sudo. (`admin` covers
-          # old Ubuntu and macOS.) Edge case: per-user entries in
-          # /etc/sudoers.d/ with no group membership get false-positive
-          # bailed; power users can `sudo sh -c '...'` directly.
+          # old Ubuntu and macOS.) This is only a *fast-path* signal
+          # though — it's blind to per-user entries in /etc/sudoers.d/,
+          # so a negative here falls through to a live probe below.
+          _bs_priv_reason=""
           case " $(id -nG 2> /dev/null) " in
             *" sudo "* | *" wheel "* | *" admin "*) ;;
-            *) _bs_die_no_perms ;;
+            *)
+              # Group check inconclusive — a per-user /etc/sudoers.d/
+              # rule wouldn't show up here. The only way to know for
+              # sure is a *live* handshake, which needs a tty; skip it
+              # and fail closed (honestly) when we can't prompt.
+              if [ "${SHELL_BLING_NONINTERACTIVE:-0}" = 1 ] || [ ! -t 1 ]; then
+                _bs_priv_reason=not-in-sudoers-group
+                _bs_die_no_perms
+              fi
+              _bs_probe=$(sudo -v 2>&1 > /dev/null) || _bs_probe_rc=$?
+              case "${_bs_probe_rc:-0}" in
+                0) ;; # verified — sudo works, proceed
+                *)
+                  case "$_bs_probe" in
+                    *"not in the sudoers file"* | *"not allowed to run sudo"* | *"not permitted"*)
+                      _bs_priv_reason=not-in-sudoers
+                      ;;
+                    *)
+                      # Auth itself failed (wrong password, cancelled or
+                      # timed-out prompt) — not a permissions verdict.
+                      _bs_priv_reason=sudo-auth-failed
+                      ;;
+                  esac
+                  unset _bs_probe _bs_probe_rc
+                  _bs_die_no_perms
+                  ;;
+              esac
+              unset _bs_probe _bs_probe_rc
+              ;;
           esac
+          unset _bs_priv_reason
           ;;
         doas)
           # doas doesn't use group abstraction — permits are in
@@ -329,17 +389,66 @@ EOF
 # when the binary itself is missing.
 _priv_esc_no_perms_help_and_exit() {
   _u=$(id -un 2> /dev/null || echo user)
+
+  if [ "$PRIV_ESC_REASON" = sudo-auth-failed ]; then
+    # We actually tried `sudo -v` and the auth handshake itself failed —
+    # wrong password, cancelled or timed-out prompt (e.g. a hardware-key
+    # tap). This says nothing about sudoers permissions, so don't give
+    # group-membership advice.
+    err "'sudo' authentication did not succeed for '$_u'."
+    cat >&2 << EOF
+
+  We ran 'sudo -v' to check your access and the authentication attempt
+  itself failed (wrong password, cancelled prompt, or an auth timeout —
+  e.g. a missed hardware-key tap). This does NOT necessarily mean you
+  lack sudo permissions, only that this attempt failed.
+
+  Run 'sudo true' yourself to see the real error, then re-run this
+  install one-liner.
+
+EOF
+    unset _u
+    exit 1
+  fi
+
   err "'$PRIV_ESC' is installed, but '$_u' is not permitted to use it."
-  cat >&2 << EOF
+
+  if [ "$PRIV_ESC_REASON" = not-in-sudoers-group ]; then
+    # Group check only — id -nG can't see per-user /etc/sudoers.d/ rules,
+    # and we couldn't run a live probe (non-interactive or no tty) to
+    # check for one, so this may be a false alarm.
+    cat >&2 << EOF
+
+  shell-bling installs system packages, which requires root.
+  '$_u' is not in the sudo/wheel/admin group, which usually means no
+  sudo access — but this check only looks at group membership, and
+  that's blind to per-user rules in /etc/sudoers.d/ (e.g. hardware-key-
+  gated sudo). If you already have working sudo through such a rule,
+  this is a false alarm.
+
+  Re-run this installer WITHOUT SHELL_BLING_NONINTERACTIVE and with a
+  real terminal attached so it can actually attempt sudo and check for
+  sure, or verify yourself right now:
+
+    sudo -l          # lists what you're permitted to run, if anything
+    sudo true         # will prompt; success means you're fine
+
+  If you truly don't have sudo access, add '$_u' to the right group,
+  then reboot, then re-run this install one-liner. Copy-paste:
+
+EOF
+  else
+    cat >&2 << EOF
 
   shell-bling installs system packages, which requires root.
   '$PRIV_ESC' is on PATH but '$_u' is missing from the sudoers/wheel
-  group (or doas.conf has no 'permit' rule). Typing a password won't help.
+  group (or doas.conf has no 'permit' rule).
 
   FIX — add '$_u' to the right group, then reboot, then re-run this
   install one-liner. Copy-paste:
 
 EOF
+  fi
   if [ "$PRIV_ESC" = sudo ]; then
     case "$DISTRO" in
       debian | ubuntu)
@@ -373,6 +482,7 @@ EOF
   via the desktop GUI is not always enough.)
 
   After reboot, verify with:  id -nG     (should list sudo or wheel)
+  Or verify sudo access directly, any time:  sudo -l
 
 EOF
   unset _u
@@ -409,18 +519,22 @@ _start_sudo_keepalive() {
   [ "$PRIV_ESC" = doas ] && return 0
 
   # From here on, PRIV_ESC=sudo. Passwordless sudo (CI, NOPASSWD)?
-  # No keepalive needed.
+  # No prompt needed either way.
   if sudo -n true 2> /dev/null; then
-    log "Passwordless sudo detected; no password needed"
-    return 0
+    if [ "${PRIV_ESC_VERIFIED:-0}" = 1 ]; then
+      log "Sudo access already confirmed during preflight"
+    else
+      log "Passwordless sudo detected; no password needed"
+    fi
+  else
+    if [ "${SHELL_BLING_NONINTERACTIVE:-0}" = 1 ]; then
+      err "Non-interactive mode requested but sudo needs a password."
+      err "Configure passwordless sudo or run install.sh interactively."
+      exit 1
+    fi
+    log "Asking for your password once up front (sudo)"
+    sudo -v
   fi
-  if [ "${SHELL_BLING_NONINTERACTIVE:-0}" = 1 ]; then
-    err "Non-interactive mode requested but sudo needs a password."
-    err "Configure passwordless sudo or run install.sh interactively."
-    exit 1
-  fi
-  log "Asking for your password once up front (sudo)"
-  sudo -v
   # Keep the timestamp fresh until install finishes.
   (while true; do
     sudo -n true

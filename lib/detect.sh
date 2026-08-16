@@ -167,10 +167,24 @@ export OS_FAMILY DISTRO CODENAME VERSION_ID ARCH LIBC IS_WSL SUPPORT_TIER
 PRIV_ESC=""
 # PRIV_ESC_REASON — populated when detect_priv_esc returns 2 (binary on
 # PATH but the user has no permissions to use it). Values:
-#   not-in-sudoers   -> sudo exists; user is not in /etc/sudoers
-#   not-in-doasconf  -> doas exists; no matching permit rule
+#   not-in-sudoers       -> sudo exists; confirmed via a live `sudo -v`
+#                           handshake (or doas's -n probe) that the user
+#                           really has no permission
+#   not-in-sudoers-group -> sudo exists; user isn't in sudo/wheel/admin,
+#                           but we couldn't run a live probe (non-
+#                           interactive or no tty) to check for a
+#                           per-user /etc/sudoers.d/ rule. Ambiguous.
+#   sudo-auth-failed     -> sudo exists; a live `sudo -v` was attempted
+#                           but auth itself failed (wrong password,
+#                           cancelled/timed-out prompt). Says nothing
+#                           about sudoers membership.
+#   not-in-doasconf      -> doas exists; no matching permit rule
 PRIV_ESC_REASON=""
-export PRIV_ESC PRIV_ESC_REASON
+# PRIV_ESC_VERIFIED — set to 1 when detect_priv_esc actually proved sudo
+# access via a live `sudo -v` handshake (rather than just group
+# membership). Lets callers avoid re-prompting for a password.
+PRIV_ESC_VERIFIED=0
+export PRIV_ESC PRIV_ESC_REASON PRIV_ESC_VERIFIED
 
 # detect_priv_esc — populate PRIV_ESC based on uid + which escalation
 # binary is on PATH AND whether the user can actually use it.
@@ -185,6 +199,7 @@ export PRIV_ESC PRIV_ESC_REASON
 detect_priv_esc() {
   PRIV_ESC=""
   PRIV_ESC_REASON=""
+  PRIV_ESC_VERIFIED=0
   if [ "$(id -u 2> /dev/null || echo 0)" = 0 ]; then
     return 0
   fi
@@ -197,15 +212,41 @@ detect_priv_esc() {
     # on Debian 13 a non-sudoer gets "a password is required" because
     # sudo's auth check runs before its sudoers check. Membership in
     # any of sudo/wheel/admin (admin covers old Ubuntu + macOS) is
-    # the canonical signal.
-    # Edge case: per-user /etc/sudoers.d/ with no group membership
-    # gets false-positive return=2; power users have `sudo sh -c '...'`.
+    # the canonical *fast-path* signal.
     case " $(id -nG 2> /dev/null) " in
       *" sudo "* | *" wheel "* | *" admin "*)
         return 0
         ;;
+    esac
+    # Group check came back negative — but that's inconclusive, not a
+    # verdict: it structurally cannot see per-user rules in
+    # /etc/sudoers.d/ (common for pam_u2f/hardware-key-gated sudo). The
+    # only way to actually know is a *live* sudo handshake, which needs
+    # a tty and interactivity — skip it in non-interactive/no-tty
+    # contexts and fail closed like before, just with an honest reason.
+    if [ "${SHELL_BLING_NONINTERACTIVE:-0}" = 1 ] || [ ! -t 1 ]; then
+      PRIV_ESC_REASON=not-in-sudoers-group
+      return 2
+    fi
+    _sb_priv_e=$(sudo -v 2>&1 > /dev/null) || _sb_priv_rc=$?
+    case "${_sb_priv_rc:-0}" in
+      0)
+        unset _sb_priv_e _sb_priv_rc
+        PRIV_ESC_VERIFIED=1
+        return 0
+        ;;
       *)
-        PRIV_ESC_REASON=not-in-sudoers
+        case "$_sb_priv_e" in
+          *"not in the sudoers file"* | *"not allowed to run sudo"* | *"not permitted"*)
+            PRIV_ESC_REASON=not-in-sudoers
+            ;;
+          *)
+            # Auth itself failed (wrong password, cancelled/timed-out
+            # prompt) — that says nothing about sudoers membership.
+            PRIV_ESC_REASON=sudo-auth-failed
+            ;;
+        esac
+        unset _sb_priv_e _sb_priv_rc
         return 2
         ;;
     esac

@@ -548,19 +548,30 @@ TEALDEER_POSTINSTALL_HOOK=tealdeer_postinstall
 # be disastrous. Upstream publishes no signatures or checksums file — the
 # inline SHA256+SHA512 pins are the only verification (acceptable for a
 # rescue tool; same-channel risk is inherent to the upstream's choice).
-TOYBOX_VERSION=0.8.13
+#
+# The URLs below carry no version component — upstream overwrites them in
+# place on every release, so these pins go stale the day toybox ships. That
+# is a known and ACCEPTED cost: the hash mismatch is a loud, correct canary
+# telling us upstream moved, and we re-pin when it fires. Do not "fix" this
+# by mirroring the binary somewhere stable — breaking occasionally is the
+# feature. To re-pin: curl both URLs, sha256sum/sha512sum them, and confirm
+# `./toybox-x86_64 --version` matches TOYBOX_VERSION.
+#
+# Re-pin history:
+#   0.8.13 -> 0.8.14, upstream republished 2026-06-23 (caught by CI 2026-08-16)
+TOYBOX_VERSION=0.8.14
 TOYBOX_URL_amd64_gnu="https://landley.net/toybox/bin/toybox-x86_64"
-TOYBOX_SHA256_amd64_gnu=8c98795a15db31ea55c8065fed379db3669766b7a714c46b009d8bfb87b25ffd
-TOYBOX_SHA512_amd64_gnu=bae01b3bb5c617216bee0dc8152ee2b4d88f03e0c8e5f468520a60c636ce1444d6042d4ae78209bfb46184d44d3dbf12af8ec6742703a0abbe16e0c7fbd2e970
+TOYBOX_SHA256_amd64_gnu=836ba9d6821fb3bcd85f4e2c511115d677930796ef76418799e0df95526d4e65
+TOYBOX_SHA512_amd64_gnu=34c7afbd139fe6bd6194e3ea724e015d3037563bdb6e21ec3eb4b5bd756df55b65c7356e8436ef22246f1c6829821ac3c8cb661f3d46a205a29f2ec9c06c22f4
 TOYBOX_URL_amd64_musl="$TOYBOX_URL_amd64_gnu"
-TOYBOX_SHA256_amd64_musl=8c98795a15db31ea55c8065fed379db3669766b7a714c46b009d8bfb87b25ffd
-TOYBOX_SHA512_amd64_musl=bae01b3bb5c617216bee0dc8152ee2b4d88f03e0c8e5f468520a60c636ce1444d6042d4ae78209bfb46184d44d3dbf12af8ec6742703a0abbe16e0c7fbd2e970
+TOYBOX_SHA256_amd64_musl=836ba9d6821fb3bcd85f4e2c511115d677930796ef76418799e0df95526d4e65
+TOYBOX_SHA512_amd64_musl=34c7afbd139fe6bd6194e3ea724e015d3037563bdb6e21ec3eb4b5bd756df55b65c7356e8436ef22246f1c6829821ac3c8cb661f3d46a205a29f2ec9c06c22f4
 TOYBOX_URL_arm64_gnu="https://landley.net/toybox/bin/toybox-aarch64"
-TOYBOX_SHA256_arm64_gnu=b3508e5f51a0d429c1bda9d500d98d97dc0b86571762eeb099495eb238a8c52a
-TOYBOX_SHA512_arm64_gnu=cccb0bb55926727ef0ba86f66a19f913daffe8667d44676d491d6894436f6b69caad9b202532f81e693299e4c135fba3e6963f135ca6c40fa6c54a008193cf5d
+TOYBOX_SHA256_arm64_gnu=223b5ff5929371225d0bc62fb3b99a148692295fb6f85ad86bb924f689a55ea4
+TOYBOX_SHA512_arm64_gnu=5cafaa65481768579dbf5e24dd3c001b99c8d7ecd1693a5f429dae16528a1432ac81bd8b07d7c7c3d5cfec3c9e02711c0bc0e897ba40b7be59a475c9509f49c8
 TOYBOX_URL_arm64_musl="$TOYBOX_URL_arm64_gnu"
-TOYBOX_SHA256_arm64_musl=b3508e5f51a0d429c1bda9d500d98d97dc0b86571762eeb099495eb238a8c52a
-TOYBOX_SHA512_arm64_musl=cccb0bb55926727ef0ba86f66a19f913daffe8667d44676d491d6894436f6b69caad9b202532f81e693299e4c135fba3e6963f135ca6c40fa6c54a008193cf5d
+TOYBOX_SHA256_arm64_musl=223b5ff5929371225d0bc62fb3b99a148692295fb6f85ad86bb924f689a55ea4
+TOYBOX_SHA512_arm64_musl=5cafaa65481768579dbf5e24dd3c001b99c8d7ecd1693a5f429dae16528a1432ac81bd8b07d7c7c3d5cfec3c9e02711c0bc0e897ba40b7be59a475c9509f49c8
 TOYBOX_ARCHIVE=none
 TOYBOX_BIN_IN_ARCHIVE=.
 TOYBOX_INSTALL_AS=/usr/local/bin/toybox

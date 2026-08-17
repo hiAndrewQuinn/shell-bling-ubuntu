@@ -141,11 +141,23 @@ registry_fetch_all() {
       # it, a curl that stalls mid-stream — e.g. a GitHub Releases CDN node
       # rate-limiting one of our 24 parallel pulls — hangs forever and
       # wedges the whole lane until Jenkins' per-attempt timeout fires.
-      # 90s is generous over the largest tool (~60 MB nvim tarball on a
-      # 1 MB/s link = 60s) and snug under the 5-min docker-lane timeout
-      # even if all 3 retries time out.
+      #
+      # 900s, sized off the LARGEST tool, which is qsv at ~409 MB — not
+      # nvim (~60 MB), which the previous 90s budget was written against.
+      # 409 MB in 90s demands 4.5 MB/s sustained per lane; with 6 docker
+      # lanes in flight that's ~27 MB/s of uplink, well past what this
+      # link has after the recent downgrade. The result was qsv fetch
+      # failures on 19 of 30 lanes in CI build 65 (survivable — it falls
+      # back to the distro package — but noisy and slow). 900s covers
+      # 409 MB at ~450 KB/s, a floor a degraded consumer link still meets.
+      #
+      # Note this is per ATTEMPT: curl restarts the clock on each --retry,
+      # so a pathological tool can burn 3 x 900s. That is deliberately
+      # left to the outer harness timeout (15 min per docker lane) to cut
+      # off, rather than shrinking the budget to fit the worst case — a
+      # stall is rare, an under-budgeted large download was not.
       if curl --fail --silent --show-error --location \
-        --retry 3 --retry-delay 2 --connect-timeout 15 --max-time 90 \
+        --retry 3 --retry-delay 2 --connect-timeout 15 --max-time 900 \
         -o "$__sb_dest" "$__sb_url" 2> "$__sb_workdir/$__sb_t.fetch.log"; then
         printf 'ok\n%s\n' "$__sb_dest" > "$__sb_workdir/$__sb_t.status"
       else

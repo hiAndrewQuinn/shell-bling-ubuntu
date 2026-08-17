@@ -102,6 +102,19 @@ for line in $SMOKE_TESTS; do
   fi
 done
 
+# The FiraCode Nerd Font is installed on a best-effort basis — setup_kitty()
+# warns and continues when the download fails, because a missing font must
+# never break an otherwise good install. The cost of that leniency is that an
+# upstream URL change fails silently forever: nerd-fonts v3.5.0 deleted the
+# patched-fonts/ tree on 2026-08-02 and CI stayed green through builds 63-66
+# while installing no font at all. CI is where we make it loud. Every test
+# image is Linux and non-WSL, so setup_kitty() always takes the font path
+# here; SHELL_BLING_SKIP_FONT_CHECK=1 is the escape hatch if that changes.
+if [ "${SHELL_BLING_SKIP_FONT_CHECK:-0}" != 1 ] &&
+  [ ! -f "$HOME/.local/share/fonts/FiraCodeNerdFont-Retina.ttf" ]; then
+  FAILED="$FAILED\n  FiraCode Nerd Font (not installed — see the font pin in lib/kitty_setup.sh)"
+fi
+
 if [ -n "$FAILED" ]; then
   printf '==> smoke test FAIL:%b\n' "$FAILED"
   exit 1
